@@ -1,6 +1,8 @@
 .vscode
 dist
 
+.envrc
+
 # Logs
 logs
 *.log
