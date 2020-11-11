@@ -2,7 +2,7 @@ import Router             from '@koa/router'
 import { GoodChatConfig } from '../../types';
 
 /**
- * 
+ * Creates all the rest endpoints to read/write on conversations
  *
  * @export
  * @param {GoodChatConfig} config

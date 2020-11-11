@@ -2,7 +2,7 @@ import Router             from '@koa/router'
 import { GoodChatConfig } from '../../types';
 
 /**
- * 
+ * Creates all the necessary webhooks required by Smooch
  *
  * @export
  * @param {GoodChatConfig} config

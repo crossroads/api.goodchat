@@ -2,7 +2,7 @@ import Router             from '@koa/router'
 import { GoodChatConfig } from '../../types';
 
 /**
- * 
+ * Adds an authentication middleware
  *
  * @export
  * @param {GoodChatConfig} config

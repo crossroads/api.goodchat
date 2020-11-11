@@ -1,11 +1,12 @@
 import { expect }                 from 'chai';
-import { Test, SuperTest }        from 'supertest';
-import goodchat                   from '..'
+import Koa                        from 'koa';
+import goodchat                   from '../index'
 import { GoodChatAuthMode }       from '../lib/types';
+import { createAgent, TestAgent } from './helpers/agent';
 
 describe('GoodChat', () => {
-  let app = null;
-  let agent : SuperTest<Test>;
+  let app   : Koa
+  let agent : TestAgent
 
   before((done) => {
     app = goodchat({
@@ -16,7 +17,7 @@ describe('GoodChat', () => {
       authMode:               GoodChatAuthMode.NONE
     })
 
-    agent = require('supertest-koa-agent')(app)
+    agent = createAgent(app);
     done();
   });
 
