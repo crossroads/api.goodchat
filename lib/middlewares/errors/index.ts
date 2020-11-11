@@ -5,7 +5,6 @@ import { capitalize } from 'lodash'
  * 
  *
  * @export
-
  */
 export default () => {
 
