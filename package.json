@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/patrixr/api.goodchat.git"
+    "url": "git+https://github.com/crossroads/api.goodchat.git"
   },
   "keywords": [
     "omnichannel",
@@ -22,9 +22,9 @@
   "author": "Crossroads Foundation",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/patrixr/api.goodchat/issues"
+    "url": "https://github.com/crossroads/api.goodchat/issues"
   },
-  "homepage": "https://github.com/patrixr/api.goodchat#readme",
+  "homepage": "https://github.com/crossroads/api.goodchat#readme",
   "devDependencies": {
     "@types/chai": "^4.2.14",
     "@types/koa-json": "^2.0.18",
