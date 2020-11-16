@@ -1,0 +1,58 @@
+{
+  "name": "api.goodchat",
+  "version": "1.0.0",
+  "description": "omnichannel chat solution built for structured integrations with transactional systems",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "TS_NODE_PROJECT=tsconfig.spec.json nyc mocha -r ts-node/register 'specs/**/*.spec.ts'",
+    "coverage:json": "nyc report --reporter=json",
+    "coverage:html": "nyc report --reporter=html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crossroads/api.goodchat.git"
+  },
+  "keywords": [
+    "omnichannel",
+    "crossroads",
+    "chat",
+    "goodcity"
+  ],
+  "author": "Crossroads Foundation",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/crossroads/api.goodchat/issues"
+  },
+  "homepage": "https://github.com/crossroads/api.goodchat#readme",
+  "devDependencies": {
+    "@types/chai": "^4.2.14",
+    "@types/koa-json": "^2.0.18",
+    "@types/koa__router": "^8.0.3",
+    "@types/mocha": "^8.0.3",
+    "@types/require-dir": "^1.0.1",
+    "@types/supertest": "^2.0.10",
+    "chai": "^4.2.0",
+    "mocha": "^8.2.0",
+    "nyc": "^15.1.0",
+    "supertest": "^5.0.0",
+    "supertest-koa-agent": "^0.3.2",
+    "ts-node": "^9.0.0",
+    "tsc-watch": "^4.2.9",
+    "typescript": "^4.0.3"
+  },
+  "dependencies": {
+    "@koa/router": "^9.4.0",
+    "@types/debug": "^4.1.5",
+    "@types/koa": "^2.11.5",
+    "@types/lodash": "^4.14.162",
+    "@types/sunshine-conversations-client": "git://github.com/patrixr/types-sunshine-conversations-client.git#master",
+    "debug": "^4.2.0",
+    "koa": "^2.13.0",
+    "koa-body": "^4.2.0",
+    "koa-json": "^2.0.2",
+    "lodash": "^4.17.20",
+    "require-dir": "^1.2.0",
+    "sunshine-conversations-client": "^9.0.1"
+  }
+}

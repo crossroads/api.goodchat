@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "ts-node": {
+    "files": true
+  },
+  "compilerOptions": {
+    "types": ["node", "mocha", "chai", "supertest", "goodcity"]
+  }
+}
