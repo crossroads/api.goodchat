@@ -1,0 +1,10 @@
+{
+  "title": "Goodchat",
+  "errors": {
+    "unknown": "Internal Server Error",
+    "token": {
+      "token_invalid": "代碼不正確",
+      "token_expired": "代碼已過期"
+    }
+  }
+}
