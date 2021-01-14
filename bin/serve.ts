@@ -1,4 +1,3 @@
-import ngrok                from 'ngrok'
 import goodchat             from '..'
 import logger               from '../lib/utils/logger'
 import { read }             from '../lib/utils/env'
@@ -6,26 +5,27 @@ import { GoodChatAuthMode } from '../lib/types';
 
 const port  = read.number('PORT', 8000);
 const env   = read('NODE_ENV', 'development')
-const dev   = /dev/.test(env);
+const dev   = /development/.test(env);
 
-const { info } = logger('startup');
+const { info, error, panic } = logger('server');
 
 // -------------------------
 // Helpers
 // -------------------------
 
 async function resolveHost() : Promise<string> {
-  const host = !dev ? read.strict('GOODCHAT_HOST') : await (() => {
-    info('firing up ngrok'); 
-    return ngrok.connect({
-      proto: 'http',
-      addr:   port
-    });
-  })()
+  if (!dev) {
+    return read.strict('GOODCHAT_HOST');
+  }
 
-  info(`goodchat app hosted on ${host}`)
+  const ngrok = await import('ngrok');
 
-  return host;
+  info('firing up ngrok'); 
+
+  return ngrok.connect({
+    proto: 'http',
+    addr:   port
+  });
 }
 
 function authMode() : GoodChatAuthMode {
@@ -33,24 +33,34 @@ function authMode() : GoodChatAuthMode {
 }
 
 // -------------------------
+// Graceful exit
+// -------------------------
+
+process.on('uncaughtException', panic);
+
+// -------------------------
 // Startup
 // -------------------------
 
 (async function() {
-  const { info } = logger('startup');
+  try {
+    info(`${env} environment detected`);
 
-  info(`${env} environment detected`);
+    const host = await resolveHost();
 
-  const app = goodchat({
-    goodchatHost:           await resolveHost(),
-    smoochAppId:            read.strict('SMOOCH_APP_ID'),
-    smoochApiKeyId:         read.strict('SMOOCH_API_KEY_ID'),
-    smoochApiKeySecret:     read.strict('SMOOCH_API_KEY_SECRET'),
-    authMode:               authMode()
-  })
+    const app = await goodchat({
+      goodchatHost:           host,
+      smoochAppId:            read.strict('SMOOCH_APP_ID'),
+      smoochApiKeyId:         read.strict('SMOOCH_API_KEY_ID'),
+      smoochApiKeySecret:     read.strict('SMOOCH_API_KEY_SECRET'),
+      authMode:               authMode()
+    })
 
-  app.listen(port, () => {
-    info(`goodchat server running on port ${port}`);
-  });
-
+    app.listen(port, () => {
+      info(`goodchat host: ${host}`);
+      info(`goodchat port: ${port}`);
+    });
+  } catch (e) {
+    panic(e)
+  }
 })();

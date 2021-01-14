@@ -1,17 +1,19 @@
 import { expect }                 from 'chai';
-import Koa                        from 'koa';
 import goodchat                   from '../../../index'
-import { GoodChatAuthMode }       from '../../../lib/types';
 import { createAgent, TestAgent } from '../../spec_helpers/agent';
+import {
+  GoodchatApp,
+  GoodChatAuthMode
+} from '../../../lib/types';
 
 describe('API', () => {
 
   describe('Error handling', () => {
-    let app   : Koa
+    let app   : GoodchatApp
     let agent : TestAgent
 
-    before((done) => {
-      app = goodchat({
+    before(async () => {
+      app = await goodchat({
         smoochAppId:            'sample_app_id',
         smoochApiKeyId:         'sample_api_key_id',
         smoochApiKeySecret:     'sample_api_key_secret',
@@ -20,7 +22,6 @@ describe('API', () => {
       })
 
       agent = createAgent(app);
-      done();
     });
 
     context('Unhandled routes', () => {

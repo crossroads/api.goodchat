@@ -1,4 +1,5 @@
-import Koa    from 'koa'
+import Koa            from 'koa'
+import { wrapError }  from '../utils/errors'
 
 /**
  * Ensures a well formated error is returned when either of the following happens
@@ -8,7 +9,6 @@ import Koa    from 'koa'
  * @export
  */
 export default () => {
-
   return async (ctx : Koa.Context, next: Koa.Next) => {
     try {
       await next()
@@ -16,11 +16,10 @@ export default () => {
         ctx.throw(404)
       }
     } catch (err) {
-      ctx.status  = err.status  || 500
-      ctx.body = {
-        status: ctx.status,
-        error:  err.message || 'Internal Server Error'
-      }
+      const ex = wrapError(err);
+
+      ctx.status = ex.status;
+      ctx.body   = ex.serialize();
     }
   }
 }
