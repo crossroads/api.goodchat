@@ -3,7 +3,7 @@ import Koa                        from 'koa'
 import i18n                       from '../../../lib/middlewares/i18n'
 import _                          from 'lodash'
 import { createBlankServer }      from '../../spec_helpers/agent'
-import { KoaChatContext } from '../../../lib/types'
+import { KoaChatContext }         from '../../../lib/types'
 
 const MOCK_LOCALES = {
   en: { title: "GoodChat En" },
@@ -11,12 +11,12 @@ const MOCK_LOCALES = {
 }
 
 describe('Middlewares/i18n', () => {
-  const server = async (mw : Function) => {
-    return createBlankServer([ await i18n({ staticCatalog: MOCK_LOCALES }), mw ])
+  const server = (mw : Function) => {
+    return createBlankServer([ i18n({ staticCatalog: MOCK_LOCALES }), mw ])
   };
 
   it('adds an i18n instance to the context', async () => {
-    const [app, agent] = await server((ctx: KoaChatContext, next: Koa.Next) => {
+    const [app, agent] = server((ctx: KoaChatContext, next: Koa.Next) => {
       expect(ctx.i18n).to.exist
       expect(ctx.i18n.__).to.exist
       ctx.status = 200;
@@ -27,7 +27,7 @@ describe('Middlewares/i18n', () => {
   })
 
   it('translates a string using ctx.i18n.__', async () => {
-    const [app, agent] = await server((ctx: KoaChatContext, next: Koa.Next) => {
+    const [app, agent] = server((ctx: KoaChatContext, next: Koa.Next) => {
       ctx.status = 200;
       ctx.body = { text: ctx.i18n.__("title") };
       next();

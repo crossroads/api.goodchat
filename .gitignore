@@ -1,7 +1,8 @@
-.vscode
+.vscode/settings.json
 dist
 
 .envrc
+.env
 
 # Logs
 logs

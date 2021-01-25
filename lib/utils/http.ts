@@ -20,3 +20,8 @@ export function parseAcceptLanguage(input = "", supportedLanguages = ['en']) : s
 
   return lang || DEFAULT_LANG;
 }
+
+export function prefixProtocol(endpoint : string, protocol : string = 'https') : string {
+  const rexp = new RegExp(`^${protocol}://`);
+  return rexp.test(endpoint) ? endpoint : `${protocol}://${endpoint}`;
+}

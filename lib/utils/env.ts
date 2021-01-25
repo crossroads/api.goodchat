@@ -5,7 +5,7 @@ const { error } = logger('env');
 
 interface ReadFunction<T> {
   (key : string, defaultVal? : T) : T,
-  strict: (key : string) => T,
+  strict: (key : string) => T
 }
 
 type StringReader     = ReadFunction<string>;

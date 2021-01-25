@@ -1,7 +1,8 @@
 import Koa                from 'koa'
 import bodyParser         from 'koa-bodyparser'
-import hooks              from './lib/middlewares/hooks'
+import hooks              from './lib/middlewares/webhooks'
 import rest               from './lib/middlewares/rest'
+import log                from './lib/middlewares/logs'
 import authentication     from './lib/middlewares/authentication'
 import rescue             from './lib/middlewares/rescue'
 import i18n               from './lib/middlewares/i18n'
@@ -27,15 +28,21 @@ export const goochat = async (config: GoodChatConfig) : Promise<GoodchatApp> => 
 
   app.use((ctx: KoaChatContext, next: Koa.Next) => {
     ctx.config = config;
-    next();
+    return next();
   });
 
+  app.use(log());
   app.use(rescue());
   app.use(i18n());
   app.use(bodyParser());
   app.use(await authentication(config));
-  app.use(await hooks(config));
   app.use(await rest(config));
+  app.use(await hooks({
+    config: config,
+    callback: (trigger, payload) => {
+      console.log("Webhook " + trigger);
+    }
+  }));
 
   return app;
 }

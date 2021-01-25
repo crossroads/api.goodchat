@@ -1,6 +1,6 @@
-import { I18n } from 'i18n'
-import * as i18nService from '../services/i18n'
-import _ from 'lodash'
+import { I18n }           from 'i18n'
+import * as i18nService   from '../services/i18n'
+import _                  from 'lodash'
 
 /**
  * Generic error class with serialization options

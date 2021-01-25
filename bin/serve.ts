@@ -1,13 +1,15 @@
 import goodchat             from '..'
+import axios                from 'axios'
 import logger               from '../lib/utils/logger'
+import { promisify }        from 'util'
 import { read }             from '../lib/utils/env'
-import { GoodChatAuthMode } from '../lib/types';
+import { GoodChatAuthMode } from '../lib/types'
 
 const port  = read.number('PORT', 8000);
 const env   = read('NODE_ENV', 'development')
 const dev   = /development/.test(env);
 
-const { info, error, panic } = logger('server');
+const { info, panic } = logger('server');
 
 // -------------------------
 // Helpers
@@ -33,7 +35,7 @@ function authMode() : GoodChatAuthMode {
 }
 
 // -------------------------
-// Graceful exit
+// Slightly less dramatic exit
 // -------------------------
 
 process.on('uncaughtException', panic);
@@ -56,11 +58,19 @@ process.on('uncaughtException', panic);
       authMode:               authMode()
     })
 
-    app.listen(port, () => {
-      info(`goodchat host: ${host}`);
-      info(`goodchat port: ${port}`);
-    });
+    const boot = promisify(app.listen.bind(app)) as Function
+    
+    await boot(port)
+
+    info(`goodchat host: ${host}`);
+    info(`goodchat port: ${port}`);
+
+    if (dev) {
+      await axios.post('/webhooks/connect', {}, { baseURL: host });
+    }
+
   } catch (e) {
     panic(e)
   }
 })();
+
