@@ -58,8 +58,8 @@ export const goochat = async (config: GoodChatConfig) : Promise<GoodchatApp> => 
   app.use(await rest(config));
   app.use(await hooks({
     config: config,
-    callback: (trigger, payload) => {
-      console.log("Webhook " + trigger);
+    callback: (event) => {
+      console.log("Webhook", event);
     }
   }));
 

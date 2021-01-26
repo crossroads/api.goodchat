@@ -6,6 +6,7 @@ import sinon, { SinonStub }               from 'sinon'
 import { createBlankServer, TestAgent }   from '../../spec_helpers/agent'
 import { BLANK_CONFIG }                   from '../../samples/config'
 import { IntegrationsApi }                from 'sunshine-conversations-client'
+import { GoodchatError } from '../../../lib/utils/errors'
 
 type AnyFunc = (...args: any[]) => any
 
@@ -136,6 +137,61 @@ describe('Middlewares/webhooks', () => {
           expect(createIntegration.callCount).to.equal(1)
         });
       });
+    })
+
+    describe('POST /trigger', () => {
+      it('fires the configured callback', async () => {
+        let cb = sinon.stub();
+        let [_, agent] = await newServer(cb);
+
+        await agent
+          .post('/webhooks/trigger')
+          .set('Accept', 'application/json')
+          .send({
+            events: [{}]
+          })
+          .expect(200);
+
+        expect(cb.callCount).to.eq(1)
+      })
+
+      it('fires the configured callback once per event', async () => {
+        let cb = sinon.stub();
+        let [_, agent] = await newServer(cb);
+
+        const ev1 = { id: 1 };
+        const ev2 = { id: 2 };
+        const ev3 = { id: 3 };
+
+        await agent
+          .post('/webhooks/trigger')
+          .set('Accept', 'application/json')
+          .send({
+            events: [ev1, ev2, ev3]
+          })
+          .expect(200);
+
+        expect(cb.callCount).to.eq(3)
+        expect(cb.withArgs(ev1).callCount).to.eq(1)
+        expect(cb.withArgs(ev2).callCount).to.eq(1)
+        expect(cb.withArgs(ev3).callCount).to.eq(1)
+      })
+
+      it('propagates callback errors to the response', async () => {
+        let cb = sinon.stub().throws(new GoodchatError('bad', 422, {}, 'SpecialError'))
+        let [_, agent] = await newServer(cb);
+
+        await agent
+          .post('/webhooks/trigger')
+          .set('Accept', 'application/json')
+          .send({ events: [{}] })
+          .expect({
+            error: 'bad',
+            status: 422,
+            type: "SpecialError"
+          })
+          .expect(422);
+      })
     })
 
     describe('GET /integrations', () => {

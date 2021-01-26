@@ -1,27 +1,19 @@
 import Router               from '@koa/router'
 import { GoodChatConfig }   from '../../types'
 import logger               from '../../utils/logger'
+import { setupWebhooks }    from './setup'
+import { each }             from '../../../lib/utils/async'
+import { IntegrationsApi }  from 'sunshine-conversations-client'
 import {
-  webhookExists,
-  setupWebhooks
-} from './setup'
-import {
-  WebhooksApi,
-  IntegrationsApi,
-  Page,
-  IntegrationListFilter,
-} from 'sunshine-conversations-client'
-
-const FETCH_OPTS = {
-  page: new Page(),
-  filter: new IntegrationListFilter()
-}
+  WebhookEvent,
+  WebhookPayload
+} from './typing'
 
 const { info } = logger('webhooks');
 
 interface WebhooksParams {
   config:   GoodChatConfig,
-  callback: (trigger: string, payload: any) => any
+  callback: (event: WebhookEvent) => any
 }
 
 /**
@@ -33,15 +25,9 @@ interface WebhooksParams {
 export default async function(params: WebhooksParams) {
   const { config, callback }    = params;
   const router                  = new Router({ prefix: '/webhooks' });
-  const webhooksApi             = new WebhooksApi();
   const integrationApi          = new IntegrationsApi();
 
   info('mouting webhook api');
-
-  const readers = {
-    integrations: () => integrationApi.listIntegrations(config.smoochAppId, FETCH_OPTS),
-    webhooks: (integrationId: string) => webhooksApi.listWebhooks(config.smoochAppId, integrationId)
-  }
 
   router.post('/connect', async (ctx) => {
     ctx.body    = await setupWebhooks(config);
@@ -49,12 +35,16 @@ export default async function(params: WebhooksParams) {
   });
 
   router.post('/trigger', async (ctx) => {
+    const payload = ctx.request.body as WebhookPayload
+
+    await each(payload.events, callback);
+
     ctx.body    = { ok: true };
     ctx.status  = 200;
   });
 
   router.get('/integrations', async (ctx) => {
-    const { integrations } = await readers.integrations();
+    const { integrations } = await integrationApi.listIntegrations(config.smoochAppId, { page: Object, filter: {} });
 
     ctx.body    = integrations;
     ctx.status  = 200;

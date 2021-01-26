@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Logger | api.goodchat - v1.0.0</title>
+	<title>WebhookPayload | api.goodchat - v1.0.0</title>
 	<meta name="description" content="Documentation for api.goodchat - v1.0.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,32 +55,24 @@
 					<a href="../modules.html">api.goodchat - v1.0.0</a>
 				</li>
 				<li>
-					<a href="../modules/lib_utils_logger.html">lib/utils/logger</a>
+					<a href="../modules/lib_middlewares_webhooks_typing.html">lib/middlewares/webhooks/typing</a>
 				</li>
 				<li>
-					<a href="lib_utils_logger.logger.html">Logger</a>
+					<a href="lib_middlewares_webhooks_typing.webhookpayload.html">WebhookPayload</a>
 				</li>
 			</ul>
-			<h1>Interface Logger&lt;T&gt;</h1>
+			<h1>Interface WebhookPayload</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-type-parameters">
-				<h3>Type parameters</h3>
-				<ul class="tsd-type-parameters">
-					<li>
-						<h4>T = <span class="tsd-signature-type">debug.Debugger</span></h4>
-					</li>
-				</ul>
-			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">Logger</span>
+						<span class="target">WebhookPayload</span>
 					</li>
 				</ul>
 			</section>
@@ -91,10 +83,9 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="lib_utils_logger.logger.html#error" class="tsd-kind-icon">error</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="lib_utils_logger.logger.html#info" class="tsd-kind-icon">info</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="lib_utils_logger.logger.html#panic" class="tsd-kind-icon">panic</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="lib_utils_logger.logger.html#verbose" class="tsd-kind-icon">verbose</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="lib_middlewares_webhooks_typing.webhookpayload.html#app" class="tsd-kind-icon">app</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="lib_middlewares_webhooks_typing.webhookpayload.html#events" class="tsd-kind-icon">events</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="lib_middlewares_webhooks_typing.webhookpayload.html#webhook" class="tsd-kind-icon">webhook</a></li>
 							</ul>
 						</section>
 					</div>
@@ -103,65 +94,53 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="error" class="tsd-anchor"></a>
-					<h3>error</h3>
-					<div class="tsd-signature tsd-kind-icon">error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">T</span></div>
+					<a name="app" class="tsd-anchor"></a>
+					<h3>app</h3>
+					<div class="tsd-signature tsd-kind-icon">app<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/31b8b07/lib/utils/logger.ts#L6">lib/utils/logger.ts:6</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="info" class="tsd-anchor"></a>
-					<h3>info</h3>
-					<div class="tsd-signature tsd-kind-icon">info<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">T</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/31b8b07/lib/utils/logger.ts#L5">lib/utils/logger.ts:5</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="panic" class="tsd-anchor"></a>
-					<h3>panic</h3>
-					<div class="tsd-signature tsd-kind-icon">panic<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>arg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">never</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/31b8b07/lib/utils/logger.ts#L8">lib/utils/logger.ts:8</a></li>
+							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/31b8b07/lib/middlewares/webhooks/typing.ts#L82">lib/middlewares/webhooks/typing.ts:82</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
-							<li class="tsd-parameter-signature">
-								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-interface">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>arg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span></li>
-								</ul>
-								<ul class="tsd-descriptions">
-									<li class="tsd-description">
-										<h4 class="tsd-parameters-title">Parameters</h4>
-										<ul class="tsd-parameters">
-											<li>
-												<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>arg: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
-											</li>
-										</ul>
-										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">never</span></h4>
-									</li>
-								</ul>
+							<li class="tsd-parameter">
+								<h5>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
 							</li>
 						</ul>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="verbose" class="tsd-anchor"></a>
-					<h3>verbose</h3>
-					<div class="tsd-signature tsd-kind-icon">verbose<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">T</span></div>
+					<a name="events" class="tsd-anchor"></a>
+					<h3>events</h3>
+					<div class="tsd-signature tsd-kind-icon">events<span class="tsd-signature-symbol">:</span> <a href="lib_middlewares_webhooks_typing.webhookevent.html" class="tsd-signature-type" data-tsd-kind="Interface">WebhookEvent</a><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/31b8b07/lib/utils/logger.ts#L7">lib/utils/logger.ts:7</a></li>
+							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/31b8b07/lib/middlewares/webhooks/typing.ts#L89">lib/middlewares/webhooks/typing.ts:89</a></li>
 						</ul>
 					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="webhook" class="tsd-anchor"></a>
+					<h3>webhook</h3>
+					<div class="tsd-signature tsd-kind-icon">webhook<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>version<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/31b8b07/lib/middlewares/webhooks/typing.ts#L85">lib/middlewares/webhooks/typing.ts:85</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>version<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
 				</section>
 			</section>
 		</div>
@@ -201,7 +180,7 @@
 					<li class=" tsd-kind-module">
 						<a href="../modules/lib_middlewares_webhooks_setup.html">lib/middlewares/webhooks/setup</a>
 					</li>
-					<li class=" tsd-kind-module">
+					<li class="current tsd-kind-module">
 						<a href="../modules/lib_middlewares_webhooks_typing.html">lib/middlewares/webhooks/typing</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -222,40 +201,43 @@
 					<li class=" tsd-kind-module">
 						<a href="../modules/lib_utils_http.html">lib/utils/http</a>
 					</li>
-					<li class="current tsd-kind-module">
+					<li class=" tsd-kind-module">
 						<a href="../modules/lib_utils_logger.html">lib/utils/logger</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-reference tsd-parent-kind-module">
-						<a href="../modules/lib_utils_logger.html#default" class="tsd-kind-icon">default</a>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="lib_middlewares_webhooks_typing.sunshinecontentbase.html" class="tsd-kind-icon">Sunshine<wbr>Content<wbr>Base</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="lib_middlewares_webhooks_typing.sunshineimagecontent.html" class="tsd-kind-icon">Sunshine<wbr>Image<wbr>Content</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="lib_middlewares_webhooks_typing.sunshinetextcontent.html" class="tsd-kind-icon">Sunshine<wbr>Text<wbr>Content</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="lib_middlewares_webhooks_typing.webhookevent.html" class="tsd-kind-icon">Webhook<wbr>Event</a>
 					</li>
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter">
-						<a href="lib_utils_logger.logger.html" class="tsd-kind-icon">Logger</a>
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="lib_middlewares_webhooks_typing.webhookpayload.html" class="tsd-kind-icon">Webhook<wbr>Payload</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="lib_utils_logger.logger.html#error" class="tsd-kind-icon">error</a>
+								<a href="lib_middlewares_webhooks_typing.webhookpayload.html#app" class="tsd-kind-icon">app</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="lib_utils_logger.logger.html#info" class="tsd-kind-icon">info</a>
+								<a href="lib_middlewares_webhooks_typing.webhookpayload.html#events" class="tsd-kind-icon">events</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="lib_utils_logger.logger.html#panic" class="tsd-kind-icon">panic</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="lib_utils_logger.logger.html#verbose" class="tsd-kind-icon">verbose</a>
+								<a href="lib_middlewares_webhooks_typing.webhookpayload.html#webhook" class="tsd-kind-icon">webhook</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="../modules/lib_utils_logger.html#createlogger" class="tsd-kind-icon">create<wbr>Logger</a>
-					</li>
 				</ul>
 			</nav>
 		</div>

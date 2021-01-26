@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>lib/middlewares/webhooks | api.goodchat - v1.0.0</title>
+	<title>GoodChatAuthMode | api.goodchat - v1.0.0</title>
 	<meta name="description" content="Documentation for api.goodchat - v1.0.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,13 @@
 					<a href="../modules.html">api.goodchat - v1.0.0</a>
 				</li>
 				<li>
-					<a href="lib_middlewares_webhooks.html">lib/middlewares/webhooks</a>
+					<a href="../modules/index.html">index</a>
+				</li>
+				<li>
+					<a href="index.goodchatauthmode.html">GoodChatAuthMode</a>
 				</li>
 			</ul>
-			<h1>Module lib/middlewares/webhooks</h1>
+			<h1>Enumeration GoodChatAuthMode</h1>
 		</div>
 	</div>
 </header>
@@ -70,47 +73,36 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Functions</h3>
+							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="lib_middlewares_webhooks.html#default" class="tsd-kind-icon">default</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="index.goodchatauthmode.html#jwt" class="tsd-kind-icon">JWT</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="index.goodchatauthmode.html#none" class="tsd-kind-icon">NONE</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Functions</h2>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="default" class="tsd-anchor"></a>
-					<h3>default</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">default<span class="tsd-signature-symbol">(</span>params<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">WebhooksParams</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Middleware</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ParameterizedContext</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">RouterParamContext</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/31b8b07/lib/middlewares/webhooks/index.ts#L17">lib/middlewares/webhooks/index.ts:17</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Creates all the necessary webhooks required by Smooch</p>
-								</div>
-								<dl class="tsd-comment-tags">
-									<dt>export</dt>
-									<dd></dd>
-								</dl>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>params: <span class="tsd-signature-type">WebhooksParams</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Middleware</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ParameterizedContext</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">RouterParamContext</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
+				<h2>Enumeration members</h2>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="jwt" class="tsd-anchor"></a>
+					<h3>JWT</h3>
+					<div class="tsd-signature tsd-kind-icon">JWT<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;jwt&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/31b8b07/lib/types.ts#L5">lib/types.ts:5</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="none" class="tsd-anchor"></a>
+					<h3>NONE</h3>
+					<div class="tsd-signature tsd-kind-icon">NONE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;none&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/31b8b07/lib/types.ts#L6">lib/types.ts:6</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 		</div>
@@ -120,66 +112,96 @@
 					<li class=" ">
 						<a href="../modules.html">Modules</a>
 					</li>
-					<li class=" tsd-kind-module">
-						<a href="index.html">index</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_initializers.html">lib/initializers</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_initializers_smooch.html">lib/initializers/smooch</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_middlewares_authentication.html">lib/middlewares/authentication</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_middlewares_i18n.html">lib/middlewares/i18n</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_middlewares_logs.html">lib/middlewares/logs</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_middlewares_rescue.html">lib/middlewares/rescue</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_middlewares_rest.html">lib/middlewares/rest</a>
-					</li>
 					<li class="current tsd-kind-module">
-						<a href="lib_middlewares_webhooks.html">lib/middlewares/webhooks</a>
+						<a href="../modules/index.html">index</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="lib_middlewares_webhooks_setup.html">lib/middlewares/webhooks/setup</a>
+						<a href="../modules/lib_initializers.html">lib/initializers</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="lib_middlewares_webhooks_typing.html">lib/middlewares/webhooks/typing</a>
+						<a href="../modules/lib_initializers_smooch.html">lib/initializers/smooch</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="lib_services_i18n.html">lib/services/i18n</a>
+						<a href="../modules/lib_middlewares_authentication.html">lib/middlewares/authentication</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="lib_types.html">lib/types</a>
+						<a href="../modules/lib_middlewares_i18n.html">lib/middlewares/i18n</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="lib_utils_async.html">lib/utils/async</a>
+						<a href="../modules/lib_middlewares_logs.html">lib/middlewares/logs</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="lib_utils_env.html">lib/utils/env</a>
+						<a href="../modules/lib_middlewares_rescue.html">lib/middlewares/rescue</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="lib_utils_errors.html">lib/utils/errors</a>
+						<a href="../modules/lib_middlewares_rest.html">lib/middlewares/rest</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="lib_utils_http.html">lib/utils/http</a>
+						<a href="../modules/lib_middlewares_webhooks.html">lib/middlewares/webhooks</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="lib_utils_logger.html">lib/utils/logger</a>
+						<a href="../modules/lib_middlewares_webhooks_setup.html">lib/middlewares/webhooks/setup</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/lib_middlewares_webhooks_typing.html">lib/middlewares/webhooks/typing</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/lib_services_i18n.html">lib/services/i18n</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/lib_types.html">lib/types</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/lib_utils_async.html">lib/utils/async</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/lib_utils_env.html">lib/utils/env</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/lib_utils_errors.html">lib/utils/errors</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/lib_utils_http.html">lib/utils/http</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/lib_utils_logger.html">lib/utils/logger</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/index.html#default" class="tsd-kind-icon">default</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-enum tsd-parent-kind-module">
+						<a href="index.goodchatauthmode.html" class="tsd-kind-icon">Good<wbr>Chat<wbr>Auth<wbr>Mode</a>
+						<ul>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="index.goodchatauthmode.html#jwt" class="tsd-kind-icon">JWT</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="index.goodchatauthmode.html#none" class="tsd-kind-icon">NONE</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/index.goodchatconfig.html" class="tsd-kind-icon">Good<wbr>Chat<wbr>Config</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/index.koachatcontext.html" class="tsd-kind-icon">Koa<wbr>Chat<wbr>Context</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/index.koachatstate.html" class="tsd-kind-icon">Koa<wbr>Chat<wbr>State</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/index.html#goodchatapp" class="tsd-kind-icon">Goodchat<wbr>App</a>
+					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="lib_middlewares_webhooks.html#default" class="tsd-kind-icon">default</a>
+						<a href="../modules/index.html#goochat" class="tsd-kind-icon">goochat</a>
 					</li>
 				</ul>
 			</nav>

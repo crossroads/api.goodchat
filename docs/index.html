@@ -58,44 +58,220 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<a href="#apigoodchat" id="apigoodchat" style="color: inherit; text-decoration: none;">
-					<h1>api.goodchat</h1>
+				<a href="#goodchat-api" id="goodchat-api" style="color: inherit; text-decoration: none;">
+					<h1>Goodchat API</h1>
 				</a>
-				<a href="#running-the-server" id="running-the-server" style="color: inherit; text-decoration: none;">
-					<h2>Running the server</h2>
-				</a>
-				<a href="#in-development-mode" id="in-development-mode" style="color: inherit; text-decoration: none;">
-					<h3>In development mode</h3>
-				</a>
-				<pre><code class="language-bash"><span style="color: #000000">$&gt; npm run dev</span>
-</code></pre>
-				<p>Running the server</p>
-				<pre><code class="language-bash"><span style="color: #000000">$&gt; npm run build</span>
-<span style="color: #000000">$&gt; npm run start</span>
-</code></pre>
-				<a href="#manually" id="manually" style="color: inherit; text-decoration: none;">
-					<h3>Manually</h3>
-				</a>
-				<pre><code class="language-bash"><span style="color: #000000">$&gt; tsc</span>
-<span style="color: #000000">$&gt; node dist/bin/serve.js</span>
-</code></pre>
-				<a href="#configuring-the-server" id="configuring-the-server" style="color: inherit; text-decoration: none;">
-					<h2>Configuring the server</h2>
-				</a>
-				<a href="#environment-variables" id="environment-variables" style="color: inherit; text-decoration: none;">
-					<h3>Environment variables</h3>
-				</a>
+				<p>GoodChat API is a standalone <a href="https://nodejs.org">node.js</a> web service allowing easy integration with <a href="https://smooch.io">smooch.io</a></p>
+				<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+				<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 				<ul>
-					<li><code>NODE_ENV</code>  - defines the environment it&#39;s running on. Options:<ul>
-							<li><code>production</code> </li>
-							<li><code>staging</code><ul>
-									<li><code>development</code> (default)</li>
+					<li><a href="#design-notes">Design notes</a><ul>
+							<li><a href="#features">Features</a></li>
+						</ul>
+					</li>
+					<li><a href="#documentation">Documentation</a></li>
+					<li><a href="#prerequisites">Prerequisites</a><ul>
+							<li><a href="#dependencies">Dependencies</a></li>
+							<li><a href="#sunshine-conversations">Sunshine Conversations</a><ul>
+									<li><a href="#credentials">Credentials</a></li>
+									<li><a href="#terminology">Terminology</a></li>
+									<li><a href="#guides">Guides</a></li>
+									<li><a href="#steps">Steps</a></li>
 								</ul>
 							</li>
 						</ul>
 					</li>
+					<li><a href="#running-the-server">Running the server</a><ul>
+							<li><a href="#manually">Manually</a></li>
+							<li><a href="#on-top-of-an-existing-koa-app">On top of an existing Koa app</a></li>
+							<li><a href="#using-the-ready-made-cli-script">Using the ready-made CLI script</a></li>
+							<li><a href="#running-in-development-mode-with-autoreload">Running in development mode (with autoreload)</a><ul>
+									<li><a href="#ngrok">Ngrok</a></li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+					<li><a href="#cli-configuration">CLI Configuration</a><ul>
+							<li><a href="#environment-variables">Environment variables</a></li>
+						</ul>
+					</li>
+					<li><a href="#testing">Testing</a></li>
+					<li><a href="#license">License</a></li>
+				</ul>
+				<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+				<a href="#design-notes" id="design-notes" style="color: inherit; text-decoration: none;">
+					<h3>Design notes</h3>
+				</a>
+				<p>The main purpose of Goodchat&#39;s is to integrate multiple chat channels to the <a href="https://goodcity.hk">GoodCity Project</a>, allowing people to donate goods directly via their existing channels.</p>
+				<p>That said, GoodChat was designed as a generic and reusable product and therefore holds <em>no</em> shared business logic with the GoodCity. We intend this project, and therefore the code to be:</p>
+				<ul>
+					<li>Generic</li>
+					<li>Reusable</li>
+					<li>Configurable</li>
+				</ul>
+				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
+					<h4>Features</h4>
+				</a>
+				<ul>
+					<li><input checked="" disabled="" type="checkbox"> Integration with Sunshine Conversations</li>
+					<li><input checked="" disabled="" type="checkbox"> Webhooks support</li>
+					<li><input disabled="" type="checkbox"> Websocket support (notifications, new messages)</li>
+					<li><input disabled="" type="checkbox"> Configuratbe Push Notification support    </li>
+					<li><input disabled="" type="checkbox"> REST API (accessing all of Sunshine Conversations)</li>
+					<li><input disabled="" type="checkbox"> Configurable authentication methods (allowing easy integration with existing systems)</li>
+				</ul>
+				<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
+					<h2>Documentation</h2>
+				</a>
+				<p>The code-generated documentation can be accessed <a href="https://crossroads.github.io/api.goodchat/">here</a></p>
+				<p>You can re-generate the documentation using the following npm script:</p>
+				<pre><code class="language-bash"><span style="color: #000000">$&gt; npm run document</span>
+</code></pre>
+				<p>Updating the README table of contents:</p>
+				<pre><code class="language-bash"><span style="color: #000000">$&gt; npm run doctoc</span>
+</code></pre>
+				<a href="#prerequisites" id="prerequisites" style="color: inherit; text-decoration: none;">
+					<h2>Prerequisites</h2>
+				</a>
+				<a href="#dependencies" id="dependencies" style="color: inherit; text-decoration: none;">
+					<h3>Dependencies</h3>
+				</a>
+				<p>Install the node dependencies using</p>
+				<pre><code class="language-bash"><span style="color: #000000">$&gt; npm install</span>
+</code></pre>
+				<a href="#sunshine-conversations" id="sunshine-conversations" style="color: inherit; text-decoration: none;">
+					<h3>Sunshine Conversations</h3>
+				</a>
+				<a href="#credentials" id="credentials" style="color: inherit; text-decoration: none;">
+					<h4>Credentials</h4>
+				</a>
+				<p>Running GoodChat requires the following Sunshine Conversation credentials:</p>
+				<ul>
+					<li>An APP ID - Identifying which Sunshine app this is</li>
+					<li>A Key ID - Acts as a username when authenticating to Sunshine</li>
+					<li>A Key Secret - Acts as a password when authenticating to Sunshine</li>
+				</ul>
+				<a href="#terminology" id="terminology" style="color: inherit; text-decoration: none;">
+					<h4>Terminology</h4>
+				</a>
+				<ul>
+					<li>Smooch: The omnichat api used was previously known as Smooch, you may see that name in some places as it hasn&#39;t been fully renamed to &quot;Sunshine Conversations&quot; yet</li>
+					<li>An integration: A chat service which connects to and integrates with Sunshine. e.g Whatsapp, Messenger, ...</li>
+					<li>A custom integration: A chat service of our own which connects and integrates with Sunshine. GoodChat is a custom integration (it will auto-register itself)</li>
+				</ul>
+				<a href="#guides" id="guides" style="color: inherit; text-decoration: none;">
+					<h4>Guides</h4>
+				</a>
+				<details>
+					<summary>How to create a Sunshine Application</summary>
+					<a href="#steps" id="steps" style="color: inherit; text-decoration: none;">
+						<h5>Steps</h5>
+					</a>
+					<ol>
+						<li>Login to your Sunshine Conversations account</li>
+						<li>Head to your dashboard (<a href="https://app.smooch.io">https://app.smooch.io</a>)</li>
+				<li>On the right side click on the <code>Create new app</code> button</details>
+				</li>
+				</ol>
+				<details>
+					<summary>How to create a Sunshine ID/Secret Key pair</summary>
+					<a href="#steps-1" id="steps-1" style="color: inherit; text-decoration: none;">
+						<h4>Steps</h4>
+					</a>
+					<ol>
+						<li>Once your app is created, click on it from your dashboard view</li>
+						<li>On the app header bar, click on <code>Settings</code></li>
+						<li>At the bottom of the settings page, you will find your api keys. Use the <code>Create new API key</code> action for a new one</li>
+				<li>Write down the ID/Secret key pair, as well as the APP ID</details>
+				</li>
+				</ol>
+				<a href="#running-the-server" id="running-the-server" style="color: inherit; text-decoration: none;">
+					<h2>Running the server</h2>
+				</a>
+				<a href="#manually" id="manually" style="color: inherit; text-decoration: none;">
+					<h3>Manually</h3>
+				</a>
+				<p>You may create an instance of GoodChat, and start it manually as shown below</p>
+				<pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">goodchat</span><span style="color: #000000">, { </span><span style="color: #001080">GoodChatAuthMode</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@goodcity/api.goodchat&#039;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">app</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">goodchat</span><span style="color: #000000">({</span>
+<span style="color: #000000">  </span><span style="color: #001080">smoochAppId:</span><span style="color: #000000">            </span><span style="color: #A31515">&#039;sample_app_id&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">smoochApiKeyId:</span><span style="color: #000000">         </span><span style="color: #A31515">&#039;sample_api_key_id&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">smoochApiKeySecret:</span><span style="color: #000000">     </span><span style="color: #A31515">&#039;sample_api_key_secret&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">goodchatHost:</span><span style="color: #000000">           </span><span style="color: #A31515">&#039;localhost:8000&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">authMode:</span><span style="color: #000000">               </span><span style="color: #001080">GoodChatAuthMode</span><span style="color: #000000">.</span><span style="color: #0070C1">NONE</span>
+<span style="color: #000000">})</span>
+
+<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">listen</span><span style="color: #000000">(</span><span style="color: #098658">8000</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">info</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Goodchat is running&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">})</span>
+</code></pre>
+				<a href="#on-top-of-an-existing-koa-app" id="on-top-of-an-existing-koa-app" style="color: inherit; text-decoration: none;">
+					<h3>On top of an existing Koa app</h3>
+				</a>
+				<p>By using <a href="https://github.com/koajs/mount">koa-mount</a>, GoodChat can be used as an additional middleware you can inject into your existing server.</p>
+				<p>Example:</p>
+				<pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">Koa</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;koa&#039;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">mount</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;koa-mount&#039;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">goodchat</span><span style="color: #000000">, { </span><span style="color: #001080">GoodChatAuthMode</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@goodcity/api.goodchat&#039;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">app</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Koa</span><span style="color: #000000">(); </span><span style="color: #008000">// Your server</span>
+
+<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #795E26">mount</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/chat&#039;</span><span style="color: #000000">, </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">goodchat</span><span style="color: #000000">({</span>
+<span style="color: #000000">  </span><span style="color: #001080">smoochAppId:</span><span style="color: #000000">            </span><span style="color: #A31515">&#039;sample_app_id&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">smoochApiKeyId:</span><span style="color: #000000">         </span><span style="color: #A31515">&#039;sample_api_key_id&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">smoochApiKeySecret:</span><span style="color: #000000">     </span><span style="color: #A31515">&#039;sample_api_key_secret&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">goodchatHost:</span><span style="color: #000000">           </span><span style="color: #A31515">&#039;localhost:8000&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">authMode:</span><span style="color: #000000">               </span><span style="color: #001080">GoodChatAuthMode</span><span style="color: #000000">.</span><span style="color: #0070C1">NONE</span>
+<span style="color: #000000">})));</span>
+</code></pre>
+				<a href="#using-the-ready-made-cli-script" id="using-the-ready-made-cli-script" style="color: inherit; text-decoration: none;">
+					<h3>Using the ready-made CLI script</h3>
+				</a>
+				<p>An pre-written startup script exists under the <code>/bin</code> folder to run the server. It can be used easily thanks to the following npm scripts: </p>
+				<p>Build the project</p>
+				<pre><code class="language-bash"><span style="color: #000000">$&gt; npm run build</span>
+</code></pre>
+				<p>Run it</p>
+				<pre><code class="language-bash"><span style="color: #000000">$&gt; npm run start</span>
+</code></pre>
+				<a href="#running-in-development-mode-with-autoreload" id="running-in-development-mode-with-autoreload" style="color: inherit; text-decoration: none;">
+					<h3>Running in development mode (with autoreload)</h3>
+				</a>
+				<pre><code class="language-bash"><span style="color: #000000">$&gt; npm run dev</span>
+</code></pre>
+				<a href="#ngrok" id="ngrok" style="color: inherit; text-decoration: none;">
+					<h4>Ngrok</h4>
+				</a>
+				<p>When running the server in a development environment (NODE_ENV=development), the startup script will initiate an <a href="https://www.npmjs.com/package/ngrok">ngrok</a> tunnel in order to have callable webhooks.</p>
+				<a href="#cli-configuration" id="cli-configuration" style="color: inherit; text-decoration: none;">
+					<h2>CLI Configuration</h2>
+				</a>
+				<a href="#environment-variables" id="environment-variables" style="color: inherit; text-decoration: none;">
+					<h3>Environment variables</h3>
+				</a>
+				<p>When running the server from an NPM script, the server can be configured using the following environment variables</p>
+				<ul>
+					<li><code>NODE_ENV</code>  - defines the environment it&#39;s running on. Options:<ul>
+							<li><code>production</code> </li>
+							<li><code>staging</code></li>
+							<li><code>development</code> (default)</li>
+						</ul>
+					</li>
 					<li><code>NO_AUTH</code> - if set to &quot;true&quot; or &quot;yes&quot;, will no support any form of authentication (good for testing)</li>
 				</ul>
+				<a href="#testing" id="testing" style="color: inherit; text-decoration: none;">
+					<h2>Testing</h2>
+				</a>
+				<p>Goodchat specs are written using <a href="https://www.npmjs.com/package/mocha">Mocha</a>, they are all located under the <code>spec/</code> folder.</p>
+				<p>Run the specs using the following command:</p>
+				<pre><code class="language-bash"><span style="color: #000000">$&gt; npm run </span><span style="color: #795E26">test</span>
+</code></pre>
+				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+					<h2>License</h2>
+				</a>
+				<p>Copyright © 2020 by <a href="https://www.crossroads.org.hk">Crossroads Foundation Ltd</a></p>
+				<p>All rights reserved. No part of this software may be reproduced, distributed, or transmitted in any form or by any means, including photocopying, recording, or other electronic or mechanical methods, without the prior written permission of Crossroads Foundation Ltd. For permission requests, write to Crossroads Foundation Ltd., addressed “Attention: CTO” using the general contact details found on <a href="https://www.crossroads.org.hk">www.crossroads.org.hk</a>.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -133,6 +309,9 @@
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/lib_middlewares_webhooks_setup.html">lib/middlewares/webhooks/setup</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_middlewares_webhooks_typing.html">lib/middlewares/webhooks/typing</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/lib_services_i18n.html">lib/services/i18n</a>
