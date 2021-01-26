@@ -66,4 +66,6 @@ export const goochat = async (config: GoodChatConfig) : Promise<GoodchatApp> => 
   return app;
 }
 
-export default goochat;
+export * from './lib/types'
+
+export default goochat

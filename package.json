@@ -15,7 +15,8 @@
     "coverage:html": "nyc report --reporter=html",
     "copy:assets": "cp -r locales ./dist",
     "clean": "rm -rf dist",
-    "document": "typedoc --includeVersion"
+    "document": "typedoc --includeVersion",
+    "doctoc": "doctoc README.md"
   },
   "repository": {
     "type": "git",
@@ -52,6 +53,7 @@
     "@types/sunshine-conversations-client": "git://github.com/patrixr/types-sunshine-conversations-client.git#master",
     "@types/supertest": "^2.0.10",
     "chai": "^4.2.0",
+    "doctoc": "^2.0.0",
     "mocha": "^8.2.0",
     "ngrok": "^3.3.0",
     "nyc": "^15.1.0",
