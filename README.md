@@ -54,7 +54,13 @@ The code-generated documentation can be accessed [here](https://crossroads.githu
 You can re-generate the documentation using the following npm script:
 
 ```bash
-npm run document
+$> npm run document
+```
+
+Updating the README table of contents:
+
+```bash
+$> npm run doctoc
 ```
 
 ## Prerequisites
@@ -120,7 +126,7 @@ const app = await goodchat({
 })
 
 app.listen(8000, () => {
-	console.info('Goodchat is running');
+  console.info('Goodchat is running');
 })
 ```
 
