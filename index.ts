@@ -32,7 +32,7 @@ import {
  * @param {GoodChatConfig} config
  * @returns {Promise<GoodchatApp>}
  */
-export const goochat = async (config: GoodChatConfig) : Promise<GoodchatApp> => {
+export const goodchat = async (config: GoodChatConfig) : Promise<GoodchatApp> => {
   const app : GoodchatApp = new Koa();
 
   // ----------------------
@@ -68,4 +68,4 @@ export const goochat = async (config: GoodChatConfig) : Promise<GoodchatApp> => 
 
 export * from './lib/types'
 
-export default goochat
+export default goodchat
