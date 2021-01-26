@@ -2,7 +2,7 @@ import Koa            from 'koa'
 import { wrapError }  from '../utils/errors'
 
 /**
- * Ensures a well formated error is returned when either of the following happens
+ * Middleware that ensures a well formated error is returned when either of the following happens
  *  - No route was found
  *  - The route raised an error
  *

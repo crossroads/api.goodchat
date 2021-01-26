@@ -1,13 +1,38 @@
 import debug  from 'debug'
 import _      from 'lodash'
 
-function fill(count: number, char: string = ' ') : string {
-  return _.range(count).map(() => char).join('');
+export interface Logger<T = debug.Debugger> {
+  info:     T,
+  error:    T,
+  verbose:  T,
+  panic:    (...arg: any[]) => never
 }
 
-export default function (name = 'goodchat') {
+/**
+ * Creates a Logger object with the following methods
+ * 
+ * - info
+ * - error
+ * - verbose
+ * - panic (terminates)
+ *
+ * Example:
+ * 
+ * ```typescript
+ * import logger from './logger'
+ * 
+ * const { info, error } = logger('myApp');
+ * 
+ * info('cool')
+ * error('not cool')
+ * ```
+ * 
+ * @export
+ * @param {string} [name='goodchat']
+ * @returns {Logger}
+ */
+export function createLogger (name = 'goodchat') : Logger {
   const panic = debug(`${name}:panic`);
-  const shout = debug(`${name}:shout`);
 
   return {
     info: debug(`${name}:info`),
@@ -17,19 +42,8 @@ export default function (name = 'goodchat') {
     panic: ((arg : any) : never => {
       panic(arg);
       return process.exit(1);
-    }),
-
-    shout: (arg : string) => {
-      const lines = arg.split('\n');
-      const len   = Math.max(..._.map(lines, 'length')) + 6;
-
-      let out = lines.map(l => `  ${l} ${fill(len - l.length)}`);
-
-      shout([
-        fill(len, '*'),
-        ...out,
-        fill(len, '*')
-      ].join('\n'))
-    }
+    })
   };
 };
+
+export default createLogger;

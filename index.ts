@@ -13,6 +13,25 @@ import {
   KoaChatContext
 } from './lib/types'
 
+/**
+ * Creates a goodchat Koa application
+ *
+ * ```typescript
+ *  const app = goodchat({
+ *   smoochAppId:            'sample_app_id',
+ *   smoochApiKeyId:         'sample_api_key_id',
+ *   smoochApiKeySecret:     'sample_api_key_secret',
+ *   goodchatHost:           'localhost:8000',
+ *   authMode:                GoodChatAuthMode.NONE
+ *  })
+ * 
+ *  app.listen(8000, () => ...)
+ * ```
+ * 
+ * @exports
+ * @param {GoodChatConfig} config
+ * @returns {Promise<GoodchatApp>}
+ */
 export const goochat = async (config: GoodChatConfig) : Promise<GoodchatApp> => {
   const app : GoodchatApp = new Koa();
 

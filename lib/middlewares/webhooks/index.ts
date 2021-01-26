@@ -17,7 +17,7 @@ const FETCH_OPTS = {
   filter: new IntegrationListFilter()
 }
 
-const { info, shout } = logger('webhooks');
+const { info } = logger('webhooks');
 
 interface WebhooksParams {
   config:   GoodChatConfig,
@@ -37,20 +37,6 @@ export default async function(params: WebhooksParams) {
   const integrationApi          = new IntegrationsApi();
 
   info('mouting webhook api');
-
-  // if (await webhookExists(config) === false) {
-  //   shout(`
-  //     === Webhook Support ===
-
-  //     The current server instance is not yet connected to the sunshine triggers
-  //     A custom integration should be created
-
-  //     To create an integration, use the following endpoint
-  //       POST /webhooks/connect
-
-  //     Hostname: ${config.goodchatHost}
-  //   `)
-  // }
 
   const readers = {
     integrations: () => integrationApi.listIntegrations(config.smoochAppId, FETCH_OPTS),

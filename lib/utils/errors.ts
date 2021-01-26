@@ -39,6 +39,13 @@ export class GoodchatError<T = any> extends Error {
   }
 }
 
+/**
+ * Wraps an error of unknown kind into a GoodchatError
+ *
+ * @export
+ * @param {unknown} err
+ * @returns {GoodchatError}
+ */
 export function wrapError(err: unknown) : GoodchatError {
   if (err instanceof GoodchatError) {
     return err;

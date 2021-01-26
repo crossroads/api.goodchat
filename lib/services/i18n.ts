@@ -10,6 +10,13 @@ export const defaultLanguage = 'en';
 
 export const supportedLanguages = _.keys(catalog);
 
+/**
+ * Instanciates a pre-configured I18n object (node-i18n)
+ *
+ * @export
+ * @param {Partial<i18n.ConfigurationOptions>} [options={}]
+ * @returns {I18n}
+ */
 export function initialize(options : Partial<i18n.ConfigurationOptions> = {}) : I18n {
   const service = new i18n.I18n();
 
