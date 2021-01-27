@@ -1,6 +1,6 @@
-import { I18n } from 'i18n'
-import * as i18nService from '../services/i18n'
-import _ from 'lodash'
+import { I18n }           from 'i18n'
+import * as i18nService   from '../services/i18n'
+import _                  from 'lodash'
 
 /**
  * Generic error class with serialization options
@@ -39,6 +39,13 @@ export class GoodchatError<T = any> extends Error {
   }
 }
 
+/**
+ * Wraps an error of unknown kind into a GoodchatError
+ *
+ * @export
+ * @param {unknown} err
+ * @returns {GoodchatError}
+ */
 export function wrapError(err: unknown) : GoodchatError {
   if (err instanceof GoodchatError) {
     return err;

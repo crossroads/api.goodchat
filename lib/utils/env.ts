@@ -5,7 +5,7 @@ const { error } = logger('env');
 
 interface ReadFunction<T> {
   (key : string, defaultVal? : T) : T,
-  strict: (key : string) => T,
+  strict: (key : string) => T
 }
 
 type StringReader     = ReadFunction<string>;
@@ -18,6 +18,23 @@ type EnvReader = ReadFunction<string> & {
   number: NumberReader
 }
 
+/**
+ * Environment read method, supports:
+ * - normal string reads with default values
+ * - strict reads with process termination
+ * - boolean reads
+ * - number reads
+ * 
+ * e.g
+ * 
+ * ```typescript
+ *  read('NODE_ENV', 'development')
+ *  read.strict('GITHUB_TOKEN')
+ *  read.number('PORT', 8000)
+ *  read.bool('IS_TRUE')
+ *  read.number.strict('NUM')
+ * ```
+ */
 export const read : EnvReader = (() => {
 
   const anyReader = (key : string, defaultVal? : any) : any => {
@@ -55,4 +72,3 @@ export const read : EnvReader = (() => {
   }, readers.string)
 })();
 
-export default { read }

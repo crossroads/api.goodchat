@@ -1,7 +1,8 @@
 import Koa                from 'koa'
 import bodyParser         from 'koa-bodyparser'
-import hooks              from './lib/middlewares/hooks'
+import hooks              from './lib/middlewares/webhooks'
 import rest               from './lib/middlewares/rest'
+import log                from './lib/middlewares/logs'
 import authentication     from './lib/middlewares/authentication'
 import rescue             from './lib/middlewares/rescue'
 import i18n               from './lib/middlewares/i18n'
@@ -12,7 +13,26 @@ import {
   KoaChatContext
 } from './lib/types'
 
-export const goochat = async (config: GoodChatConfig) : Promise<GoodchatApp> => {
+/**
+ * Creates a goodchat Koa application
+ *
+ * ```typescript
+ *  const app = goodchat({
+ *   smoochAppId:            'sample_app_id',
+ *   smoochApiKeyId:         'sample_api_key_id',
+ *   smoochApiKeySecret:     'sample_api_key_secret',
+ *   goodchatHost:           'localhost:8000',
+ *   authMode:                GoodChatAuthMode.NONE
+ *  })
+ * 
+ *  app.listen(8000, () => ...)
+ * ```
+ * 
+ * @exports
+ * @param {GoodChatConfig} config
+ * @returns {Promise<GoodchatApp>}
+ */
+export const goodchat = async (config: GoodChatConfig) : Promise<GoodchatApp> => {
   const app : GoodchatApp = new Koa();
 
   // ----------------------
@@ -27,17 +47,25 @@ export const goochat = async (config: GoodChatConfig) : Promise<GoodchatApp> => 
 
   app.use((ctx: KoaChatContext, next: Koa.Next) => {
     ctx.config = config;
-    next();
+    return next();
   });
 
+  app.use(log());
   app.use(rescue());
   app.use(i18n());
   app.use(bodyParser());
   app.use(await authentication(config));
-  app.use(await hooks(config));
   app.use(await rest(config));
+  app.use(await hooks({
+    config: config,
+    callback: (event) => {
+      console.log("Webhook", event);
+    }
+  }));
 
   return app;
 }
 
-export default goochat;
+export * from './lib/types'
+
+export default goodchat
