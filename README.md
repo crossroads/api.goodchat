@@ -1,5 +1,8 @@
 # Goodchat API
 
+[![forthebadge](https://forthebadge.com/images/badges/made-with-typescript.svg)](https://forthebadge.com)
+[![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
+
 GoodChat API is a standalone [node.js](https://nodejs.org) web service allowing easy integration with [smooch.io](https://smooch.io)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
