@@ -54,14 +54,14 @@ export const goodchat = async (config: GoodChatConfig) : Promise<GoodchatApp> =>
   app.use(rescue());
   app.use(i18n());
   app.use(bodyParser());
-  app.use(await authentication(config));
-  app.use(await rest(config));
   app.use(await hooks({
     config: config,
     callback: (event) => {
       console.log("Webhook", event);
     }
   }));
+  app.use(await authentication(config));
+  app.use(await rest(config));
 
   return app;
 }

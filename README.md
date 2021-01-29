@@ -47,6 +47,8 @@ That said, GoodChat was designed as a generic and reusable product and therefore
 - [ ] REST API (accessing all of Sunshine Conversations)
 - [ ] Configurable authentication methods (allowing easy integration with existing systems)
 
+<img src="./design/goodchat_integration.png" alt="drawing" width="700"/>
+
 ## Documentation
 
 The code-generated documentation can be accessed [here](https://crossroads.github.io/api.goodchat/)

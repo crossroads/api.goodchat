@@ -51,7 +51,7 @@
       "outputCapture": "std",
       "internalConsoleOptions": "openOnSessionStart",
       "env": {
-        "DEBUG": "*",
+        "DEBUG": "*:info,*:error,*:verbose,*:panic,*:shout",
         "DEBUG_COLORS": "true",
         "NODE_ENV": "development"
       }
