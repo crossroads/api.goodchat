@@ -1,5 +1,6 @@
 import goodchat             from '..'
 import axios                from 'axios'
+import http                 from 'http'
 import logger               from '../lib/utils/logger'
 import { promisify }        from 'util'
 import { read }             from '../lib/utils/env'
@@ -50,15 +51,22 @@ process.on('uncaughtException', panic);
 
     const host = await resolveHost();
 
-    const app = await goodchat({
+    const [app, io] = await goodchat({
       goodchatHost:           host,
       smoochAppId:            read.strict('SMOOCH_APP_ID'),
       smoochApiKeyId:         read.strict('SMOOCH_API_KEY_ID'),
       smoochApiKeySecret:     read.strict('SMOOCH_API_KEY_SECRET'),
-      authMode:               authMode()
+      authMode:               authMode(),
+      subscriptions: {
+        redis: {}
+      }
     })
+    
+    const server = http.createServer(app.callback());
 
-    const boot = promisify(app.listen.bind(app)) as Function
+    io.attach(server);
+
+    const boot = promisify(server.listen.bind(server)) as Function
     
     await boot(port)
 

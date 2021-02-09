@@ -13,7 +13,7 @@ describe('API', () => {
     let agent : TestAgent
 
     before(async () => {
-      app = await goodchat({
+      [app] = await goodchat({
         smoochAppId:            'sample_app_id',
         smoochApiKeyId:         'sample_api_key_id',
         smoochApiKeySecret:     'sample_api_key_secret',
