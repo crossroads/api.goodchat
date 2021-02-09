@@ -34,6 +34,10 @@ export default async function(params: WebhooksParams) {
     ctx.status  = 200;
   });
 
+  router.head('/trigger', (ctx) => {
+    ctx.status = 200
+  });
+
   router.post('/trigger', async (ctx) => {
     const payload = ctx.request.body as WebhookPayload
 

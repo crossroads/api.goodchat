@@ -5,6 +5,7 @@
     "token": {
       "token_invalid": "Invalid token",
       "token_expired": "Expired token"
-    }
+    },
+    "sunshine_error": "Sunshine Integration Error"
   }
 }

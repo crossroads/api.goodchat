@@ -122,7 +122,7 @@ You may create an instance of GoodChat, and start it manually as shown below
 ```typescript
 import goodchat, { GoodChatAuthMode } from '@goodcity/api.goodchat'
 
-const app = await goodchat({
+const [app] = await goodchat({
   smoochAppId:            'sample_app_id',
   smoochApiKeyId:         'sample_api_key_id',
   smoochApiKeySecret:     'sample_api_key_secret',
@@ -133,28 +133,6 @@ const app = await goodchat({
 app.listen(8000, () => {
   console.info('Goodchat is running');
 })
-```
-
-### On top of an existing Koa app
-
-By using [koa-mount](https://github.com/koajs/mount), GoodChat can be used as an additional middleware you can inject into your existing server.
-
-Example:
-
-```typescript
-import Koa from 'koa'
-import mount from 'koa-mount'
-import goodchat, { GoodChatAuthMode } from '@goodcity/api.goodchat'
-
-const app = new Koa(); // Your server
-
-app.use(mount('/chat', await goodchat({
-  smoochAppId:            'sample_app_id',
-  smoochApiKeyId:         'sample_api_key_id',
-  smoochApiKeySecret:     'sample_api_key_secret',
-  goodchatHost:           'localhost:8000',
-  authMode:               GoodChatAuthMode.NONE
-})));
 ```
 
 ### Using the ready-made CLI script
