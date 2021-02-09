@@ -9,7 +9,7 @@ const { info } = logger('subscriptions');
 
 const createAdapter = require('socket.io-ioredis');
 
-export interface SubscrptionsConfig {
+export interface SubscriptionsConfig {
   redis?: Redis.RedisOptions
 }
 
@@ -17,10 +17,10 @@ export interface SubscrptionsConfig {
  * Returns a socket.io server which handles subscriptions to Sunshine data
  * 
  * @exports
- * @param {SubscrptionsConfig} config
+ * @param {SubscriptionsConfig} config
  * @returns {Server}
  */
-export const subscriptions = async (config : SubscrptionsConfig) : Promise<Server> => {
+export const subscriptions = async (config : SubscriptionsConfig) : Promise<Server> => {
   info('initializing socket.io server');
 
   // --- Create server

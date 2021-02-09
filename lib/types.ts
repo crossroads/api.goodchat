@@ -1,6 +1,6 @@
 import { I18n }               from "i18n";
 import Koa                    from "koa"
-import { SubscrptionsConfig } from "./subscriptions"
+import { SubscriptionsConfig } from "./subscriptions"
 
 export type Maybe<T> = T|null 
 
@@ -15,7 +15,7 @@ export interface GoodChatConfig {
   smoochApiKeySecret:     string
   goodchatHost:           string
   authMode:               GoodChatAuthMode,
-  subscriptions?:         SubscrptionsConfig
+  subscriptions?:         SubscriptionsConfig
 }
 
 export interface KoaChatContext extends Koa.Context {
