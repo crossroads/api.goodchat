@@ -16,7 +16,12 @@
     "copy:assets": "cp -r locales ./dist",
     "clean": "rm -rf dist",
     "document": "typedoc --includeVersion",
-    "doctoc": "doctoc README.md"
+    "doctoc": "doctoc README.md",
+    "postinstall": "npm run prisma:generate",
+    "prisma:generate": "prisma generate",
+    "db:migrate:new": "prisma migrate dev --create-only --preview-feature",
+    "db:migrate:dev": "prisma migrate dev --preview-feature",
+    "db:migrate:prod": "prisma migrate deploy --preview-feature"
   },
   "repository": {
     "type": "git",
@@ -51,7 +56,6 @@
     "@types/require-dir": "^1.0.1",
     "@types/sinon": "^9.0.8",
     "@types/sinon-chai": "^3.2.5",
-    "@types/socket.io": "^2.1.13",
     "@types/sunshine-conversations-client": "git://github.com/patrixr/types-sunshine-conversations-client.git#master",
     "@types/supertest": "^2.0.10",
     "chai": "^4.2.0",
@@ -59,6 +63,7 @@
     "mocha": "^8.2.0",
     "ngrok": "^3.3.0",
     "nyc": "^15.1.0",
+    "prisma": "^2.17.0",
     "sinon": "^9.2.1",
     "sinon-chai": "^3.5.0",
     "supertest": "^5.0.0",
@@ -70,6 +75,7 @@
   },
   "dependencies": {
     "@koa/router": "^9.4.0",
+    "@prisma/client": "^2.17.0",
     "axios": "^0.21.1",
     "debug": "^4.2.0",
     "i18n": "^0.13.2",
@@ -81,8 +87,6 @@
     "lodash-patterns": "^1.1.6",
     "redis": "^3.0.2",
     "require-dir": "^1.2.0",
-    "socket.io": "^3.1.0",
-    "socket.io-ioredis": "^1.4.1",
     "sunshine-conversations-client": "^9.0.1"
   }
 }

@@ -8,7 +8,6 @@ import * as i18n                  from '../../../lib/middlewares/i18n'
 import * as webhooks              from '../../../lib/middlewares/webhooks'
 import * as authentication        from '../../../lib/middlewares/authentication'
 import * as rest                  from '../../../lib/middlewares/rest'
-import * as subscriptions         from '../../../lib/subscriptions'
 import { GoodChatAuthMode }       from '../../../lib/types';
 
 describe('Bootstrap', () => {
@@ -40,12 +39,4 @@ describe('Bootstrap', () => {
       });
     });
   });
-
-  describe('Modules', () => {
-    it('starts up the subscription module', async () => {
-      const spy = sinon.spy(subscriptions, 'default');
-      await boot();
-      expect(spy.callCount).to.eq(1);
-    })
-  })
 });

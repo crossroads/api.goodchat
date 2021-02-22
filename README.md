@@ -27,6 +27,8 @@ GoodChat API is a standalone [node.js](https://nodejs.org) web service allowing 
 - [CLI Configuration](#cli-configuration)
   - [Environment variables](#environment-variables)
 - [Testing](#testing)
+- [Database](#database)
+  - [Migrations](#migrations)
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -181,6 +183,18 @@ Run the specs using the following command:
 ```bash
 $> npm run test
 ```
+
+## Database
+
+### Migrations
+
+Please refer to the [Pristma Migrate Flow](https://www.prisma.io/docs/concepts/components/prisma-migrate/prisma-migrate-flows)
+
+A set of npm scripts are available for the common actions:
+
+- `db:migrate:new` Creates a new migration (without applying it)
+- `db:migrate:dev` Applies migrations to the dev environment
+- `db:migrate:prod` Applies migrations on production (to be used in CD)
 
 ## License
 

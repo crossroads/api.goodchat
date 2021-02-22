@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Staff {
+  id            Int      @default(autoincrement()) @id
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  externalId    String   @db.VarChar(255)
+  displayName   String
+  metadata      Json
+}
+
+model Customer {
+  id                Int       @default(autoincrement()) @id
+  createdAt         DateTime  @default(now())
+  externalId        String    @db.VarChar(255)
+  sunshineUserId    String    @db.VarChar(255)
+  displayName       String
+  metadata          Json
+}
+
+model Conversation {
+  id                        Int      @default(autoincrement()) @id
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+  sunshineConversationId    String   @unique
+  customerId                Int
+  customer                  Customer @relation(fields: [customerId], references: [id])
+  source                    String
+  readByCustomer            Boolean  @default(false)
+  metadata                  Json
+}
+
+enum AuthorType {
+  STAFF
+  CUSTOMER
+}
+
+model Message {
+  id                        Int @default(autoincrement()) @id
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+  conversationId            Int
+  conversation              Conversation @relation(fields: [conversationId], references: [id])
+  authorType                AuthorType
+  authorId                  Int
+  content                   Json
+  metadata                  Json
+}
