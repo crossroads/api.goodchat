@@ -31,7 +31,6 @@ export type GoodchatApp = Koa<KoaChatContext, KoaChatState>;
 //  Sunshine Types
 // --------------------------
 
-
 /**
  * Sunshine Content Object - Common properties
  *
@@ -72,11 +71,11 @@ export interface SunshineImageContent extends SunshineContentBase {
 export interface Metadata {
   [key: string]: string|number|boolean
 }
-export interface ConversationShort {
+export interface SunshineConversationShort {
   id:   string,
   type: string
 }
-export interface Conversation extends ConversationShort {
+export interface SunshineConversation extends SunshineConversationShort {
   isDefault:        boolean
   displayName:      string
   description:      string
@@ -94,15 +93,7 @@ export interface Message {
     userId:       string
     displayName:  string
     type:         string
-    user: {
-      id:         string
-      signedUpAt: string
-      profile: {
-        surname:    string,
-        givenName:  string
-      },
-      metadata: {}
-    }
+    user:         SunshineUser
   }
   content: SunshineContentBase,
   source: {
@@ -113,18 +104,52 @@ export interface Message {
   }
 }
 
-export interface UserProfile {
-  givenName:  string
-  surname:    string
-  email:      string
-  avatarUrl:  string
-  locale:     string
+export interface SunshineAuthor {
+  type:         "user" | "business"
+  userId:       string
+  user:         SunshineUser
 }
 
-export interface User {
+export interface SunshineUserProfile {
+  givenName:  Maybe<string>
+  surname:    Maybe<string>
+  email:      Maybe<string>
+  avatarUrl:  Maybe<string>
+  locale:     Maybe<string>
+}
+
+export interface SunshineUser {
   id:         string
-  externalId: string
+  externalId: Maybe<string>
   signedUpAt: string
-  profile:    UserProfile
+  profile:    SunshineUserProfile
   metadata:   Metadata
+}
+
+
+export interface SunshineSource {
+  type:                     string
+  integrationId:            string
+  originalMessageId:        string
+  originalMessageTimestamp: string
+  client: {
+    type:           string // e.g "whatsapp"
+    status:         "active" | "blocked" | "inactive" | "pending"
+    integrationId:  Maybe<string>
+    externalId:     Maybe<string>
+    lastSeen:       Maybe<string>
+    linkedAt:       Maybe<string>
+    displayName:    Maybe<string>
+    avatarUrl:      Maybe<string>
+    info:           Maybe<Object>
+  }
+  device: {
+    type:                   "android" | "ios" | "web"
+    guid:                   string
+    clientId:               string
+    status:                 "active" | "inactive"
+    integrationId:          string
+    lastSeen:               string
+    pushNotificationToken:  Maybe<string>
+  }
 }

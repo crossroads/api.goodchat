@@ -196,6 +196,10 @@ A set of npm scripts are available for the common actions:
 - `db:migrate:dev` Applies migrations to the dev environment
 - `db:migrate:prod` Applies migrations on production (to be used in CD)
 
+### Diagram
+
+<img src="./design/dbdiagram.png" alt="drawing" width="900"/>
+
 ## License
 
 Copyright © 2020 by [Crossroads Foundation Ltd](https://www.crossroads.org.hk)

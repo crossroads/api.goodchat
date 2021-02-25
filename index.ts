@@ -1,12 +1,13 @@
-import Koa                from 'koa'
-import bodyParser         from 'koa-bodyparser'
-import hooks              from './lib/middlewares/webhooks'
-import rest               from './lib/middlewares/rest'
-import log                from './lib/middlewares/logs'
-import authentication     from './lib/middlewares/authentication'
-import rescue             from './lib/middlewares/rescue'
-import i18n               from './lib/middlewares/i18n'
-import * as initializers  from './lib/initializers'
+import Koa                    from 'koa'
+import bodyParser             from 'koa-bodyparser'
+import hooks                  from './lib/middlewares/webhooks'
+import rest                   from './lib/middlewares/rest'
+import log                    from './lib/middlewares/logs'
+import authentication         from './lib/middlewares/authentication'
+import rescue                 from './lib/middlewares/rescue'
+import i18n                   from './lib/middlewares/i18n'
+import * as initializers      from './lib/initializers'
+import { handleWebhookEvent } from './lib/services/events'
 import {
   GoodchatApp,
   GoodChatConfig,
@@ -55,10 +56,8 @@ export const goodchat = async (config: GoodChatConfig) : Promise<[GoodchatApp]> 
   app.use(i18n());
   app.use(bodyParser());
   app.use(await hooks({
-    config: config,
-    callback: async (event) => {
-      console.log("Webhook", event);
-    }
+    config:   config,
+    callback: handleWebhookEvent
   }));
   app.use(await authentication(config));
   app.use(await rest(config));
