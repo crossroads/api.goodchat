@@ -5,7 +5,7 @@ import { setupWebhooks }    from './setup'
 import { each }             from '../../../lib/utils/async'
 import { IntegrationsApi }  from 'sunshine-conversations-client'
 import {
-  WebhookEvent,
+  WebhookEventBase,
   WebhookPayload
 } from './typing'
 
@@ -13,7 +13,7 @@ const { info } = logger('webhooks');
 
 interface WebhooksParams {
   config:   GoodChatConfig,
-  callback: (event: WebhookEvent) => any
+  callback: (event: WebhookEventBase) => any
 }
 
 /**

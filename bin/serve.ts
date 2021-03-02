@@ -12,6 +12,8 @@ const dev   = /development/.test(env);
 
 const { info, panic } = logger('server');
 
+read.strict('DATABASE_URL')
+
 // -------------------------
 // Helpers
 // -------------------------
@@ -51,20 +53,15 @@ process.on('uncaughtException', panic);
 
     const host = await resolveHost();
 
-    const [app, io] = await goodchat({
+    const [app] = await goodchat({
       goodchatHost:           host,
       smoochAppId:            read.strict('SMOOCH_APP_ID'),
       smoochApiKeyId:         read.strict('SMOOCH_API_KEY_ID'),
       smoochApiKeySecret:     read.strict('SMOOCH_API_KEY_SECRET'),
-      authMode:               authMode(),
-      subscriptions: {
-        redis: {}
-      }
+      authMode:               authMode()
     })
     
     const server = http.createServer(app.callback());
-
-    io.attach(server);
 
     const boot = promisify(server.listen.bind(server)) as Function
     

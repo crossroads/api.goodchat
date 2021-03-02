@@ -15,6 +15,7 @@
       "args": [
         "-r", "ts-node/register", "--file", "specs/spec_helpers/setup.ts", "'specs/**/*.spec.ts'"
       ],
+      "envFile": "${workspaceFolder}/.env.test",
       "env": {
         "TS_NODE_PROJECT": "tsconfig.spec.json"
       }
@@ -31,6 +32,7 @@
       "args": [
         "-r", "ts-node/register", "--file", "specs/spec_helpers/setup.ts", "${file}"
       ],
+      "envFile": "${workspaceFolder}/.env.test",
       "env": {
         "TS_NODE_PROJECT": "tsconfig.spec.json"
       }

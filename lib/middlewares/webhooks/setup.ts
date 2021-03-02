@@ -4,6 +4,7 @@ import { read }             from '../../utils/env'
 import { prefixProtocol }   from '../../utils/http'
 import os                   from 'os'
 import _                    from 'lodash'
+import { WebhookEventType } from './typing'
 import {
   Integration,
   IntegrationsApi,
@@ -28,7 +29,7 @@ const ALL_TRIGGERS = [
   "conversation:read",
   "conversation:typing",
   "user:merge"
-]
+] as WebhookEventType[]
 
 const INTEGRATION_NAME = DEV ?
   `[${ENV}] [${os.hostname()}] GoodChat Webhooks` :
@@ -132,7 +133,7 @@ export async function setupWebhooks(config: GoodChatConfig) : Promise<Integratio
       "target": endpoint,
       "triggers": ALL_TRIGGERS,
       "includeFullUser": true,
-      "includeFullSource": false
+      "includeFullSource": true
     }]
   });
 
