@@ -6,8 +6,8 @@
 import _                      from 'lodash'
 import chai, { expect }       from 'chai'
 import sinonChai              from 'sinon-chai'
-import db                     from '../../lib/db'
-import { each }               from '../../lib/utils/async';
+import db                     from 'lib/db'
+import { each }               from 'lib/utils/async';
 
 chai.should();
 chai.use(sinonChai);

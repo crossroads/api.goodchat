@@ -1,6 +1,5 @@
 import _                        from "lodash"
 import { Conversation }         from "@prisma/client";
-import { SunshineConversation } from "../../lib/types";
 import db, { Unsaved }          from "../db"
 
 /**

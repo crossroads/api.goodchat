@@ -1,10 +1,10 @@
-import { GoodChatConfig }   from '../../types'
 import logger               from '../../utils/logger'
 import { read }             from '../../utils/env'
 import { prefixProtocol }   from '../../utils/http'
 import os                   from 'os'
 import _                    from 'lodash'
-import { WebhookEventType } from './typing'
+import { GoodChatConfig }   from 'lib/typings/goodchat'
+import { WebhookEventType } from 'lib/typings/webhook_types'
 import {
   Integration,
   IntegrationsApi,
