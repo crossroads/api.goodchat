@@ -7,7 +7,7 @@ import {
   GoodchatApp,
   GoodChatConfig,
   GoodChatAuthMode
-} from '../../lib/types'
+} from 'lib/typings/goodchat'
 
 const koaAgent = require('supertest-koa-agent');
 

@@ -1,8 +1,8 @@
-import { GoodChatConfig }                 from '../types'
-import * as SunshineConversationsClient   from 'sunshine-conversations-client'
+import { GoodChatConfig }   from 'lib/typings/goodchat';
+import * as Sunshine        from 'sunshine-conversations-client'
 
 export default (config: GoodChatConfig) => {
-  let client = SunshineConversationsClient.ApiClient.instance;
+  let client = Sunshine.ApiClient.instance;
 
   let { basicAuth } = client.authentications;
 

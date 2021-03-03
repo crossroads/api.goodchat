@@ -5,18 +5,16 @@ require('kankyo').inject({ verbose: true }); /* dotenv */
 import goodchat             from '..'
 import axios                from 'axios'
 import http                 from 'http'
-import logger               from '../lib/utils/logger'
+import logger               from 'lib/utils/logger'
 import { promisify }        from 'util'
-import { read }             from '../lib/utils/env'
-import { GoodChatAuthMode } from '../lib/types'
+import { read }             from 'lib/utils/env'
+import { GoodChatAuthMode } from 'lib/typings/goodchat';
 
 const port  = read.number('PORT', 8000);
 const env   = read('NODE_ENV', 'development')
 const dev   = /development/.test(env);
 
 const { info, panic } = logger('server');
-
-read.strict('DATABASE_URL')
 
 // -------------------------
 // Helpers

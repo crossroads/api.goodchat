@@ -1,4 +1,4 @@
-import { SunshineConversationShort, Message, SunshineUser, SunshineSource, SunshineAuthor } from "lib/types"
+import { SunshineConversationShort, SunshineUser, SunshineMessage, SunshineSource, SunshineAuthor } from "./sunshine";
 
 export type WebhookEventType = (
   "conversation:create"   | "conversation:join"     |
@@ -36,8 +36,8 @@ export interface ConversationCreatedEvent extends WebhookEventBase {
 export interface ConversationMessageEvent extends WebhookEventBase {
   payload: {
     conversation:         SunshineConversationShort,
-    message:              Message,
-    recentNotifications:  Message[]
+    message:              SunshineMessage,
+    recentNotifications:  SunshineMessage[]
   }
 }
 

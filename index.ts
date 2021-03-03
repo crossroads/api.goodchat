@@ -9,10 +9,10 @@ import i18n                   from './lib/middlewares/i18n'
 import * as initializers      from './lib/initializers'
 import { handleWebhookEvent } from './lib/services/events'
 import {
-  GoodchatApp,
   GoodChatConfig,
+  GoodchatApp,
   KoaChatContext
-} from './lib/types'
+} from 'lib/typings/goodchat'
 
 /**
  * Creates a goodchat Koa application
@@ -64,7 +64,5 @@ export const goodchat = async (config: GoodChatConfig) : Promise<[GoodchatApp]> 
 
   return [app];
 }
-
-export * from './lib/types'
 
 export default goodchat

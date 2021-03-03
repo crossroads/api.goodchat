@@ -1,7 +1,7 @@
 import { expect, assert }     from 'chai'
 import _                      from 'lodash'
-import db                     from '../../lib/db'
-import { GoodchatApp }        from '../../lib/types'
+import db                     from 'lib/db'
+import { GoodchatApp }        from 'lib/typings/goodchat'
 import { fakeWebhookPayload } from '../spec_helpers/samples'
 import {
   createGoodchatServer,

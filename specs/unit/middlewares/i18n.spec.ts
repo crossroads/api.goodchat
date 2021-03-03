@@ -1,9 +1,9 @@
 import { expect }                 from 'chai'
 import Koa                        from 'koa'
-import i18n                       from '../../../lib/middlewares/i18n'
+import i18n                       from 'lib/middlewares/i18n'
 import _                          from 'lodash'
 import { createBlankServer }      from '../../spec_helpers/agent'
-import { KoaChatContext }         from '../../../lib/types'
+import { KoaChatContext }         from 'lib/typings/goodchat'
 
 const MOCK_LOCALES = {
   en: { title: "GoodChat En" },

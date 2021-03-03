@@ -1,12 +1,12 @@
 import { expect }                         from 'chai'
-import webhooks                           from '../../../lib/middlewares/webhooks'
-import rescue                             from '../../../lib/middlewares/rescue'
+import webhooks                           from 'lib/middlewares/webhooks'
+import rescue                             from 'lib/middlewares/rescue'
 import _                                  from 'lodash'
 import sinon, { SinonStub }               from 'sinon'
 import { createBlankServer, TestAgent }   from '../../spec_helpers/agent'
 import { BLANK_CONFIG }                   from '../../samples/config'
 import { IntegrationsApi }                from 'sunshine-conversations-client'
-import { GoodchatError } from '../../../lib/utils/errors'
+import { GoodchatError }                  from 'lib/utils/errors'
 
 type AnyFunc = (...args: any[]) => any
 

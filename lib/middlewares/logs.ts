@@ -1,7 +1,7 @@
 import Koa            from 'koa'
-import logger         from '../utils/logger'
 import _              from 'lodash'
-import { timer }      from '../../lib/utils/async';
+import logger         from 'lib/utils/logger'
+import { timer }      from 'lib/utils/async';
 
 const { info, error } = logger('http');
 
