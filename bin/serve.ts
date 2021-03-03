@@ -1,3 +1,7 @@
+#!/usr/bin/env node
+
+require('kankyo').inject({ verbose: true }); /* dotenv */ 
+
 import goodchat             from '..'
 import axios                from 'axios'
 import http                 from 'http'
