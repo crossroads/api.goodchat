@@ -1,11 +1,11 @@
 import _ from "lodash"
-import { ConversationCreatedEvent, WebhookPayload }   from "lib/typings/webhook_types";
+import { ConversationCreatedEvent, WebhookPayload }   from "../../lib/typings/webhook_types";
 import {
   SunshineConversationShort,
   SunshineSource,
   SunshineUser,
   SunshineUserProfile
-} from "lib/typings/sunshine";
+} from "../../lib/typings/sunshine";
 
 export function fakeConversation() : SunshineConversationShort {
   return {

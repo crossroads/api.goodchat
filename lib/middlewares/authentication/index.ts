@@ -1,5 +1,5 @@
 import Router             from '@koa/router'
-import { GoodChatConfig } from 'lib/typings/goodchat';
+import { GoodChatConfig } from '../../../lib/typings/goodchat';
 
 /**
  * Adds an authentication middleware

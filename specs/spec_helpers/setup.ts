@@ -6,8 +6,8 @@
 import _                      from 'lodash'
 import chai, { expect }       from 'chai'
 import sinonChai              from 'sinon-chai'
-import db                     from 'lib/db'
-import { each }               from 'lib/utils/async';
+import db                     from '../../lib/db'
+import { each }               from '../../lib/utils/async';
 
 chai.should();
 chai.use(sinonChai);
@@ -25,7 +25,12 @@ async function resetDatabase() {
 }
 
 before(async () => {
+  console.info('Connecting to the database')
+
   await db.$connect();
+
+  console.info('Clearing to the database')
+
   await resetDatabase();
 
   for (const table of TABLES_NAMES) {

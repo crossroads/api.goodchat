@@ -1,14 +1,14 @@
 import { expect }                 from 'chai'
 import sinon                      from 'sinon'
 import _                          from 'lodash'
-import goodchat                   from 'index'
-import * as logger                from 'lib/middlewares/logs'
-import * as rescue                from 'lib/middlewares/rescue'
-import * as i18n                  from 'lib/middlewares/i18n'
-import * as webhooks              from 'lib/middlewares/webhooks'
-import * as authentication        from 'lib/middlewares/authentication'
-import * as rest                  from 'lib/middlewares/rest'
-import { GoodChatAuthMode }       from 'lib/typings/goodchat';
+import goodchat                   from '../../../index'
+import * as logger                from '../../../lib/middlewares/logs'
+import * as rescue                from '../../../lib/middlewares/rescue'
+import * as i18n                  from '../../../lib/middlewares/i18n'
+import * as webhooks              from '../../../lib/middlewares/webhooks'
+import * as authentication        from '../../../lib/middlewares/authentication'
+import * as rest                  from '../../../lib/middlewares/rest'
+import { GoodChatAuthMode }       from '../../../lib/typings/goodchat';
 
 describe('Bootstrap', () => {
   const boot = async () => {

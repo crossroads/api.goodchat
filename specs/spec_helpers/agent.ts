@@ -2,12 +2,12 @@ import { Test, SuperTest }  from 'supertest'
 import Koa                  from 'koa'
 import _                    from 'lodash'
 import bodyParser           from 'koa-bodyparser'
-import goodchat             from '../..'
+import goodchat             from '../../index'
 import {
   GoodchatApp,
   GoodChatConfig,
   GoodChatAuthMode
-} from 'lib/typings/goodchat'
+} from '../../lib/typings/goodchat'
 
 const koaAgent = require('supertest-koa-agent');
 

@@ -2,7 +2,7 @@ import Koa                      from 'koa'
 import _                        from 'lodash'
 import { parseAcceptLanguage }  from '../utils/http'
 import * as i18nService         from '../services/i18n'
-import { KoaChatContext }       from 'lib/typings/goodchat'
+import { KoaChatContext }       from '../../lib/typings/goodchat'
 
 /**
  * Injects an i18n instance into the Koa context, and configures it to use the language specified by the header

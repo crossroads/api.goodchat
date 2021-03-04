@@ -1,4 +1,4 @@
-import { GoodChatConfig }   from 'lib/typings/goodchat';
+import { GoodChatConfig }   from '../../lib/typings/goodchat';
 import * as Sunshine        from 'sunshine-conversations-client'
 
 export default (config: GoodChatConfig) => {
