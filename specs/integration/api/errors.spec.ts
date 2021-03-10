@@ -4,7 +4,7 @@ import { createAgent, TestAgent } from '../../spec_helpers/agent';
 import {
   GoodchatApp,
   GoodChatAuthMode
-} from 'lib/typings/goodchat';
+} from '../../../lib/typings/goodchat';
 
 describe('API', () => {
 

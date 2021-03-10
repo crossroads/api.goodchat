@@ -1,6 +1,6 @@
 import { expect }                 from 'chai'
 import _                          from 'lodash'
-import { parseAcceptLanguage }    from 'lib/utils/http'   
+import { parseAcceptLanguage }    from '../../../lib/utils/http'   
 
 describe('Utils/http', () => {
   const supportedLanguages = ['en', 'zh_tw'];

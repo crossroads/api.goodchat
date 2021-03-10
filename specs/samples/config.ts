@@ -1,4 +1,4 @@
-import { GoodChatAuthMode, GoodChatConfig } from "lib/typings/goodchat";
+import { GoodChatAuthMode, GoodChatConfig } from "../../lib/typings/goodchat";
 
 export const BLANK_CONFIG : GoodChatConfig = {
   smoochAppId:            'sample_app_id',

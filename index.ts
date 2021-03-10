@@ -12,7 +12,7 @@ import {
   GoodChatConfig,
   GoodchatApp,
   KoaChatContext
-} from 'lib/typings/goodchat'
+} from './lib/typings/goodchat'
 
 /**
  * Creates a goodchat Koa application

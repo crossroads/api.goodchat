@@ -1,7 +1,7 @@
 import _                from "lodash"
 import { Customer }     from "@prisma/client";
 import db, { Unsaved }  from "../db"
-import { SunshineUser } from "lib/typings/sunshine";
+import { SunshineUser } from "../../lib/typings/sunshine";
 
 /**
  * Generates an unsaved customer from a Sunshine User

@@ -2,7 +2,7 @@ import _                                              from "lodash"
 import EventEmitter                                   from "events"
 import { initializeCustomer, sunshineUserToCustomer } from "./customers"
 import { initializeConversation }                     from "./conversations"
-import { ConversationCreatedEvent, WebhookEventBase } from "lib/typings/webhook_types";
+import { ConversationCreatedEvent, WebhookEventBase } from "../../lib/typings/webhook_types";
 
 const emitter = new EventEmitter();
 

@@ -1,7 +1,7 @@
 import { expect }                 from 'chai'
 import Sinon                      from 'sinon'
 import _                          from 'lodash'
-import { read }                   from 'lib/utils/env'
+import { read }                   from '../../../lib/utils/env'
 
 describe('Utils/env', () => {
 

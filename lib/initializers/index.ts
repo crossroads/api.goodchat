@@ -1,4 +1,4 @@
-import { GoodChatConfig } from 'lib/typings/goodchat';
+import { GoodChatConfig } from '../../lib/typings/goodchat';
 import _                  from 'lodash'
 import requireDir         from 'require-dir'
 import { each }           from '../utils/async'

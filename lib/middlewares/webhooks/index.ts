@@ -1,10 +1,10 @@
 import Router                               from '@koa/router'
-import logger                               from 'lib/utils/logger'
+import logger                               from '../../../lib/utils/logger'
 import { setupWebhooks }                    from './setup'
-import { each }                             from 'lib/utils/async'
+import { each }                             from '../../../lib/utils/async'
 import { IntegrationsApi }                  from 'sunshine-conversations-client'
-import { GoodChatConfig }                   from 'lib/typings/goodchat'
-import { WebhookEventBase, WebhookPayload } from 'lib/typings/webhook_types'
+import { GoodChatConfig }                   from '../../../lib/typings/goodchat'
+import { WebhookEventBase, WebhookPayload } from '../../../lib/typings/webhook_types'
 
 const { info } = logger('webhooks');
 
