@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
-import kankyo from 'kankyo'
-
-kankyo.inject({ verbose: true }); /* dotenv */ 
+// --> dotenv preload <--
+require('kankyo').inject({ verbose: true }); // eslint-disable-line
 
 import goodchat             from '..'
 import axios                from 'axios'
