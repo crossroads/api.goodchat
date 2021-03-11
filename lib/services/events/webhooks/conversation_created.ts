@@ -1,5 +1,19 @@
+/*
+ * This function handles incoming "conversation:create" Webhook events from sunshine
+ *
+ * Actions taken:
+ *  - Create or update the local Customer record 
+ *  - Create or update the local Conversation record
+ * 
+ * Reference: https://docs.smooch.io/rest/#operation/eventWebhooks
+ *
+ * Created on Thu Mar 11 2021
+ *
+ * Copyright (c) 2021 Crossroads Foundation
+ */
+
 import { initializeConversation }                                       from "../../conversations";
-import { registerWebhookHandler }                                       from '../index'
+import { registerWebhookHandler }                                       from '..'
 import { ConversationCreatedEvent, WebhookEventBase, WebhookEventType } from "../../../typings/webhook_types";
 import logger                                                           from '../../../utils/logger'
 import {
@@ -10,7 +24,6 @@ import {
 const { info } = logger('events');
 
 /**
- * Handles the case where a conversation is created by sunshine
  *
  * @export
  * @param {ConversationCreatedEvent} event
