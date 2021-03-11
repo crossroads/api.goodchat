@@ -1,0 +1,54 @@
+name: Feature branch tests
+
+on:
+  push:
+    branches:
+      - '**'        # matches every branch
+      - '!main'     # excludes main (will be tested during the staging deployment)
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis
+        # Set health checks to wait until redis has started
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: testuser@test_database
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: test_database
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Set up Node.js version
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+
+    - name: npm install, build, and test
+      env:
+        DB_CREDENTIALS: "testuser@test_database:testpassword"
+        DB_NAME: "test_database"
+      run: |
+        npm install
+        npm run build --if-present
+        npm run db:migrate:test
+        npm run test --if-present
