@@ -99,8 +99,7 @@ describe('Middlewares/webhooks', () => {
           "conversation:message:delivery:user",
           "conversation:postback",
           "conversation:read",
-          "conversation:typing",
-          "user:merge"
+          "conversation:typing"
         ], trigger => {
           it(`connects the webhook to the ${trigger} trigger`, () => {
             const [$, payload] = createArgs;

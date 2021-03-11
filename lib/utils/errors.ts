@@ -56,3 +56,7 @@ export function wrapError(err: unknown) : GoodchatError {
   
   return new GoodchatError(message, status, err);
 }
+
+export function throwNotFound(message = 'errors.not_found', details = {}) : never {
+  throw new GoodchatError(message, 404, details, 'NotFound');
+}

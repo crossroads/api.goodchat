@@ -4,6 +4,6 @@
     "files": true
   },
   "compilerOptions": {
-    "types": ["node", "mocha", "chai", "sinon", "sinon-chai", "supertest"]
+    "types": ["node", "mocha", "chai", "sinon", "sinon-chai", "supertest", "fishery"]
   }
 }

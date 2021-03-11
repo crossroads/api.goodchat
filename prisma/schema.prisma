@@ -17,6 +17,7 @@ model Staff {
   externalId    String   @db.VarChar(255)
   displayName   String
   metadata      Json
+  readReceipts  ReadReceipt[]
 
   @@index([externalId])
 }
@@ -31,6 +32,7 @@ model Customer {
   avatarUrl         String?
   locale            String    @default("en")
   metadata          Json
+  conversations     Conversation[]
 
   @@index([externalId])
 }
@@ -46,6 +48,8 @@ model Conversation {
   readByCustomer            Boolean  @default(false)
   private                   Boolean  @default(false)
   metadata                  Json
+  readReceipts              ReadReceipt[]
+  messages                  Message[]
 
   @@index([customerId])
   @@index([source])
@@ -81,6 +85,7 @@ model Message {
   authorId                  Int
   content                   Json
   metadata                  Json
+  readReceipts              ReadReceipt[]
 
   @@index([conversationId])
 }

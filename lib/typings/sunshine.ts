@@ -2,7 +2,7 @@
 //  Sunshine Types
 // --------------------------
 
-import { Maybe } from "./goodchat";
+import { Maybe, Json }  from "./goodchat";
 
 /**
  * Sunshine Content Object - Common properties
@@ -41,9 +41,11 @@ export interface SunshineImageContent extends SunshineContentBase {
   altText:    string
 }
 
-export interface Metadata {
-  [key: string]: string|number|boolean
-}
+export type SunshineContent = SunshineTextContent | SunshineImageContent
+
+export type SunshineContentType = "image" | "text"
+
+export type Metadata = Json;
 export interface SunshineConversationShort {
   id:   string,
   type: string
@@ -62,13 +64,11 @@ export interface SunshineConversation extends SunshineConversationShort {
 export interface SunshineMessage {
   id:       string
   received: string
-  author: {
-    userId:       string
-    displayName:  string
-    type:         string
-    user:         SunshineUser
-  }
-  content: SunshineContentBase,
+  author:  SunshineAuthor
+  content: (
+    SunshineImageContent |
+    SunshineTextContent
+  ),
   source: {
     integrationId:            string,
     originalMessageId:        string,
@@ -114,7 +114,7 @@ export interface SunshineSource {
     linkedAt:       Maybe<string>
     displayName:    Maybe<string>
     avatarUrl:      Maybe<string>
-    info:           Maybe<Object>
+    info:           Maybe<Json>
   }
   device: {
     type:                   "android" | "ios" | "web"

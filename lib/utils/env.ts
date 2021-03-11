@@ -45,7 +45,7 @@ export const read : EnvReader = (() => {
     string: (key : string, defaultVal? : string) : string => {
       return anyReader(key, defaultVal);
     },
-    bool: (key : string, defaultVal? : boolean) : boolean => {
+    bool: (key : string) : boolean => {
       const val = readers.string(key);
       return /^true$/i.test(val) || /^yes$/i.test(val)
     },

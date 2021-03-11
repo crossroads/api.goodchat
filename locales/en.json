@@ -2,10 +2,13 @@
   "title": "Goodchat",
   "errors": {
     "unknown": "Internal Server Error",
+    "not_found": "Resource not found",
     "token": {
       "token_invalid": "Invalid token",
       "token_expired": "Expired token"
     },
-    "sunshine_error": "Sunshine Integration Error"
+    "sunshine_error": "Sunshine Integration Error",
+    "conversation_not_found": "Conversation not found",
+    "customer_not_found": "Customer not found"
   }
 }

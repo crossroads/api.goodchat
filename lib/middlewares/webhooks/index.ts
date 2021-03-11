@@ -10,7 +10,7 @@ const { info } = logger('webhooks');
 
 interface WebhooksParams {
   config:   GoodChatConfig,
-  callback: (event: WebhookEventBase) => any
+  callback: (event: WebhookEventBase) => unknown
 }
 
 /**
@@ -19,7 +19,7 @@ interface WebhooksParams {
  * @export
  * @param {GoodChatConfig} config
  */
-export default async function(params: WebhooksParams) {
+export default function(params: WebhooksParams) {
   const { config, callback }    = params;
   const router                  = new Router({ prefix: '/webhooks' });
   const integrationApi          = new IntegrationsApi();

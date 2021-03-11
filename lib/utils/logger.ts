@@ -1,5 +1,4 @@
 import debug  from 'debug'
-import _      from 'lodash'
 
 export interface Logger<T = debug.Debugger> {
   info:     T,
@@ -44,6 +43,6 @@ export function createLogger (name = 'goodchat') : Logger {
       return process.exit(1);
     })
   };
-};
+}
 
 export default createLogger;
