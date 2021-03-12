@@ -11,6 +11,7 @@ export default (config: GoodChatConfig) => {
   
   const router = new Router();
 
+  // @TODO Rest 
 
   return router.routes();
 }

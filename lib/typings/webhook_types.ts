@@ -1,14 +1,18 @@
 import { SunshineConversationShort, SunshineUser, SunshineMessage, SunshineSource, SunshineAuthor } from "./sunshine";
 
-export type WebhookEventType = (
-  "conversation:create"   | "conversation:join"     |
-  "conversation:leave"    | "conversation:remove"   |
-  "conversation:message"  | "conversation:postback" |
-  "conversation:read"     | "conversation:typing"   |
-  "conversation:message:delivery:channel" |
-  "conversation:message:delivery:failure" |
-  "conversation:message:delivery:user"
-)
+export enum WebhookEventType {
+  CONVERSATION_CREATE     = "conversation:create",
+  CONVERSATION_JOIN       = "conversation:join",
+  CONVERSATION_LEAVE      = "conversation:leave",
+  CONVERSATION_REMOVE     = "conversation:remove",
+  CONVERSATION_MESSAGE    = "conversation:message",
+  CONVERSATION_POSTBACK   = "conversation:postback",
+  CONVERSATION_READ       = "conversation:read",
+  CONVERSATION_TYPING     = "conversation:typing",
+  DELIVERY_CHANNEL        = "conversation:message:delivery:channel",
+  DELIVERY_FAILURE        = "conversation:message:delivery:failure",
+  DELIVERY_USER           = "conversation:message:delivery:user"
+}
 
 /**
  * Sunshine Webhook Record
@@ -56,6 +60,12 @@ export interface ConversationRemoveEvent extends WebhookEventBase {
   payload: { conversation:   SunshineConversationShort }
 }
 
+export type WebhookEvent = (
+  ConversationCreatedEvent  |
+  ConversationMessageEvent  |
+  ConversationActivityEvent |
+  ConversationRemoveEvent
+)
 
 
 /**

@@ -1,5 +1,4 @@
 import Koa                      from 'koa'
-import _                        from 'lodash'
 import { parseAcceptLanguage }  from '../utils/http'
 import * as i18nService         from '../services/i18n'
 import { KoaChatContext }       from '../../lib/typings/goodchat'

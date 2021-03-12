@@ -11,10 +11,10 @@ type Collection<T> = Array<T> | { [key:string]: T } | { [key:number]: T }
  * @param {Function} fn
  * @returns {Promise<T>}
  */
-export async function each<T>(collection : Collection<T>, fn: Function) : Promise<Collection<T>> {
+export async function each<T>(collection : Collection<T>, fn: (arg: T, key: string) => unknown) : Promise<Collection<T>> {
   const entries = Object.entries(collection);
 
-  for (let [k,v] of entries) {
+  for (const [k,v] of entries) {
     await fn(v,k)
   }
   return collection
@@ -31,12 +31,12 @@ export async function each<T>(collection : Collection<T>, fn: Function) : Promis
  * @param {(it: T) => TResult} fn
  * @returns {Promise<TResult[]>}
  */
-export async function map<T, TResult>(collection : Collection<T>, fn: (it: T) => TResult) : Promise<TResult[]> {
+export async function map<T, TResult>(collection : Collection<T>, fn: (it: T, k: string) => TResult) : Promise<TResult[]> {
   const entries = Object.entries(collection);
 
-  let results = [];
-  for (let [k,v] of entries) {
-    results.push(await fn(v));
+  const results = [];
+  for (const [k,v] of entries) {
+    results.push(await fn(v, k));
   }
   return results
 }
@@ -80,7 +80,7 @@ export function waitForEvent(event: string, source : EventEmitter, opts?: { time
  * @param {Function} fn
  * @returns
  */
-export async function timer(fn : Function) {
+export async function timer(fn : (...args: any[]) => unknown) {
   const start = Date.now();
   await fn();
   return Math.ceil(Date.now() - start);

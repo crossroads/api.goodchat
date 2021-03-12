@@ -16,25 +16,11 @@ const { info } = logger('webhooks');
 const ENV = read('NODE_ENV', 'development')
 const DEV = /dev/.test(ENV);
 
-const ALL_TRIGGERS = [
-  "conversation:create",
-  "conversation:join",
-  "conversation:read",
-  "conversation:message",
-  "conversation:leave",
-  "conversation:message:delivery:channel",
-  "conversation:message:delivery:failure",
-  "conversation:message:delivery:user",
-  "conversation:postback",
-  "conversation:read",
-  "conversation:typing",
-  "user:merge"
-] as WebhookEventType[]
+const ALL_TRIGGERS = Object.values(WebhookEventType);
 
 const INTEGRATION_NAME = DEV ?
   `[${ENV}] [${os.hostname()}] GoodChat Webhooks` :
   `[${ENV}] GoodChat Webhooks`
-
 
 /**
  * Fetches the custom integration of the running server (if it exists)
@@ -58,7 +44,7 @@ export async function getCustomIntegration(appId : string) : Promise<Integration
  * @param {string} appId
  * @returns {Promise<Boolean>}
  */
-export async function integrationExists(appId : string) : Promise<Boolean> {
+export async function integrationExists(appId : string) : Promise<boolean> {
   return (await getCustomIntegration(appId)) !== null;
 }
 
@@ -96,7 +82,7 @@ export function webhookTarget(config : GoodChatConfig) : string {
  * @param {GoodChatConfig} config
  * @returns {Promise<Boolean>}
  */
-export async function webhookExists(config : GoodChatConfig) : Promise<Boolean> {
+export async function webhookExists(config : GoodChatConfig) : Promise<boolean> {
   const api           = new WebhooksApi();
   const endpoint      = webhookTarget(config);
   const integration   = await getCustomIntegration(config.smoochAppId);

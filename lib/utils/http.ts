@@ -15,7 +15,7 @@ const DEFAULT_LANG = 'en';
  * @returns {string}
  */
 export function parseAcceptLanguage(input = "", supportedLanguages = ['en']) : string {
-  const rexp = /[a-z-_]+(;q=[0-9\.]+)?/gi;
+  const rexp = /[a-z-_]+(;q=[0-9.]+)?/gi;
 
   const toDigit = (s: string) => Number(s.replace(/\D/g,'')) || 1;
 
@@ -41,7 +41,7 @@ export function parseAcceptLanguage(input = "", supportedLanguages = ['en']) : s
  * @param {string} [protocol='https']
  * @returns {string}
  */
-export function prefixProtocol(endpoint : string, protocol : string = 'https') : string {
+export function prefixProtocol(endpoint : string, protocol = 'https') : string {
   const rexp = new RegExp(`^${protocol}://`);
   return rexp.test(endpoint) ? endpoint : `${protocol}://${endpoint}`;
 }

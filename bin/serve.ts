@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-require('kankyo').inject({ verbose: true }); /* dotenv */ 
+// --> dotenv preload <--
+require('kankyo').inject({ verbose: true }); // eslint-disable-line
 
 import goodchat             from '..'
 import axios                from 'axios'
@@ -65,7 +66,7 @@ process.on('uncaughtException', panic);
     
     const server = http.createServer(app.callback());
 
-    const boot = promisify(server.listen.bind(server)) as Function
+    const boot = promisify(server.listen.bind(server)) as (port: string|number) => Promise<void>
     
     await boot(port)
 
