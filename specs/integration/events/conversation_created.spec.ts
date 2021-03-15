@@ -11,12 +11,12 @@ import {
 const webhookEvent    = factories.sunshineNewConversationEventFactory.build();
 const webhookPayload  = factories.sunshineWebhookPayloadFactory.build({ events: [webhookEvent] })
 
-describe('Event: New Sunshine Converastion', () => {
+describe('Event conversation:create', () => {
   let agent : TestAgent
 
   before(async () => { [, agent] = await createGoodchatServer(); })
 
-  context("If it doesn't exist locally", () => {
+  context("if it doesn't exist locally", () => {
 
     beforeEach(async () => {
       expect(await db.conversation.count()).to.eq(0)
@@ -56,7 +56,7 @@ describe('Event: New Sunshine Converastion', () => {
     })
   })
  
-  context("If already exists locally", () => {
+  context("if it already exists locally", () => {
     let customer : Customer;
     let conversation : Conversation;
 
@@ -115,5 +115,25 @@ describe('Event: New Sunshine Converastion', () => {
       expect(recordAfter.displayName).to.eq(`${givenName} ${surname}`)
       expect(recordAfter.email).to.eq(webhookEvent.payload.user.profile.email)
     })
+
+    context('if the existing converastion has some metadata', () => {
+      beforeEach(async () => {
+        await db.conversation.update({
+          where: { id: conversation.id },
+          data: { metadata: { some: 'info' } }
+        })
+      })
+
+      it('doesnt reset the metadata', async () => {
+        await agent.post('/webhooks/trigger')
+          .send(webhookPayload)
+          .expect(200)
+
+        const conv = await db.conversation.findFirst();
+
+        expect(conv.id).to.eq(conversation.id)
+        expect(conv.metadata).to.deep.eq({ some: 'info' })
+      })
+    });
   })
 })
