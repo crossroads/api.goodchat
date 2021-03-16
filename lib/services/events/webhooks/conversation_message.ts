@@ -26,7 +26,7 @@ import {
  *
  *
  * @export
- * @param {ConversationCreatedEvent} event
+ * @param {ConversationMessageEvent} event
  * @returns {Promise<void>}
  */
 export async function onMessageCreated(event: WebhookEventBase) : Promise<void> {
