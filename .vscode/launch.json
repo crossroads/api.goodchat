@@ -30,7 +30,7 @@
       "internalConsoleOptions": "openOnSessionStart",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": [
-        "--watch", "-r", "ts-node/register", "--file", "specs/spec_helpers/setup.ts", "${file}"
+        "-r", "ts-node/register", "--file", "specs/spec_helpers/setup.ts", "${file}"
       ],
       "env": {
         "TS_NODE_PROJECT": "tsconfig.spec.json",
