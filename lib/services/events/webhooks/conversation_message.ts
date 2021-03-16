@@ -30,31 +30,32 @@ import {
  * @returns {Promise<void>}
  */
 export async function onMessageCreated(event: WebhookEventBase) : Promise<void> {
-  // @TODO 
-
-  // const { payload } = (<ConversationMessageEvent>event);
+  const { payload } = (<ConversationMessageEvent>event);
   
-  // const conversation = await db.conversation.findUnique({ where: {
-  //   sunshineConversationId: payload.conversation.id
-  // }})
+  const conversation = await db.conversation.findUnique({ where: {
+    sunshineConversationId: payload.conversation.id
+  }})
 
-  // assert.exists(conversation, 'errors.conversation_not_found');
+  assert.exists(conversation, 'errors.conversation_not_found');
   
-  // const customer = await db.customer.findUnique({
-  //   where: { sunshineUserId: payload.message.author.user.id }
-  // })
+  const customer = await db.customer.findUnique({
+    where: { sunshineUserId: payload.message.author.user.id }
+  })
 
-  // assert.exists(customer, 'errors.customer_not_found');
-
-  // await db.message.create({
-  //   data: {
-  //     conversationId: conversation.id,
-  //     authorType: AuthorType.CUSTOMER,
-  //     authorId: customer.id,
-  //     content: { ...payload.message.content },
-  //     metadata: {}
-  //   }
-  // })
+  assert.exists(customer, 'errors.customer_not_found');
+  
+  await db.message.upsert({
+    where: { sunshineMessageId: payload.message.id },
+    create: {
+      sunshineMessageId: payload.message.id,
+      conversationId: conversation.id,
+      authorType: AuthorType.CUSTOMER,
+      authorId: customer.id,
+      content: { ...payload.message.content },
+      metadata: {}
+    },
+    update: {}
+  })
 }
 
 registerWebhookHandler(WebhookEventType.CONVERSATION_MESSAGE, onMessageCreated);
