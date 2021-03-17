@@ -32,9 +32,10 @@
       "args": [
         "-r", "ts-node/register", "--file", "specs/spec_helpers/setup.ts", "${file}"
       ],
-      "envFile": "${workspaceFolder}/.env.test",
       "env": {
-        "TS_NODE_PROJECT": "tsconfig.spec.json"
+        "TS_NODE_PROJECT": "tsconfig.spec.json",
+        "DATABASE_URL": "postgresql://postgres@localhost:5432/goodcity_server_test?schema=goodchat",
+        "DEBUG":"-*"
       }
     },
     {
