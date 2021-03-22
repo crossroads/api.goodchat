@@ -4,7 +4,7 @@ import db, { Unsaved }          from "../db"
 
 
 /**
- * Creates a converastion if it doesnt already exsit
+ * Creates a conversation if it doesn't already exist
  *
  * @exports
  * @param {Unsaved<Conversation>} data
