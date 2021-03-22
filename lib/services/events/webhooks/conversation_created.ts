@@ -12,7 +12,7 @@
  * Copyright (c) 2021 Crossroads Foundation
  */
 
-import { initializeConversation }                                       from "../../conversations";
+import { upsertConversation }                                           from "../../conversation_service";
 import { registerWebhookHandler }                                       from '..'
 import { ConversationCreatedEvent, WebhookEventBase, WebhookEventType } from "../../../typings/webhook_types";
 import logger                                                           from '../../../utils/logger'
@@ -33,13 +33,13 @@ export async function onConversationCreated(event: WebhookEventBase) : Promise<v
   const payload = (<ConversationCreatedEvent>event).payload;
   const customer = await initializeCustomer(sunshineUserToCustomer(payload.user));
 
-  await initializeConversation({
-    sunshineConversationId: payload.conversation.id,
-    customerId:             customer.id,
-    source:                 payload.source.type,
-    readByCustomer:         true,
-    private:                false,
-    metadata:               {}
+  await upsertConversation({
+      sunshineConversationId: payload.conversation.id,
+      customerId:             customer.id,
+      source:                 payload.source.type,
+      readByCustomer:         true,
+      private:                false,
+      metadata:               {}
   })
 
   info('conversation created');

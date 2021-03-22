@@ -2,7 +2,7 @@ import { Factory }                            from 'fishery'
 import faker                                  from 'faker'
 import _                                      from 'lodash'
 import * as factories                         from '../index'
-import { SunshineContentType, SunshineUser }  from '../../../lib/typings/sunshine'
+import { SunshineContentType, SunshineConversationShort, SunshineUser }  from '../../../lib/typings/sunshine'
 import {
   WebhookEventType,
   ConversationCreatedEvent,
@@ -12,6 +12,7 @@ import {
 
 interface BaseWebhookEventFactoryParams {
   user?: SunshineUser
+  conversation?: SunshineConversationShort
 }
 
 /**
@@ -21,12 +22,14 @@ interface BaseWebhookEventFactoryParams {
  * @exports
  */
 export const sunshineNewConversationEventFactory = Factory.define<ConversationCreatedEvent, BaseWebhookEventFactoryParams>((opts) => {
+  const conversation = opts.transientParams.conversation || factories.sunshineConversationShortFactory.build();
+
   return {
     id: faker.random.uuid(),
     createdAt: faker.date.recent().toISOString(),
     type: WebhookEventType.CONVERSATION_CREATE,
     payload: {
-      conversation:   factories.sunshineConversationShortFactory.build(),
+      conversation:   _.pick(conversation, 'id', 'type'),
       user:           opts.transientParams.user || factories.sunshineUserFactory.build(),
       source:         factories.sunshineSourceFactory.build(),
       creationReason: "message"
@@ -48,14 +51,17 @@ interface ConversationMessageEventFactoryParams extends BaseWebhookEventFactoryP
  */
 export const sunshineNewMessageEventFactory = Factory.define<ConversationMessageEvent, ConversationMessageEventFactoryParams>((opts) => {
   const user = opts.transientParams.user || factories.sunshineUserFactory.build();
+  const conversation = opts.transientParams.conversation || factories.sunshineConversationShortFactory.build();
 
   return {
     id: faker.random.uuid(),
     createdAt: faker.date.recent().toISOString(),
     type: WebhookEventType.CONVERSATION_MESSAGE,
     payload: {
-      conversation:         factories.sunshineConversationShortFactory.build(),
-      message:              factories.sunshineMessageFactory.build({}, {
+      conversation:         _.pick(conversation, 'id', 'type'),
+      message:              factories.sunshineMessageFactory.build({
+        ..._.get(opts.params, 'payload.message', {})
+      }, {
         transient: { user, contentType: opts.transientParams.contentType }
       }),
       recentNotifications:  [],
@@ -83,7 +89,7 @@ export const sunshineWebhookEventFactory = Factory.define<WebhookEvent, DynamicW
   } = opts.transientParams
 
   const factory = ({
-    [WebhookEventType.CONVERSATION_CREATE]: sunshineNewMessageEventFactory,
+    [WebhookEventType.CONVERSATION_CREATE]: sunshineNewConversationEventFactory,
     [WebhookEventType.CONVERSATION_MESSAGE]: sunshineNewMessageEventFactory,
   })[type as string]
   

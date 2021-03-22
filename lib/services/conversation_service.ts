@@ -2,14 +2,15 @@ import _                        from "lodash"
 import { Conversation }         from "@prisma/client";
 import db, { Unsaved }          from "../db"
 
+
 /**
- * Creates a conversation if it doesn't already exist
+ * Creates a converastion if it doesnt already exsit
  *
- * @export
- * @param {CustomerMandatoryFields} data
- * @returns {Promise<Customer>}
+ * @exports
+ * @param {Unsaved<Conversation>} data
+ * @returns {Promise<Conversation>}
  */
-export function initializeConversation(data: Unsaved<Conversation>) : Promise<Conversation> {
+export const upsertConversation = (data: Unsaved<Conversation>) : Promise<Conversation> => {
   return db.conversation.upsert({
     where: { sunshineConversationId: data.sunshineConversationId },
     create: data,

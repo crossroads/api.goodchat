@@ -60,7 +60,6 @@ export interface SunshineConversation extends SunshineConversationShort {
   lastUpdatedAt:    string
 }
 
-
 export interface SunshineMessage {
   id:       string
   received: string
@@ -76,11 +75,17 @@ export interface SunshineMessage {
     type:                     string
   }
 }
-
 export interface SunshineAuthor {
+  avatarUrl:    string
+  displayName:  string
   type:         "user" | "business"
-  userId:       string
-  user:         SunshineUser
+  userId?:      string
+  user?:        SunshineUser
+}
+export interface SunshineAuthorUser extends SunshineAuthor {
+  type:        "user"
+  userId:      string
+  user:        SunshineUser
 }
 
 export interface SunshineUserProfile {

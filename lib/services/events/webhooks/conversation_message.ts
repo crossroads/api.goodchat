@@ -12,15 +12,27 @@
  * Copyright (c) 2021 Crossroads Foundation
  */
 
-import { registerWebhookHandler }          from '..'
-import  db                                 from "../../../db";
-import { AuthorType }                      from "@prisma/client";
-import * as assert                         from '../../../utils/assertions'
+import { initializeCustomer, sunshineUserToCustomer } from '../../customers';
+import { SunshineAuthor, SunshineAuthorUser }         from '../../../typings/sunshine'
+import { registerWebhookHandler }                     from '..'
+import { upsertConversation }                         from '../../conversation_service'
+import { GoodChatConfig }                             from '../../../typings/goodchat'
+import { AuthorType }                                 from "@prisma/client"
+import  db                                            from "../../../db"
 import {
   ConversationMessageEvent,
   WebhookEventBase,
   WebhookEventType
 } from "../../../typings/webhook_types";
+
+async function getCustomerId(author: SunshineAuthor) : Promise<number|null> {
+  if (author.type !== 'user') return null;
+
+  const sunshineUser = (<SunshineAuthorUser>author).user;
+  const customer = await initializeCustomer(sunshineUserToCustomer(sunshineUser))
+
+  return customer.id;
+}
 
 /**
  *
@@ -29,32 +41,39 @@ import {
  * @param {ConversationMessageEvent} event
  * @returns {Promise<void>}
  */
-export async function onMessageCreated(event: WebhookEventBase) : Promise<void> {
+export async function onMessageCreated(event: WebhookEventBase, cfg: GoodChatConfig) : Promise<void> {
   const { payload } = (<ConversationMessageEvent>event);
-  
-  const conversation = await db.conversation.findUnique({ where: {
-    sunshineConversationId: payload.conversation.id
-  }})
+  const customerId  = await getCustomerId(payload.message.author);
 
-  assert.exists(conversation, 'errors.conversation_not_found');
-  
-  const customer = await db.customer.findUnique({
-    where: { sunshineUserId: payload.message.author.user.id }
+  const conversation = await upsertConversation({
+    sunshineConversationId: payload.conversation.id,
+    readByCustomer:         customerId !== null,
+    customerId:             customerId,
+    metadata:               {},
+    private:                false,
+    source:                 payload.message.source.type
   })
 
-  assert.exists(customer, 'errors.customer_not_found');
-  
   await db.message.upsert({
     where: { sunshineMessageId: payload.message.id },
     create: {
       sunshineMessageId: payload.message.id,
       conversationId: conversation.id,
-      authorType: AuthorType.CUSTOMER,
-      authorId: customer.id,
       content: { ...payload.message.content },
-      metadata: {}
+      metadata: {},
+      //  === Author ===
+      //
+      //  If a message comes in as a "business" type, aka non-user, such as an unknow third party integration, e.g Slack
+      //  we mark it as a "system" message since we don't know who sends it
+      //
+      //  Note: messages sent from Goodchat would also come in as "business" messages, but they would already be in the system
+      //
+      authorType: customerId ? AuthorType.CUSTOMER : AuthorType.SYSTEM,
+      authorId: customerId ?? 0
     },
-    update: {}
+    update: {
+      // Sunshine messages are immutable. If the message is already in the system we don't need to update anything
+    }
   })
 }
 
