@@ -27,7 +27,8 @@
     "db:migrate:dev": "NODE_ENV=development kankyo -f exec -- prisma migrate dev --preview-feature",
     "db:migrate:test": "NODE_ENV=test kankyo -f exec -- prisma migrate dev --preview-feature",
     "db:migrate:azure": "kankyo exec -- prisma migrate deploy --preview-feature",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "studio": "NODE_ENV=development kankyo -f exec -- prisma studio"
   },
   "repository": {
     "type": "git",

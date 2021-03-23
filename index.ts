@@ -57,7 +57,7 @@ export const goodchat = async (config: GoodChatConfig) : Promise<[GoodchatApp]> 
   app.use(bodyParser());
   app.use(hooks({
     config:   config,
-    callback: handleWebhookEvent
+    callback: (ev) => handleWebhookEvent(ev, config)
   }));
   app.use(await authentication(config));
   app.use(await rest(config));

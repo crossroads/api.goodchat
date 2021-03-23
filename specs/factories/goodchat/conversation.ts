@@ -13,7 +13,7 @@ import db               from '../../../lib/db'
 export const conversationFactory = Factory.define<Conversation>(({ sequence, onCreate }) => {
 
   onCreate(async (data) => {
-    if (await db.customer.findUnique({ where: { id: data.customerId }}) === null) {
+    if (data.customerId && await db.customer.findUnique({ where: { id: data.customerId }}) === null) {
       await factories.customerFactory.create({ id: data.customerId });
     }
     return db.conversation.create({ data })

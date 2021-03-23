@@ -20,17 +20,26 @@ type SunshineMessageFactoryParams = {
  * @type {Factory<SunshineMessage, SunshineMessageFactoryParams>}
  * @exports
  */
-export const sunshineMessageFactory = Factory.define<SunshineMessage, SunshineMessageFactoryParams>((opts) => {
-  const { contentType } = opts.transientParams;
+export const sunshineMessageFactory = Factory.define<SunshineMessage, SunshineMessageFactoryParams>((ctx) => {
+  const { contentType } = ctx.transientParams;
 
-  const user = opts.transientParams.user || factories.sunshineUserFactory.build();
+  const user = ctx.transientParams.user || factories.sunshineUserFactory.build();
+
+  ctx.afterBuild(msg => {
+    if (msg.author.type == 'business') {
+      delete msg.author.user
+      delete msg.author.userId
+    }
+  });
 
   return  {
     id: faker.random.uuid(),
     received: faker.date.recent().toISOString(),
     author: {
+      avatarUrl: user.profile.avatarUrl,
+      displayName: user.profile.givenName,
       userId: user.id,
-      type: "business",
+      type: "user",
       user: user
     },
     content: factories.sunshineContentFactory.build({}, { transient: { contentType } }),
@@ -42,4 +51,3 @@ export const sunshineMessageFactory = Factory.define<SunshineMessage, SunshineMe
     }
   }
 })
-
