@@ -41,7 +41,7 @@ async function getCustomerId(author: SunshineAuthor) : Promise<number|null> {
  * @param {ConversationMessageEvent} event
  * @returns {Promise<void>}
  */
-export async function onMessageCreated(event: WebhookEventBase, cfg: GoodChatConfig) : Promise<void> {
+export async function onMessageCreated(event: WebhookEventBase) : Promise<void> {
   const { payload } = (<ConversationMessageEvent>event);
   const customerId  = await getCustomerId(payload.message.author);
 
