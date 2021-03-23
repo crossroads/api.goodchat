@@ -164,8 +164,7 @@ describe('Event conversation:message', () => {
 
       beforeEach(async () => {
         conversation = await factories.conversationFactory.create({
-          sunshineConversationId: webhookEvent.payload.conversation.id,
-          customerId: null
+          sunshineConversationId: webhookEvent.payload.conversation.id
         })
       })
 
@@ -177,6 +176,18 @@ describe('Event conversation:message', () => {
         expect(await db.conversation.count()).to.eq(1)
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
         expect(await db.conversation.count()).to.eq(1)
+      })
+
+      it('does not nullify the customerId', async () => {
+        await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+        expect((await db.conversation.findFirst()).customerId).not.to.be.null
+        expect((await db.conversation.findFirst()).customerId).to.eq(conversation.customerId)
+      })
+
+      it('does not alter the source', async () => {
+        await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+        expect((await db.conversation.findFirst()).source).not.to.be.null
+        expect((await db.conversation.findFirst()).source).to.eq(conversation.source)
       })
 
       it('creates a system message', async () => {

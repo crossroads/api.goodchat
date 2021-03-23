@@ -12,7 +12,7 @@
  * Copyright (c) 2021 Crossroads Foundation
  */
 
-import { initializeCustomer, sunshineUserToCustomer } from '../../customers';
+import { initializeCustomer, sunshineUserToCustomer } from '../../customer_service';
 import { SunshineAuthor, SunshineAuthorUser }         from '../../../typings/sunshine'
 import { registerWebhookHandler }                     from '..'
 import { upsertConversation }                         from '../../conversation_service'

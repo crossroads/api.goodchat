@@ -19,7 +19,7 @@ import logger                                                           from '..
 import {
   initializeCustomer,
   sunshineUserToCustomer
-} from "../../customers";
+} from "../../customer_service";
 
 const { info } = logger('events');
 
