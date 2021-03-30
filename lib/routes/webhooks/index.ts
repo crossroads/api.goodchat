@@ -7,6 +7,7 @@ import { GoodChatAuthMode, GoodChatConfig, GoodChatPermissions }   from '../../.
 import { WebhookEventBase, WebhookPayload }                        from '../../../lib/typings/webhook_types'
 import authenticate                                                from '../../middlewares/authenticate'
 import { KoaHelpers }                                              from '../../utils/http'
+import compose                                                     from 'koa-compose'
 
 const { info } = logger('webhooks');
 
@@ -31,6 +32,11 @@ export default function(params: WebhooksParams) {
   const authenticator = config.auth.mode === GoodChatAuthMode.NONE ?
     KoaHelpers.noop : authenticate(config, [GoodChatPermissions.ADMIN]);
 
+  /**
+   * 
+   * When called, will connect to sunshine and magically set up all the webhooks
+   *  
+   */
   router.post('/connect', authenticator, async (ctx) => {
     ctx.body    = await setupWebhooks(config);
     ctx.status  = 200;
@@ -56,5 +62,5 @@ export default function(params: WebhooksParams) {
     ctx.status  = 200;
   });
 
-  return router.routes();
+  return compose([router.routes(), router.allowedMethods()])
 }

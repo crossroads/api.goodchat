@@ -129,7 +129,9 @@ const [app] = await goodchat({
   smoochApiKeyId:         'sample_api_key_id',
   smoochApiKeySecret:     'sample_api_key_secret',
   goodchatHost:           'localhost:8000',
-  authMode:               GoodChatAuthMode.NONE
+  auth: {
+    mode: GoodChatAuthMode.NONE
+  }
 })
 
 app.listen(8000, () => {

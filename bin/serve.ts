@@ -4,7 +4,6 @@
 require('kankyo').inject({ verbose: true }); // eslint-disable-line
 
 import goodchat             from '..'
-import axios                from 'axios'
 import http                 from 'http'
 import logger               from '../lib/utils/logger'
 import { promisify }        from 'util'
@@ -13,6 +12,7 @@ import {
   GoodChatAuthConfig,
   GoodChatAuthMode
 } from '../lib/typings/goodchat';
+import { setupWebhooks }    from '../lib/routes/webhooks/setup';
 
 const port  = read.number('PORT', 8000);
 const env   = read('NODE_ENV', 'development')
@@ -53,6 +53,7 @@ function authConfig() : GoodChatAuthConfig {
 // -------------------------
 
 process.on('uncaughtException', panic);
+process.on('SIGTERM', panic);
 
 // -------------------------
 // Startup
@@ -64,13 +65,15 @@ process.on('uncaughtException', panic);
 
     const host = await resolveHost();
 
-    const [app] = await goodchat({
+    const config = {
       goodchatHost:           host,
       smoochAppId:            read.strict('SMOOCH_APP_ID'),
       smoochApiKeyId:         read.strict('SMOOCH_API_KEY_ID'),
       smoochApiKeySecret:     read.strict('SMOOCH_API_KEY_SECRET'),
       auth:                   authConfig()
-    })
+    }
+
+    const [app] = await goodchat(config)
     
     const server = http.createServer(app.callback());
 
@@ -82,7 +85,7 @@ process.on('uncaughtException', panic);
     info(`goodchat port: ${port}`);
 
     if (dev) {
-      await axios.post('/webhooks/connect', {}, { baseURL: host });
+      setupWebhooks(config)
     }
 
   } catch (e) {
