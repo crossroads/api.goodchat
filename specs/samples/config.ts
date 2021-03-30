@@ -5,5 +5,8 @@ export const BLANK_CONFIG : GoodChatConfig = {
   smoochApiKeyId:         'sample_api_key_id',
   smoochApiKeySecret:     'sample_api_key_secret',
   goodchatHost:           'localhost:8000',
-  authMode:               GoodChatAuthMode.NONE
+  auth: {
+    mode: GoodChatAuthMode.NONE
+  }
 }
+

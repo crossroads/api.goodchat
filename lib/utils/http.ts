@@ -1,4 +1,5 @@
-import _ from 'lodash'
+import _    from 'lodash'
+import Koa  from 'koa'
 
 const DEFAULT_LANG = 'en';
 
@@ -44,4 +45,25 @@ export function parseAcceptLanguage(input = "", supportedLanguages = ['en']) : s
 export function prefixProtocol(endpoint : string, protocol = 'https') : string {
   const rexp = new RegExp(`^${protocol}://`);
   return rexp.test(endpoint) ? endpoint : `${protocol}://${endpoint}`;
+}
+
+/**
+ * Returns the bearer token found in the headers, or null
+ *
+ * @export
+ * @param {Koa.Context} ctx
+ */
+export function readBearer(ctx: Koa.Context) : string | null {
+  const header = ctx.request.headers.authorization;
+
+  if (!/Bearer [^\s]+/.test(header)) return null;
+
+  return header.split(' ')[1];
+}
+
+/**
+ * A few Koa helper function/middlewares
+ */
+export const KoaHelpers = {
+  noop: (ctx: Koa.Context, next : Koa.Next) => next()
 }

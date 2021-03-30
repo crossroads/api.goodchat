@@ -9,7 +9,10 @@ import http                 from 'http'
 import logger               from '../lib/utils/logger'
 import { promisify }        from 'util'
 import { read }             from '../lib/utils/env'
-import { GoodChatAuthMode } from '../lib/typings/goodchat';
+import {
+  GoodChatAuthConfig,
+  GoodChatAuthMode
+} from '../lib/typings/goodchat';
 
 const port  = read.number('PORT', 8000);
 const env   = read('NODE_ENV', 'development')
@@ -36,8 +39,13 @@ async function resolveHost() : Promise<string> {
   });
 }
 
-function authMode() : GoodChatAuthMode {
-  return read.bool('NO_AUTH') ? GoodChatAuthMode.NONE : GoodChatAuthMode.JWT;
+function authConfig() : GoodChatAuthConfig {
+  if (read.bool('NO_AUTH')) { return { mode: GoodChatAuthMode.NONE } }
+  
+  return {
+    mode: GoodChatAuthMode.WEBHOOK,
+    url:  read.string.strict('GOODCHAT_AUTH_URL')
+  }
 }
 
 // -------------------------
@@ -61,7 +69,7 @@ process.on('uncaughtException', panic);
       smoochAppId:            read.strict('SMOOCH_APP_ID'),
       smoochApiKeyId:         read.strict('SMOOCH_API_KEY_ID'),
       smoochApiKeySecret:     read.strict('SMOOCH_API_KEY_SECRET'),
-      authMode:               authMode()
+      auth:                   authConfig()
     })
     
     const server = http.createServer(app.callback());

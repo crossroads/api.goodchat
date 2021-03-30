@@ -1,10 +1,10 @@
-import { expect }                 from 'chai';
-import goodchat                   from '../../../index'
-import { createAgent, TestAgent } from '../../spec_helpers/agent';
+import { expect }       from 'chai'
+import { GoodchatApp }  from '../../../lib/typings/goodchat';
 import {
-  GoodchatApp,
-  GoodChatAuthMode
-} from '../../../lib/typings/goodchat';
+  createAgent,
+  createGoodchatServer,
+  TestAgent
+} from '../../spec_helpers/agent'
 
 describe('API', () => {
 
@@ -13,13 +13,7 @@ describe('API', () => {
     let agent : TestAgent
 
     before(async () => {
-      [app] = await goodchat({
-        smoochAppId:            'sample_app_id',
-        smoochApiKeyId:         'sample_api_key_id',
-        smoochApiKeySecret:     'sample_api_key_secret',
-        goodchatHost:           'localhost:8000',
-        authMode:               GoodChatAuthMode.NONE
-      })
+      [app] = await createGoodchatServer()
 
       agent = createAgent(app);
     });

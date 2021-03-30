@@ -14,12 +14,11 @@ model Staff {
   id            Int      @default(autoincrement()) @id
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  externalId    String   @db.VarChar(255)
+  externalId    String   @db.VarChar(255) @unique
   displayName   String
   metadata      Json
   readReceipts  ReadReceipt[]
-
-  @@index([externalId])
+  permissions   String[]
 }
 
 model Customer {
