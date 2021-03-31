@@ -1,9 +1,7 @@
 import Koa                    from 'koa'
 import bodyParser             from 'koa-bodyparser'
-import hooks                  from './lib/middlewares/webhooks'
-import rest                   from './lib/middlewares/rest'
+import hooks                  from './lib/routes/webhooks'
 import log                    from './lib/middlewares/logs'
-import authentication         from './lib/middlewares/authentication'
 import rescue                 from './lib/middlewares/rescue'
 import i18n                   from './lib/middlewares/i18n'
 import * as initializers      from './lib/initializers'
@@ -23,7 +21,9 @@ import {
  *   smoochApiKeyId:         'sample_api_key_id',
  *   smoochApiKeySecret:     'sample_api_key_secret',
  *   goodchatHost:           'localhost:8000',
- *   authMode:                GoodChatAuthMode.NONE
+ *   auth: {
+ *    GoodChatAuthMode.NONE
+ *   }
  *  })
  * 
  *  app.listen(8000, () => ...)
@@ -59,8 +59,6 @@ export const goodchat = async (config: GoodChatConfig) : Promise<[GoodchatApp]> 
     config:   config,
     callback: (ev) => handleWebhookEvent(ev, config)
   }));
-  app.use(await authentication(config));
-  app.use(await rest(config));
 
   return [app];
 }

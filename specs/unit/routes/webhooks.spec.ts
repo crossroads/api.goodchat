@@ -1,5 +1,5 @@
 import { expect }                         from 'chai'
-import webhooks                           from '../../../lib/middlewares/webhooks'
+import webhooks                           from '../../../lib/routes/webhooks'
 import rescue                             from '../../../lib/middlewares/rescue'
 import _                                  from 'lodash'
 import sinon, { SinonStub }               from 'sinon'

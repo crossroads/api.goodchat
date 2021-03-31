@@ -2,7 +2,7 @@
 //  Sunshine Types
 // --------------------------
 
-import { Maybe, Json }  from "./goodchat";
+import { Maybe, Json }  from "./lang";
 
 /**
  * Sunshine Content Object - Common properties

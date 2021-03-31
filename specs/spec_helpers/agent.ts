@@ -8,15 +8,12 @@ import {
   GoodChatConfig,
   GoodChatAuthMode
 } from '../../lib/typings/goodchat'
+import { BLANK_CONFIG } from '../samples/config'
 
 const koaAgent = require('supertest-koa-agent');
 
 const DEFAULT_CONFIG = {
-  smoochAppId:            'sample_app_id',
-  smoochApiKeyId:         'sample_api_key_id',
-  smoochApiKeySecret:     'sample_api_key_secret',
-  goodchatHost:           'localhost:8000',
-  authMode:               GoodChatAuthMode.NONE
+  ...BLANK_CONFIG
 }
 
 export type TestAgent = SuperTest<Test>;

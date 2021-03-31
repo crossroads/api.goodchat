@@ -47,10 +47,10 @@ That said, GoodChat was designed as a generic and reusable product and therefore
 
 - [x] Integration with Sunshine Conversations
 - [x] Webhooks support
-- [ ] Websocket support (notifications, new messages)
+- [ ] Live subscriptions support (notifications, new messages)
 - [ ] Configuratbe Push Notification support	
-- [ ] REST API (accessing all of Sunshine Conversations)
-- [ ] Configurable authentication methods (allowing easy integration with existing systems)
+- [ ] REST/GQL Chat API 
+- [x] Configurable authentication methods (allowing easy integration with existing systems)
 
 <img src="./design/goodchat_integration.png" alt="drawing" width="700"/>
 
@@ -129,7 +129,9 @@ const [app] = await goodchat({
   smoochApiKeyId:         'sample_api_key_id',
   smoochApiKeySecret:     'sample_api_key_secret',
   goodchatHost:           'localhost:8000',
-  authMode:               GoodChatAuthMode.NONE
+  auth: {
+    mode: GoodChatAuthMode.NONE
+  }
 })
 
 app.listen(8000, () => {
@@ -195,6 +197,16 @@ A set of npm scripts are available for the common actions:
 - `db:migrate:new` Creates a new migration (without applying it)
 - `db:migrate:dev` Applies migrations to the dev environment
 - `db:migrate:prod` Applies migrations on production (to be used in CD)
+
+## Authentication Modes
+
+### None
+
+This mode is present for development/testing purposes
+
+### Webhook
+
+<img src="./design/webhook_auth.png" alt="drawing" width="900"/>
 
 ### Diagram
 

@@ -5,20 +5,12 @@ import goodchat                   from '../../../index'
 import * as logger                from '../../../lib/middlewares/logs'
 import * as rescue                from '../../../lib/middlewares/rescue'
 import * as i18n                  from '../../../lib/middlewares/i18n'
-import * as webhooks              from '../../../lib/middlewares/webhooks'
-import * as authentication        from '../../../lib/middlewares/authentication'
-import * as rest                  from '../../../lib/middlewares/rest'
-import { GoodChatAuthMode }       from '../../../lib/typings/goodchat';
+import * as webhooks              from '../../../lib/routes/webhooks'
+import { BLANK_CONFIG }           from '../../samples/config'
 
 describe('Bootstrap', () => {
   const boot = async () => {
-    return await goodchat({
-      smoochAppId:            'sample_app_id',
-      smoochApiKeyId:         'sample_api_key_id',
-      smoochApiKeySecret:     'sample_api_key_secret',
-      goodchatHost:           'localhost:8000',
-      authMode:               GoodChatAuthMode.NONE
-    })
+    return await goodchat(BLANK_CONFIG)
   }
 
   afterEach(() => sinon.restore());
@@ -28,9 +20,7 @@ describe('Bootstrap', () => {
       logger,
       rescue,
       i18n,
-      webhooks,
-      rest,
-      authentication
+      webhooks
     }, (mw, name) => {
       it(`initializes the ${name} middleware`, async () => {
         const spy = sinon.spy(mw, 'default');

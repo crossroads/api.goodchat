@@ -2,13 +2,20 @@
   "title": "Goodchat",
   "errors": {
     "unknown": "Internal Server Error",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Forbidden",
     "not_found": "Resource not found",
+    "disabled": "Disabled feature",
+    "unprocessable": "Unprocessable Entity",
     "token": {
       "token_invalid": "Invalid token",
       "token_expired": "Expired token"
     },
     "sunshine_error": "Sunshine Integration Error",
     "conversation_not_found": "Conversation not found",
-    "customer_not_found": "Customer not found"
+    "customer_not_found": "Customer not found",
+    "authentication": {
+      "disabled": "Authentication is disabled"
+    }
   }
 }

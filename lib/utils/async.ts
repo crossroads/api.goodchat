@@ -85,3 +85,15 @@ export async function timer(fn : (...args: any[]) => unknown) {
   await fn();
   return Math.ceil(Date.now() - start);
 }
+
+
+/**
+ * Returns true if the specified object is a promise
+ *
+ * @export
+ * @param {*} obj
+ * @returns {obj is Promise<any>}
+ */
+export function isPromise(obj: any) : obj is Promise<any> {
+  return (typeof obj?.then === 'function');
+}

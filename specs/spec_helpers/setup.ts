@@ -6,10 +6,15 @@
 import _                      from 'lodash'
 import chai, { expect }       from 'chai'
 import sinonChai              from 'sinon-chai'
+import chaiPromises           from 'chai-as-promised'
 import db                     from '../../lib/db'
-import { each }               from '../../lib/utils/async';
+import axios                  from 'axios'
+import { each }               from '../../lib/utils/async'
+
+axios.defaults.adapter = require('axios/lib/adapters/http')
 
 chai.should();
+chai.use(chaiPromises)
 chai.use(sinonChai);
 
 const capitalize = (s : string) => s.charAt(0).toUpperCase() + s.slice(1);
