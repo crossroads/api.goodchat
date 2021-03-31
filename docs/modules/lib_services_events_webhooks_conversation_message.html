@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>KoaChatState | api.goodchat - v1.0.0</title>
+	<title>lib/services/events/webhooks/conversation_message | api.goodchat - v1.0.0</title>
 	<meta name="description" content="Documentation for api.goodchat - v1.0.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,31 +55,60 @@
 					<a href="../modules.html">api.goodchat - v1.0.0</a>
 				</li>
 				<li>
-					<a href="../modules/index.html">index</a>
-				</li>
-				<li>
-					<a href="index.koachatstate.html">KoaChatState</a>
+					<a href="lib_services_events_webhooks_conversation_message.html">lib/services/events/webhooks/conversation_message</a>
 				</li>
 			</ul>
-			<h1>Interface KoaChatState</h1>
+			<h1>Module lib/services/events/webhooks/conversation_message</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-hierarchy">
-				<h3>Hierarchy</h3>
-				<ul class="tsd-hierarchy">
-					<li>
-						<span class="tsd-signature-type">DefaultState</span>
-						<ul class="tsd-hierarchy">
-							<li>
-								<span class="target">KoaChatState</span>
-							</li>
-						</ul>
-					</li>
-				</ul>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="lib_services_events_webhooks_conversation_message.html#onmessagecreated" class="tsd-kind-icon">on<wbr>Message<wbr>Created</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="onmessagecreated" class="tsd-anchor"></a>
+					<h3>on<wbr>Message<wbr>Created</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">on<wbr>Message<wbr>Created<span class="tsd-signature-symbol">(</span>event<span class="tsd-signature-symbol">: </span><a href="../interfaces/lib_typings_webhook_types.webhookeventbase.html" class="tsd-signature-type" data-tsd-kind="Interface">WebhookEventBase</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/bb64558/lib/services/events/webhooks/conversation_message.ts#L44">lib/services/events/webhooks/conversation_message.ts:44</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>export</dt>
+									<dd></dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>event: <a href="../interfaces/lib_typings_webhook_types.webhookeventbase.html" class="tsd-signature-type" data-tsd-kind="Interface">WebhookEventBase</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
 			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -89,87 +118,14 @@
 						<a href="../modules.html">Modules</a>
 					</li>
 					<li class="current tsd-kind-module">
-						<a href="../modules/index.html">index</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_initializers.html">lib/initializers</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_initializers_smooch.html">lib/initializers/smooch</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_middlewares_authentication.html">lib/middlewares/authentication</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_middlewares_i18n.html">lib/middlewares/i18n</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_middlewares_logs.html">lib/middlewares/logs</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_middlewares_rescue.html">lib/middlewares/rescue</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_middlewares_rest.html">lib/middlewares/rest</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_middlewares_webhooks.html">lib/middlewares/webhooks</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_middlewares_webhooks_setup.html">lib/middlewares/webhooks/setup</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_middlewares_webhooks_typing.html">lib/middlewares/webhooks/typing</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_services_i18n.html">lib/services/i18n</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_types.html">lib/types</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_utils_async.html">lib/utils/async</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_utils_env.html">lib/utils/env</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_utils_errors.html">lib/utils/errors</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_utils_http.html">lib/utils/http</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/lib_utils_logger.html">lib/utils/logger</a>
+						<a href="lib_services_events_webhooks_conversation_message.html">lib/services/events/webhooks/conversation_<wbr>message</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-reference tsd-parent-kind-module">
-						<a href="../modules/index.html#default" class="tsd-kind-icon">default</a>
-					</li>
-					<li class=" tsd-kind-enum tsd-parent-kind-module">
-						<a href="../enums/index.goodchatauthmode.html" class="tsd-kind-icon">Good<wbr>Chat<wbr>Auth<wbr>Mode</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="index.goodchatconfig.html" class="tsd-kind-icon">Good<wbr>Chat<wbr>Config</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="index.koachatcontext.html" class="tsd-kind-icon">Koa<wbr>Chat<wbr>Context</a>
-					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-interface tsd-parent-kind-module">
-						<a href="index.koachatstate.html" class="tsd-kind-icon">Koa<wbr>Chat<wbr>State</a>
-					</li>
-				</ul>
-				<ul class="after-current">
-					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
-						<a href="../modules/index.html#goodchatapp" class="tsd-kind-icon">Goodchat<wbr>App</a>
-					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="../modules/index.html#goochat" class="tsd-kind-icon">goochat</a>
+						<a href="lib_services_events_webhooks_conversation_message.html#onmessagecreated" class="tsd-kind-icon">on<wbr>Message<wbr>Created</a>
 					</li>
 				</ul>
 			</nav>
@@ -185,6 +141,7 @@
 				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
 				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>

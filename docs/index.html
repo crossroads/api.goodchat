@@ -61,6 +61,8 @@
 				<a href="#goodchat-api" id="goodchat-api" style="color: inherit; text-decoration: none;">
 					<h1>Goodchat API</h1>
 				</a>
+				<p><a href="https://forthebadge.com"><img src="https://forthebadge.com/images/badges/made-with-typescript.svg" alt="forthebadge"></a>
+				<a href="https://forthebadge.com"><img src="https://forthebadge.com/images/badges/built-with-love.svg" alt="forthebadge"></a></p>
 				<p>GoodChat API is a standalone <a href="https://nodejs.org">node.js</a> web service allowing easy integration with <a href="https://smooch.io">smooch.io</a></p>
 				<!-- START doctoc generated TOC please keep comment here to allow auto update -->
 				<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -96,6 +98,10 @@
 						</ul>
 					</li>
 					<li><a href="#testing">Testing</a></li>
+					<li><a href="#database">Database</a><ul>
+							<li><a href="#migrations">Migrations</a></li>
+						</ul>
+					</li>
 					<li><a href="#license">License</a></li>
 				</ul>
 				<!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -115,11 +121,12 @@
 				<ul>
 					<li><input checked="" disabled="" type="checkbox"> Integration with Sunshine Conversations</li>
 					<li><input checked="" disabled="" type="checkbox"> Webhooks support</li>
-					<li><input disabled="" type="checkbox"> Websocket support (notifications, new messages)</li>
+					<li><input disabled="" type="checkbox"> Live subscriptions support (notifications, new messages)</li>
 					<li><input disabled="" type="checkbox"> Configuratbe Push Notification support    </li>
-					<li><input disabled="" type="checkbox"> REST API (accessing all of Sunshine Conversations)</li>
-					<li><input disabled="" type="checkbox"> Configurable authentication methods (allowing easy integration with existing systems)</li>
+					<li><input disabled="" type="checkbox"> REST/GQL Chat API </li>
+					<li><input checked="" disabled="" type="checkbox"> Configurable authentication methods (allowing easy integration with existing systems)</li>
 				</ul>
+				<img src="./design/goodchat_integration.png" alt="drawing" width="700"/>
 				<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
 					<h2>Documentation</h2>
 				</a>
@@ -164,26 +171,21 @@
 				</a>
 				<details>
 					<summary>How to create a Sunshine Application</summary>
-					<a href="#steps" id="steps" style="color: inherit; text-decoration: none;">
-						<h5>Steps</h5>
-					</a>
-					<ol>
-						<li>Login to your Sunshine Conversations account</li>
-						<li>Head to your dashboard (<a href="https://app.smooch.io">https://app.smooch.io</a>)</li>
-				<li>On the right side click on the <code>Create new app</code> button</details>
-				</li>
-				</ol>
+					##### Steps
+					1. Login to your Sunshine Conversations account
+					2. Head to your dashboard (https://app.smooch.io)
+					3. On the right side click on the `Create new app` button
+				</details>
 				<details>
 					<summary>How to create a Sunshine ID/Secret Key pair</summary>
-					<a href="#steps-1" id="steps-1" style="color: inherit; text-decoration: none;">
+					<a href="#steps" id="steps" style="color: inherit; text-decoration: none;">
 						<h4>Steps</h4>
 					</a>
 					<ol>
 						<li>Once your app is created, click on it from your dashboard view</li>
 						<li>On the app header bar, click on <code>Settings</code></li>
 						<li>At the bottom of the settings page, you will find your api keys. Use the <code>Create new API key</code> action for a new one</li>
-				<li>Write down the ID/Secret key pair, as well as the APP ID</details>
-				</li>
+				<li>Write down the ID/Secret key pair, as well as the APP ID</details></li>
 				</ol>
 				<a href="#running-the-server" id="running-the-server" style="color: inherit; text-decoration: none;">
 					<h2>Running the server</h2>
@@ -194,36 +196,19 @@
 				<p>You may create an instance of GoodChat, and start it manually as shown below</p>
 				<pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">goodchat</span><span style="color: #000000">, { </span><span style="color: #001080">GoodChatAuthMode</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@goodcity/api.goodchat&#039;</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">app</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">goodchat</span><span style="color: #000000">({</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> [</span><span style="color: #0070C1">app</span><span style="color: #000000">] = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">goodchat</span><span style="color: #000000">({</span>
 <span style="color: #000000">  </span><span style="color: #001080">smoochAppId:</span><span style="color: #000000">            </span><span style="color: #A31515">&#039;sample_app_id&#039;</span><span style="color: #000000">,</span>
 <span style="color: #000000">  </span><span style="color: #001080">smoochApiKeyId:</span><span style="color: #000000">         </span><span style="color: #A31515">&#039;sample_api_key_id&#039;</span><span style="color: #000000">,</span>
 <span style="color: #000000">  </span><span style="color: #001080">smoochApiKeySecret:</span><span style="color: #000000">     </span><span style="color: #A31515">&#039;sample_api_key_secret&#039;</span><span style="color: #000000">,</span>
 <span style="color: #000000">  </span><span style="color: #001080">goodchatHost:</span><span style="color: #000000">           </span><span style="color: #A31515">&#039;localhost:8000&#039;</span><span style="color: #000000">,</span>
-<span style="color: #000000">  </span><span style="color: #001080">authMode:</span><span style="color: #000000">               </span><span style="color: #001080">GoodChatAuthMode</span><span style="color: #000000">.</span><span style="color: #0070C1">NONE</span>
+<span style="color: #000000">  </span><span style="color: #001080">auth:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #001080">mode:</span><span style="color: #000000"> </span><span style="color: #001080">GoodChatAuthMode</span><span style="color: #000000">.</span><span style="color: #0070C1">NONE</span>
+<span style="color: #000000">  }</span>
 <span style="color: #000000">})</span>
 
 <span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">listen</span><span style="color: #000000">(</span><span style="color: #098658">8000</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
 <span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">info</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Goodchat is running&#039;</span><span style="color: #000000">);</span>
 <span style="color: #000000">})</span>
-</code></pre>
-				<a href="#on-top-of-an-existing-koa-app" id="on-top-of-an-existing-koa-app" style="color: inherit; text-decoration: none;">
-					<h3>On top of an existing Koa app</h3>
-				</a>
-				<p>By using <a href="https://github.com/koajs/mount">koa-mount</a>, GoodChat can be used as an additional middleware you can inject into your existing server.</p>
-				<p>Example:</p>
-				<pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">Koa</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;koa&#039;</span>
-<span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">mount</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;koa-mount&#039;</span>
-<span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">goodchat</span><span style="color: #000000">, { </span><span style="color: #001080">GoodChatAuthMode</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@goodcity/api.goodchat&#039;</span>
-
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">app</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Koa</span><span style="color: #000000">(); </span><span style="color: #008000">// Your server</span>
-
-<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #795E26">mount</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/chat&#039;</span><span style="color: #000000">, </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">goodchat</span><span style="color: #000000">({</span>
-<span style="color: #000000">  </span><span style="color: #001080">smoochAppId:</span><span style="color: #000000">            </span><span style="color: #A31515">&#039;sample_app_id&#039;</span><span style="color: #000000">,</span>
-<span style="color: #000000">  </span><span style="color: #001080">smoochApiKeyId:</span><span style="color: #000000">         </span><span style="color: #A31515">&#039;sample_api_key_id&#039;</span><span style="color: #000000">,</span>
-<span style="color: #000000">  </span><span style="color: #001080">smoochApiKeySecret:</span><span style="color: #000000">     </span><span style="color: #A31515">&#039;sample_api_key_secret&#039;</span><span style="color: #000000">,</span>
-<span style="color: #000000">  </span><span style="color: #001080">goodchatHost:</span><span style="color: #000000">           </span><span style="color: #A31515">&#039;localhost:8000&#039;</span><span style="color: #000000">,</span>
-<span style="color: #000000">  </span><span style="color: #001080">authMode:</span><span style="color: #000000">               </span><span style="color: #001080">GoodChatAuthMode</span><span style="color: #000000">.</span><span style="color: #0070C1">NONE</span>
-<span style="color: #000000">})));</span>
 </code></pre>
 				<a href="#using-the-ready-made-cli-script" id="using-the-ready-made-cli-script" style="color: inherit; text-decoration: none;">
 					<h3>Using the ready-made CLI script</h3>
@@ -267,6 +252,34 @@
 				<p>Run the specs using the following command:</p>
 				<pre><code class="language-bash"><span style="color: #000000">$&gt; npm run </span><span style="color: #795E26">test</span>
 </code></pre>
+				<a href="#database" id="database" style="color: inherit; text-decoration: none;">
+					<h2>Database</h2>
+				</a>
+				<a href="#migrations" id="migrations" style="color: inherit; text-decoration: none;">
+					<h3>Migrations</h3>
+				</a>
+				<p>Please refer to the <a href="https://www.prisma.io/docs/concepts/components/prisma-migrate/prisma-migrate-flows">Pristma Migrate Flow</a></p>
+				<p>A set of npm scripts are available for the common actions:</p>
+				<ul>
+					<li><code>db:migrate:new</code> Creates a new migration (without applying it)</li>
+					<li><code>db:migrate:dev</code> Applies migrations to the dev environment</li>
+					<li><code>db:migrate:prod</code> Applies migrations on production (to be used in CD)</li>
+				</ul>
+				<a href="#authentication-modes" id="authentication-modes" style="color: inherit; text-decoration: none;">
+					<h2>Authentication Modes</h2>
+				</a>
+				<a href="#none" id="none" style="color: inherit; text-decoration: none;">
+					<h3>None</h3>
+				</a>
+				<p>This mode is present for development/testing purposes</p>
+				<a href="#webhook" id="webhook" style="color: inherit; text-decoration: none;">
+					<h3>Webhook</h3>
+				</a>
+				<img src="./design/webhook_auth.png" alt="drawing" width="900"/>
+				<a href="#diagram" id="diagram" style="color: inherit; text-decoration: none;">
+					<h3>Diagram</h3>
+				</a>
+				<img src="./design/dbdiagram.png" alt="drawing" width="900"/>
 				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
 					<h2>License</h2>
 				</a>
@@ -284,13 +297,16 @@
 						<a href="modules/index.html">index</a>
 					</li>
 					<li class=" tsd-kind-module">
+						<a href="modules/lib_db.html">lib/db</a>
+					</li>
+					<li class=" tsd-kind-module">
 						<a href="modules/lib_initializers.html">lib/initializers</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/lib_initializers_smooch.html">lib/initializers/smooch</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/lib_middlewares_authentication.html">lib/middlewares/authentication</a>
+						<a href="modules/lib_middlewares_authenticate.html">lib/middlewares/authenticate</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/lib_middlewares_i18n.html">lib/middlewares/i18n</a>
@@ -302,22 +318,46 @@
 						<a href="modules/lib_middlewares_rescue.html">lib/middlewares/rescue</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/lib_middlewares_rest.html">lib/middlewares/rest</a>
+						<a href="modules/lib_routes_webhooks.html">lib/routes/webhooks</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/lib_middlewares_webhooks.html">lib/middlewares/webhooks</a>
+						<a href="modules/lib_routes_webhooks_setup.html">lib/routes/webhooks/setup</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/lib_middlewares_webhooks_setup.html">lib/middlewares/webhooks/setup</a>
+						<a href="modules/lib_services_auth_service.html">lib/services/auth_<wbr>service</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/lib_middlewares_webhooks_typing.html">lib/middlewares/webhooks/typing</a>
+						<a href="modules/lib_services_conversation_service.html">lib/services/conversation_<wbr>service</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_services_customer_service.html">lib/services/customer_<wbr>service</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_services_events.html">lib/services/events</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_services_events_webhooks_conversation_created.html">lib/services/events/webhooks/conversation_<wbr>created</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_services_events_webhooks_conversation_message.html">lib/services/events/webhooks/conversation_<wbr>message</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/lib_services_i18n.html">lib/services/i18n</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/lib_types.html">lib/types</a>
+						<a href="modules/lib_typings_goodchat.html">lib/typings/goodchat</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_typings_lang.html">lib/typings/lang</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_typings_sunshine.html">lib/typings/sunshine</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_typings_webhook_types.html">lib/typings/webhook_<wbr>types</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_utils_assertions.html">lib/utils/assertions</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/lib_utils_async.html">lib/utils/async</a>
@@ -352,6 +392,7 @@
 				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
 				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>

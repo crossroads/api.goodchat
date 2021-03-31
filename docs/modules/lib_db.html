@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>lib/middlewares/webhooks/typing | api.goodchat - v1.0.0</title>
+	<title>lib/db | api.goodchat - v1.0.0</title>
 	<meta name="description" content="Documentation for api.goodchat - v1.0.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../modules.html">api.goodchat - v1.0.0</a>
 				</li>
 				<li>
-					<a href="lib_middlewares_webhooks_typing.html">lib/middlewares/webhooks/typing</a>
+					<a href="lib_db.html">lib/db</a>
 				</li>
 			</ul>
-			<h1>Module lib/middlewares/webhooks/typing</h1>
+			<h1>Module lib/db</h1>
 		</div>
 	</div>
 </header>
@@ -70,16 +70,50 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Interfaces</h3>
+							<h3>Type aliases</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/lib_middlewares_webhooks_typing.sunshinecontentbase.html" class="tsd-kind-icon">Sunshine<wbr>Content<wbr>Base</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/lib_middlewares_webhooks_typing.sunshineimagecontent.html" class="tsd-kind-icon">Sunshine<wbr>Image<wbr>Content</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/lib_middlewares_webhooks_typing.sunshinetextcontent.html" class="tsd-kind-icon">Sunshine<wbr>Text<wbr>Content</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/lib_middlewares_webhooks_typing.webhookevent.html" class="tsd-kind-icon">Webhook<wbr>Event</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/lib_middlewares_webhooks_typing.webhookpayload.html" class="tsd-kind-icon">Webhook<wbr>Payload</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter"><a href="lib_db.html#unsaved" class="tsd-kind-icon">Unsaved</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Variables</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="lib_db.html#default" class="tsd-kind-icon">default</a></li>
 							</ul>
 						</section>
 					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Type aliases</h2>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="unsaved" class="tsd-anchor"></a>
+					<h3>Unsaved</h3>
+					<div class="tsd-signature tsd-kind-icon">Unsaved&lt;T&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Omit</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;id&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;createdAt&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;updatedAt&quot;</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/bb64558/lib/db.ts#L3">lib/db.ts:3</a></li>
+						</ul>
+					</aside>
+					<h4 class="tsd-type-parameters-title">Type parameters</h4>
+					<ul class="tsd-type-parameters">
+						<li>
+							<h4>T</h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Variables</h2>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="default" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> default</h3>
+					<div class="tsd-signature tsd-kind-icon">default<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PrismaClient</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = ...</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/bb64558/lib/db.ts#L5">lib/db.ts:5</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 		</div>
@@ -89,78 +123,18 @@
 					<li class=" ">
 						<a href="../modules.html">Modules</a>
 					</li>
-					<li class=" tsd-kind-module">
-						<a href="index.html">index</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_initializers.html">lib/initializers</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_initializers_smooch.html">lib/initializers/smooch</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_middlewares_authentication.html">lib/middlewares/authentication</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_middlewares_i18n.html">lib/middlewares/i18n</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_middlewares_logs.html">lib/middlewares/logs</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_middlewares_rescue.html">lib/middlewares/rescue</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_middlewares_rest.html">lib/middlewares/rest</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_middlewares_webhooks.html">lib/middlewares/webhooks</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_middlewares_webhooks_setup.html">lib/middlewares/webhooks/setup</a>
-					</li>
 					<li class="current tsd-kind-module">
-						<a href="lib_middlewares_webhooks_typing.html">lib/middlewares/webhooks/typing</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_services_i18n.html">lib/services/i18n</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_types.html">lib/types</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_utils_async.html">lib/utils/async</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_utils_env.html">lib/utils/env</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_utils_errors.html">lib/utils/errors</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_utils_http.html">lib/utils/http</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="lib_utils_logger.html">lib/utils/logger</a>
+						<a href="lib_db.html">lib/db</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/lib_middlewares_webhooks_typing.sunshinecontentbase.html" class="tsd-kind-icon">Sunshine<wbr>Content<wbr>Base</a>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+						<a href="lib_db.html#unsaved" class="tsd-kind-icon">Unsaved</a>
 					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/lib_middlewares_webhooks_typing.sunshineimagecontent.html" class="tsd-kind-icon">Sunshine<wbr>Image<wbr>Content</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/lib_middlewares_webhooks_typing.sunshinetextcontent.html" class="tsd-kind-icon">Sunshine<wbr>Text<wbr>Content</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/lib_middlewares_webhooks_typing.webhookevent.html" class="tsd-kind-icon">Webhook<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/lib_middlewares_webhooks_typing.webhookpayload.html" class="tsd-kind-icon">Webhook<wbr>Payload</a>
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="lib_db.html#default" class="tsd-kind-icon">default</a>
 					</li>
 				</ul>
 			</nav>
@@ -176,6 +150,7 @@
 				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
 				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
