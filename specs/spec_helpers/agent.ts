@@ -1,14 +1,16 @@
-import { Test, SuperTest }  from 'supertest'
-import Koa                  from 'koa'
-import _                    from 'lodash'
-import bodyParser           from 'koa-bodyparser'
-import goodchat             from '../../index'
+import { Test, SuperTest }                          from 'supertest'
+import Koa                                          from 'koa'
+import _                                            from 'lodash'
+import bodyParser                                   from 'koa-bodyparser'
+import goodchat                                     from '../../index'
+import { createTestClient, ApolloServerTestClient } from 'apollo-server-testing'
+import { BLANK_CONFIG }                             from '../samples/config'
+import { ApolloServer }                             from 'apollo-server-koa'
 import {
   GoodchatApp,
   GoodChatConfig,
   GoodChatAuthMode
 } from '../../lib/typings/goodchat'
-import { BLANK_CONFIG } from '../samples/config'
 
 const koaAgent = require('supertest-koa-agent');
 
@@ -22,13 +24,17 @@ export function createAgent(app: GoodchatApp) : TestAgent{
   return koaAgent(app);
 }
 
-export async function createGoodchatServer(config: Partial<GoodChatConfig> = {}) : Promise<[GoodchatApp, TestAgent]> {
-  const [app] = await goodchat({
+export async function createGoodchatServer(config: Partial<GoodChatConfig> = {}) : Promise<[
+  [GoodchatApp, ApolloServer],
+  TestAgent,
+  ApolloServerTestClient
+]> {
+  const [app, apollo] = await goodchat({
     ...DEFAULT_CONFIG,
     ...config
   });
 
-  return [app, koaAgent(app)];
+  return [[app, apollo], koaAgent(app), createTestClient(apollo)];
 }
 
 export function createBlankServer(middlewares : any[] = []) : [Koa, TestAgent] {

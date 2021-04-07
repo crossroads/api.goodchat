@@ -1,11 +1,13 @@
 import Koa                    from 'koa'
 import bodyParser             from 'koa-bodyparser'
 import hooks                  from './lib/routes/webhooks'
+import graphql                from './lib/routes/graphql'
 import log                    from './lib/middlewares/logs'
 import rescue                 from './lib/middlewares/rescue'
 import i18n                   from './lib/middlewares/i18n'
 import * as initializers      from './lib/initializers'
 import { handleWebhookEvent } from './lib/services/events'
+import { ApolloServer }       from 'apollo-server-koa'
 import {
   GoodChatConfig,
   GoodchatApp,
@@ -33,7 +35,7 @@ import {
  * @param {GoodChatConfig} config
  * @returns {Promise<GoodchatApp>}
  */
-export const goodchat = async (config: GoodChatConfig) : Promise<[GoodchatApp]> => {
+export const goodchat = async (config: GoodChatConfig) : Promise<[GoodchatApp, ApolloServer]> => {
   const app : GoodchatApp = new Koa();
 
   // ----------------------
@@ -50,7 +52,7 @@ export const goodchat = async (config: GoodChatConfig) : Promise<[GoodchatApp]> 
     ctx.config = config;
     return next();
   });
-
+  
   app.use(log());
   app.use(rescue());
   app.use(i18n());
@@ -60,7 +62,11 @@ export const goodchat = async (config: GoodChatConfig) : Promise<[GoodchatApp]> 
     callback: (ev) => handleWebhookEvent(ev, config)
   }));
 
-  return [app];
+  const gqlServer = await graphql();
+
+  app.use(gqlServer.getMiddleware());
+
+  return [app, gqlServer];
 }
 
 export default goodchat

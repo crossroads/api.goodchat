@@ -13,16 +13,10 @@
  * Copyright (c) 2021 Crossroads Foundation
  */
 
-import EventEmitter                                   from "events"
-import TypedEmitter                                   from "typed-emitter"
 import requireDir                                     from 'require-dir'
 import { WebhookEventBase, WebhookEventType }         from "../../typings/webhook_types"
 import { each }                                       from "../../utils/async"
 import { GoodChatConfig }                             from "../../typings/goodchat"
-
-const emitter = new EventEmitter() as TypedEmitter<{
-  "webhook" :  (ev: WebhookEventBase) => unknown
-}>
 
 type WebhookHandler = (ev: WebhookEventBase, cfg: GoodChatConfig) => unknown
 
@@ -56,12 +50,11 @@ export function registerWebhookHandler(type: WebhookEventType, handler: WebhookH
  */
 export async function handleWebhookEvent(event: WebhookEventBase, cfg: GoodChatConfig) {
   await each(getHandlersForType(event.type), (h : WebhookHandler) => h(event, cfg));
-
-  emitter.emit('webhook', event);
 }
 
 // --- Load up handlers
 
 requireDir('./webhooks')
 
-export default emitter;
+export * from './pubsub'
+

@@ -12,7 +12,7 @@ import { Customer }     from '@prisma/client'
  * @exports
  */
 export const customerFactory = Factory.define<Customer>(({ sequence, onCreate }) => {
-  onCreate(data => db.customer.create({ data }));
+  onCreate(data => db.customer.create({ data: _.omit(data, 'id') }));
 
   return {
     id: sequence,

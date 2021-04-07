@@ -62,7 +62,10 @@ describe('Event conversation:create', () => {
 
     beforeEach(async () => {
       customer     = await factories.customerFactory.create({ sunshineUserId: webhookEvent.payload.user.id });
-      conversation = await factories.conversationFactory.create({ customerId: customer.id });
+      conversation = await factories.conversationFactory.create({
+        sunshineConversationId: webhookEvent.payload.conversation.id,
+        customerId: customer.id
+      });
 
       expect(await db.conversation.count()).to.eq(1)
       expect(await db.customer.count()).to.eq(1)

@@ -12,7 +12,9 @@ import { Staff }        from '@prisma/client'
  * @exports
  */
 export const staffFactory = Factory.define<Staff>(({ sequence, onCreate }) => {
-  onCreate(data => db.staff.create({ data }));
+  onCreate(data => db.staff.create({ data: _.omit(data, 'id') }));
+
+  const now = new Date();
 
   return {
     id: sequence,
@@ -20,7 +22,7 @@ export const staffFactory = Factory.define<Staff>(({ sequence, onCreate }) => {
     displayName: faker.name.firstName(),
     metadata: {},
     permissions: [],
-    updatedAt: new Date(),
-    createdAt: new Date()
+    updatedAt: now,
+    createdAt: now
   }
 });

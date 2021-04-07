@@ -73,9 +73,11 @@ process.on('SIGTERM', panic);
       auth:                   authConfig()
     }
 
-    const [app] = await goodchat(config)
+    const [app, apollo] = await goodchat(config)
     
     const server = http.createServer(app.callback());
+
+    apollo.installSubscriptionHandlers(server)
 
     const boot = promisify(server.listen.bind(server)) as (port: string|number) => Promise<void>
     

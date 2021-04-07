@@ -11,14 +11,15 @@ generator client {
 }
 
 model Staff {
-  id            Int      @default(autoincrement()) @id
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  externalId    String   @db.VarChar(255) @unique
-  displayName   String
-  metadata      Json
-  readReceipts  ReadReceipt[]
-  permissions   String[]
+  id                  Int      @default(autoincrement()) @id
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  externalId          String   @db.VarChar(255) @unique
+  displayName         String
+  metadata            Json
+  readReceipts        ReadReceipt[]
+  permissions         String[]
+  staffConversations  StaffConversations[]
 }
 
 model Customer {
@@ -36,6 +37,15 @@ model Customer {
   @@index([externalId])
 }
 
+model StaffConversations {
+  staff           Staff @relation(fields: [staffId], references: [id])
+  staffId         Int
+  conversation    Conversation @relation(fields: [conversationId], references: [id])
+  conversationId  Int
+
+  @@id([staffId, conversationId])
+}
+
 model Conversation {
   id                        Int      @default(autoincrement()) @id
   createdAt                 DateTime @default(now())
@@ -45,10 +55,11 @@ model Conversation {
   customer                  Customer? @relation(fields: [customerId], references: [id])
   source                    String
   readByCustomer            Boolean  @default(false)
-  private                   Boolean  @default(false)
+  private                   Boolean  @default(true)
   metadata                  Json
   readReceipts              ReadReceipt[]
   messages                  Message[]
+  staffConversations        StaffConversations[]
 
   @@index([customerId])
   @@index([source])
