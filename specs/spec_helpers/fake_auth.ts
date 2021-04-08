@@ -7,7 +7,8 @@ let authServiceStub     : sinon.SinonStub
 
 export function setCurrentUser(staff: Staff) {
   authServiceStub = sinon.stub(authServiceMod, 'default').returns({
-    authenticate: sinon.stub().returns(Promise.resolve(staff))
+    authenticate: sinon.stub().returns(Promise.resolve(staff)),
+    authenticateHeaders: sinon.stub().returns(Promise.resolve(staff))
   });
 }
 

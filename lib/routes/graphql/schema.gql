@@ -1,5 +1,5 @@
 type Query {
-  conversations(limit: Int, offset: Int, private: Boolean): [Conversation]
+  conversations(limit: Int, offset: Int, type: String): [Conversation]
   conversation(id: Int!): Conversation
 }
 
@@ -19,7 +19,7 @@ type Conversation {
   customer: Customer
   source: String
   readByCustomer: Boolean
-  private: Boolean
+  type: String
   metadata: JSON
   createdAt: DateTime
   updatedAt: DateTime

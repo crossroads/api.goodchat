@@ -1,4 +1,4 @@
-import { Staff }              from ".prisma/client";
+import { Staff }              from "@prisma/client";
 import { I18n }               from "i18n"
 import Koa                    from "koa"
 
@@ -10,7 +10,6 @@ export enum GoodChatAuthMode {
 }
 
 export enum GoodChatPermissions {
-  CHAT_INTERNAL   = "chat:internal",
   CHAT_CUSTOMER   = "chat:customer",
   ADMIN           = "admin"
 }

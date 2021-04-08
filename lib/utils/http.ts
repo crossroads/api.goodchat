@@ -51,13 +51,14 @@ export function prefixProtocol(endpoint : string, protocol = 'https') : string {
  * Returns the bearer token found in the headers, or null
  *
  * @export
- * @param {Koa.Context} ctx
+ * @param {Koa.Context|Headers} ctx
  */
 export function readBearer(ctx: Koa.Context) : string | null {
-  const header = ctx.request.headers.authorization;
+  return parseBearer(ctx.request.headers.authorization);
+}
 
+export function parseBearer(header: string) : string | null {
   if (!/Bearer [^\s]+/.test(header)) return null;
-
   return header.split(' ')[1];
 }
 

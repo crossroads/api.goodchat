@@ -5,40 +5,39 @@ import { createGoodchatServer }                     from '../../../spec_helpers/
 import db                                           from '../../../../lib/db';
 import { gql }                                      from 'apollo-server-koa';
 import _                                            from 'lodash';
-import { Conversation }                             from '@prisma/client';
+import { Conversation, ConversationType, Staff }    from '@prisma/client';
 import { clearCurrentUser, setCurrentUser }         from '../../../spec_helpers/fake_auth';
 
-describe('GraphQL Conversations Query', () => {
-  let gqlAgent              : ApolloServerTestClient
-  let publicConversations   : Conversation[]
-  let privateConversations  : Conversation[]
 
+describe('GraphQL Conversations Query', () => {
+  let gqlAgent                : ApolloServerTestClient
+  
   before(async () => {
     [,, gqlAgent] = await createGoodchatServer()
   });
-
-  beforeEach(async () => {
-    publicConversations = await factories.conversationFactory.createList(3, { private: false });
-    privateConversations = await factories.conversationFactory.createList(4, { private: true });
-    expect(await db.conversation.count()).to.eq(7)
-  })
-
+  
   afterEach(() => clearCurrentUser())
+  
+  context('Reading customer chats', () => {    
+    let customerConversations   : Conversation[]
 
-  context('Reading public chats', () => {    
-
-    context('As a user witjout chat:customer permissions', () => {
+    beforeEach(async () => {
+      customerConversations = await factories.conversationFactory.createList(3, { type: ConversationType.CUSTOMER });
+      expect(await db.conversation.count()).to.eq(3)
+    })
+    
+    context('As a user without chat:customer permissions', () => {
       beforeEach(async () => {
         setCurrentUser(await factories.staffFactory.create({ permissions: [] }))
       })
 
       it('doesnt return any customer chat', async () => {
-        const { data } = await gqlAgent.query({
+        const { data } : any = await gqlAgent.query({
           query: gql`
             query getConversations {
-              conversations(private: false) {
+              conversations {
                 id
-                private
+                type
               }
             }
           `
@@ -58,7 +57,7 @@ describe('GraphQL Conversations Query', () => {
         const { data } = await gqlAgent.query({
           query: gql`
             query getConversations {
-              conversations(private: false) {
+              conversations {
                 id
               }
             }
@@ -66,10 +65,112 @@ describe('GraphQL Conversations Query', () => {
         })
 
         expect(data.conversations.length).to.eq(3)
-        expect(_.map(data.conversations, 'id')).to.deep.eq(
-          _.chain(publicConversations).orderBy(['id'], ['desc']).map('id').value()
-        )
+        _.each(customerConversations, (cv) => {
+          expect(_.map(data.conversations, 'id')).to.include(cv.id)
+        })
       })
+    })
+  })
+
+  context('Reading private chats', () => {
+    let user          : Staff
+    let otherUser     : Staff
+
+    beforeEach(async () => {
+      user = await factories.staffFactory.create({ permissions: [] });
+      otherUser = await factories.staffFactory.create({ permissions: [] });
+
+      setCurrentUser(user);
+    })
+
+    context('of other users', () => {
+      beforeEach(async () => {
+        await factories.conversationFactory.createList(3,
+          { type: ConversationType.PRIVATE }, {
+          transient: { members: [otherUser] }
+        })
+
+        expect(await db.conversation.count()).to.eq(3)
+      })
+
+      it('doesnt return any customer chat', async () => {
+        const { data } : any = await gqlAgent.query({
+          query: gql`
+            query getConversations {
+              conversations {
+                id
+                type
+              }
+            }
+          `
+        })
+
+        expect(data.conversations.length).to.eq(0)
+      })
+    })
+
+    context('in which he/she is a member', () => {
+      beforeEach(async () => {
+        await factories.conversationFactory.createList(3,
+          { type: ConversationType.PRIVATE }, {
+          transient: { members: [user] }
+        })
+
+        expect(await db.conversation.count()).to.eq(3)
+      })
+
+      it('doesnt return any customer chat', async () => {
+        const { data } : any = await gqlAgent.query({
+          query: gql`
+            query getConversations {
+              conversations {
+                id
+                type
+              }
+            }
+          `
+        })
+
+        expect(data.conversations.length).to.eq(3)
+      })
+    })
+  })
+
+  context('Reading public chats', () => {
+    let user          : Staff
+    let otherUser     : Staff
+
+    beforeEach(async () => {
+      user = await factories.staffFactory.create({ permissions: [] });
+      otherUser = await factories.staffFactory.create({ permissions: [] });
+
+      setCurrentUser(user);
+
+      await factories.conversationFactory.createList(3,
+        { type: ConversationType.PUBLIC }, {
+        transient: { members: [user] }
+      })
+      await factories.conversationFactory.createList(3,
+        { type: ConversationType.PUBLIC }, {
+        transient: { members: [otherUser] }
+      })
+
+      expect(await db.conversation.count()).to.eq(6)
+    })
+
+    it('returns the chat regardless of whether he/she is a member', async () => {
+      const { data } : any = await gqlAgent.query({
+        query: gql`
+          query getConversations {
+            conversations {
+              id
+              type
+            }
+          }
+        `
+      })
+
+      expect(data.conversations.length).to.eq(6)
     })
   })
 });

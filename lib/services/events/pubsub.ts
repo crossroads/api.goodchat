@@ -1,12 +1,17 @@
-import { PubSub } from 'apollo-server-koa'
-import db         from '../../db'
-import _          from 'lodash'
+import { PubSub }  from 'apollo-server-koa'
+import db          from '../../db'
+import _           from 'lodash'
+import { Message } from '@prisma/client';
 
 // @TODO: swap engines with the redis one: https://github.com/davidyaha/graphql-redis-subscriptions
 const pubsub = new PubSub();
 
 export enum PubSubEvents {
   MESSAGE_CREATED = 'message:new'
+}
+
+export type MessageSubscription = {
+  message: Message
 }
 
 db.$use(async (params, next) => {

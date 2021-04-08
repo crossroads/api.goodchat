@@ -46,6 +46,12 @@ model StaffConversations {
   @@id([staffId, conversationId])
 }
 
+enum ConversationType {
+  PRIVATE
+  PUBLIC
+  CUSTOMER
+}
+
 model Conversation {
   id                        Int      @default(autoincrement()) @id
   createdAt                 DateTime @default(now())
@@ -55,7 +61,7 @@ model Conversation {
   customer                  Customer? @relation(fields: [customerId], references: [id])
   source                    String
   readByCustomer            Boolean  @default(false)
-  private                   Boolean  @default(true)
+  type                      ConversationType
   metadata                  Json
   readReceipts              ReadReceipt[]
   messages                  Message[]
@@ -63,7 +69,7 @@ model Conversation {
 
   @@index([customerId])
   @@index([source])
-  @@index([private])
+  @@index([type])
 }
 
 model ReadReceipt {

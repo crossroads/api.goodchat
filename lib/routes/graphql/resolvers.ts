@@ -1,51 +1,17 @@
-import { Conversation, Customer, Message }               from "@prisma/client"
-import { IResolvers, withFilter }                        from "apollo-server-koa"
-import db                                                from "../../db"
-import _                                                 from 'lodash'
-import { pubsub, PubSubEvents }                          from "../../services/events"
+import { Conversation, ConversationType, Customer, Message }   from "@prisma/client"
+import { IResolvers, withFilter }                              from "apollo-server-koa"
+import db                                                      from "../../db"
+import _                                                       from 'lodash'
+import { MessageSubscription, pubsub, PubSubEvents }           from "../../services/events"
+import { GraphQLContext }                                      from "."
+import { CollectionArgs, ConversationArgs, MessageArgs }       from "./data"
 
-// ---------------------------
-// Types
-// ---------------------------
-
-type Pagination = {
-  limit:   number
-  offset:  number
-}
-
-type ListArgs = Partial<Pagination>
-
-type ConversationArgs = ListArgs & {
-  private?: boolean
-}
-
-type RecordArgs = {
+export type RecordArgs = {
   id: number
 }
 
-type WhereClause = Record<string, any>
-
-// ---------------------------
-// Helpers
-// ---------------------------
-
-const readPages = (args: ListArgs) : Pagination => {
-  return {
-    limit: _.clamp(args.limit || 25, 0, 100),
-    offset: _.clamp(args.offset || 0, 0, 100),
-  }
-}
-
-const whereFilters = (args: any, props: string[]) : { where?: WhereClause } => {
-  const whereClause = _.reduce(props, (where, prop) => {
-    return _.has(args, prop) ? { ...where, [prop]: args[prop] } : where
-  }, {} as WhereClause);
-
-  if (_.keys(whereClause).length === 0) {
-    return {};
-  }
-
-  return { where: whereClause }
+export type MessageSubscriptionArgs = {
+  conversationId?: number
 }
 
 // ---------------------------
@@ -58,29 +24,12 @@ const resolvers : IResolvers = {
   // ---------------------------
 
   Query: {
-
-    conversations(_, args : ConversationArgs) {
-      const { offset, limit } = readPages(args);
-
-      // TODO: a user can only see the private conversations he/she is a member of
-
-      return db.conversation.findMany({
-        skip: offset,
-        take: limit,
-        ...whereFilters(args, ['private']),
-        orderBy: [
-          { updatedAt: 'desc' },
-          { id: 'desc' }
-        ]
-      });
+    conversations(_, args : ConversationArgs, ctx : GraphQLContext) {
+      return ctx.dataReader.getConversations(args);
     },
 
-    conversation(_, args : RecordArgs) {
-      const { id } = args;
-
-      return db.conversation.findUnique({ 
-        where: { id }
-      })
+    conversation(_, args : RecordArgs, ctx : GraphQLContext) {
+      return ctx.dataReader.getConversationById(args.id);
     }
   },
 
@@ -92,9 +41,14 @@ const resolvers : IResolvers = {
     message: {
       subscribe: withFilter(
         () => pubsub.asyncIterator(PubSubEvents.MESSAGE_CREATED),
-        (payload, args) => {
-          if (!args?.conversationId) return true;
-          return (payload.message.conversationId === args.conversationId);
+        async (payload: MessageSubscription, args: MessageSubscriptionArgs, context : GraphQLContext) => {
+          if (args.conversationId && payload.message.conversationId !== args.conversationId) {
+            // The user is not interested in this record
+            return false;
+          }
+
+          // Check if the user is allowed to view record
+          return (await context.dataReader.getMessage(payload.message.id)) !== null;
         }
       )
     }
@@ -106,21 +60,16 @@ const resolvers : IResolvers = {
 
   Conversation: {
     /* get messages of a conversation */
-    messages(parent : Conversation, args: ListArgs) {
-      const { offset, limit } = readPages(args);
-
-      return db.message.findMany({
-        skip: offset,
-        take: limit,
-        where: {
-          conversationId: parent.id
-        }
-      })
+    messages(parent : Conversation, args: MessageArgs, ctx: GraphQLContext) {
+      return ctx.dataReader.getMessages({
+        ...args,
+        conversationId: parent.id
+      });
     },
 
     /* get customer of a conversation */
     customer(parent: Conversation) {
-      if (parent.private || !parent.customerId) {
+      if (parent.type !== ConversationType.CUSTOMER || !parent.customerId) {
         return null;
       }
 
@@ -149,27 +98,18 @@ const resolvers : IResolvers = {
   Customer: {
 
     /* get conversations of a customer */
-    conversations(parent: Customer, args: ListArgs) {
-      const { offset, limit } = readPages(args);
-
-      return db.conversation.findMany({
-        skip: offset,
-        take: limit,
-        where: {
-          customerId: parent.id
-        }
+    conversations(parent: Customer, args: CollectionArgs, ctx: GraphQLContext) {
+      return ctx.dataReader.getConversations({
+        ...args,
+        customerId: parent.id
       })
     }
   },
 
   Message: {
     /* get conversation of a message */
-    conversation(parent: Message) {
-      return db.conversation.findUnique({
-        where: {
-          id: parent.conversationId
-        }
-      })
+    conversation(parent: Message, _, ctx: GraphQLContext) {
+      return ctx.dataReader.getConversationById(parent.conversationId);
     }
   }
 };

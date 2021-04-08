@@ -32,7 +32,7 @@ describe('Event conversation:create', () => {
 
       assert.isNotNull(conversation)
       expect(conversation.metadata).to.deep.eq({})
-      expect(conversation.private).to.eq(false)
+      expect(conversation.type).to.eq("CUSTOMER")
       expect(conversation.sunshineConversationId).to.eq(webhookEvent.payload.conversation.id)
       expect(conversation.source).to.eq(webhookEvent.payload.source.client.type)
       expect(await db.customer.findFirst({ where: { id: conversation.customerId } })).to.not.be.null

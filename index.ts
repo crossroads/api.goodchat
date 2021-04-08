@@ -62,7 +62,7 @@ export const goodchat = async (config: GoodChatConfig) : Promise<[GoodchatApp, A
     callback: (ev) => handleWebhookEvent(ev, config)
   }));
 
-  const gqlServer = await graphql();
+  const gqlServer = await graphql(config);
 
   app.use(gqlServer.getMiddleware());
 

@@ -34,6 +34,22 @@ export async function createGoodchatServer(config: Partial<GoodChatConfig> = {})
     ...config
   });
 
+  // @ts-ignore B/c context is marked as private.
+  const oldContext = apollo.context;
+  
+  // @ts-ignore B/c context is marked as private.
+  apollo.context = (params : any) => {
+    return oldContext({
+      ctx: {
+        request: {
+          headers: {
+            'Authorization': 'Bearer dummy'
+          }
+        }
+      }
+    });
+  }
+  
   return [[app, apollo], koaAgent(app), createTestClient(apollo)];
 }
 

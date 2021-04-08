@@ -42,7 +42,7 @@ describe('Event conversation:message', () => {
         });
 
         expect(conversation.customer.sunshineUserId).to.eq(webhookEvent.payload.message.author.user.id)
-        expect(conversation.private).to.eq(false)
+        expect(conversation.type).to.eq("CUSTOMER")
         expect(conversation.readByCustomer).to.eq(true)
         expect(conversation.sunshineConversationId).to.eq(webhookEvent.payload.conversation.id)
         expect(conversation.metadata).to.deep.eq({})
@@ -223,7 +223,7 @@ describe('Event conversation:message', () => {
         const conversation = await db.conversation.findFirst();
 
         expect(conversation.customerId).to.be.null
-        expect(conversation.private).to.eq(false)
+        expect(conversation.type).to.eq("CUSTOMER")
         expect(conversation.readByCustomer).to.eq(false)
         expect(conversation.sunshineConversationId).to.eq(webhookEvent.payload.conversation.id)
         expect(conversation.metadata).to.deep.eq({})
