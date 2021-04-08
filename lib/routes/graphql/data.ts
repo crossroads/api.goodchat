@@ -47,7 +47,7 @@ const normalizePages = (args: CollectionArgs) : Pagination => {
  */
 export function dataReader(staff: Staff) {
 
-  const clean  = (obj: object) => _.pickBy(obj, _.identity);
+  const clean  = <T extends Record<any, any>>(obj: T) => _.pickBy(obj, _.identity);
 
   const getConversations = async (args: ConversationArgs) => {
     const { offset, limit } = normalizePages(args);

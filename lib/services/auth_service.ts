@@ -1,10 +1,10 @@
-import { throwDisabled, throwUnprocessable, unsafe }                         from "../utils/errors"
-import { MiniSchema, minischema }                                            from "../utils/assertions"
-import { Staff }                                                             from "@prisma/client"
-import axios                                                                 from "axios"
-import db                                                                    from "../db"
-import _                                                                     from "lodash"
-import { parseBearer, readBearer }                                           from "../utils/http"
+import { throwDisabled, throwUnprocessable, unsafe }  from "../utils/errors"
+import { MiniSchema, minischema }                     from "../utils/assertions"
+import { Staff }                                      from "@prisma/client"
+import axios                                          from "axios"
+import db                                             from "../db"
+import _                                              from "lodash"
+import { parseBearer }                                from "../utils/http"
 import {
   GoodChatAuthMode,
   GoodChatConfig,
@@ -58,7 +58,7 @@ export default function (cfg: GoodChatConfig) {
     throwDisabled('errors.authentication.disabled')
   })
 
-  const authenticateHeaders = <O extends Object>(headers: O) => {
+  const authenticateHeaders = <O extends Record<string, any>>(headers: O) => {
     const bearer = _.get(headers, 'authorization') || _.get(headers, 'Authorization', '');
     return authenticate(parseBearer(bearer) || '');
   }

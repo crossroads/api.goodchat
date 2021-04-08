@@ -5,8 +5,6 @@ import { CollectionName }                         from "../db";
 
 type Rules = Record<string, any>
 
-type WhereClause = { where: Rules }
-
 // ----------------------------
 //  Helpers
 // ----------------------------

@@ -14,7 +14,9 @@ export enum GoodChatPermissions {
   ADMIN           = "admin"
 }
 
-type _AuthSwitch<T extends GoodChatAuthMode, Props = {}> = Props & { mode: T }
+interface NoProps {}
+
+type _AuthSwitch<T extends GoodChatAuthMode, Props = NoProps> = Props & { mode: T }
 
 export type GoodChatAuthConfig = (
   _AuthSwitch<GoodChatAuthMode.NONE> |

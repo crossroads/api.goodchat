@@ -3,7 +3,6 @@ import { makeExecutableSchema }              from "graphql-tools"
 import * as scalars                          from 'graphql-scalars'
 import { promises as fs }                    from 'fs'
 import path                                  from 'path'
-import _                                     from 'lodash'
 import resolvers                             from './resolvers'
 import logger                                from '../../utils/logger'
 import authService                           from '../../services/auth_service'
@@ -16,6 +15,10 @@ const { info } = logger('graphql');
 export interface GraphQLContext {
   staff: Staff,
   dataReader: DataReader
+}
+
+export interface RootParent {
+  // empty for now
 }
 
 /**
@@ -34,7 +37,7 @@ async function buildGraphQL(config: GoodChatConfig) {
 
   info('booting apollo')
 
-  const createContext = async (headers: Object) : Promise<GraphQLContext> => {
+  const createContext = async (headers: Record<string, string>) : Promise<GraphQLContext> => {
     const staff = await authService(config).authenticateHeaders(headers);
     return {
       staff,
@@ -56,13 +59,16 @@ async function buildGraphQL(config: GoodChatConfig) {
     subscriptions: {
       path: '/subscriptions',
       onConnect: async (params) : Promise<GraphQLContext> => {
-        const ctx = await createContext(params);
+        const ctx = await createContext(params as Record<string, string>);
         info(`User ${ctx.staff.id} connected`);        
         return ctx;
       },
-      onDisconnect: (webSocket, context) => {
-        info('client disconnected')
+      onDisconnect: () => {
+        info(`User disconnected`)
       }
+    },
+    rootValue: () : RootParent => {
+      return {};
     },
     context: ({ ctx, connection }) : Promise<GraphQLContext> => {
       return (

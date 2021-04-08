@@ -1,10 +1,10 @@
-import { Conversation, ConversationType, Customer, Message }   from "@prisma/client"
-import { IResolvers, withFilter }                              from "apollo-server-koa"
-import db                                                      from "../../db"
-import _                                                       from 'lodash'
-import { MessageSubscription, pubsub, PubSubEvents }           from "../../services/events"
-import { GraphQLContext }                                      from "."
-import { CollectionArgs, ConversationArgs, MessageArgs }       from "./data"
+import { Conversation, ConversationType, Customer, Message }               from "@prisma/client"
+import { IResolvers, withFilter }                                          from "apollo-server-koa"
+import db                                                                  from "../../db"
+import _                                                                   from 'lodash'
+import { MessageSubscription, pubsub, PubSubEvents }                       from "../../services/events"
+import { GraphQLContext, RootParent }                                      from "."
+import { CollectionArgs, ConversationArgs, MessageArgs }                   from "./data"
 
 export type RecordArgs = {
   id: number
@@ -24,11 +24,11 @@ const resolvers : IResolvers = {
   // ---------------------------
 
   Query: {
-    conversations(_, args : ConversationArgs, ctx : GraphQLContext) {
+    conversations(parent: RootParent, args : ConversationArgs, ctx : GraphQLContext) {
       return ctx.dataReader.getConversations(args);
     },
 
-    conversation(_, args : RecordArgs, ctx : GraphQLContext) {
+    conversation(parent: RootParent, args : RecordArgs, ctx : GraphQLContext) {
       return ctx.dataReader.getConversationById(args.id);
     }
   },
