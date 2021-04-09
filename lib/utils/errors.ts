@@ -2,7 +2,7 @@ import * as i18nService       from '../services/i18n'
 import { isPromise }          from './async'
 import { I18n }               from 'i18n'
 import _                      from 'lodash'
-import { AnyFunc, Arguments } from '../typings/lang'
+import { AnyFunc }            from '../typings/lang'
 import axios                  from 'axios'
 
 /**

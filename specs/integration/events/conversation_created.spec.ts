@@ -32,7 +32,7 @@ describe('Event conversation:create', () => {
 
       assert.isNotNull(conversation)
       expect(conversation.metadata).to.deep.eq({})
-      expect(conversation.private).to.eq(false)
+      expect(conversation.type).to.eq("CUSTOMER")
       expect(conversation.sunshineConversationId).to.eq(webhookEvent.payload.conversation.id)
       expect(conversation.source).to.eq(webhookEvent.payload.source.client.type)
       expect(await db.customer.findFirst({ where: { id: conversation.customerId } })).to.not.be.null
@@ -62,7 +62,10 @@ describe('Event conversation:create', () => {
 
     beforeEach(async () => {
       customer     = await factories.customerFactory.create({ sunshineUserId: webhookEvent.payload.user.id });
-      conversation = await factories.conversationFactory.create({ customerId: customer.id });
+      conversation = await factories.conversationFactory.create({
+        sunshineConversationId: webhookEvent.payload.conversation.id,
+        customerId: customer.id
+      });
 
       expect(await db.conversation.count()).to.eq(1)
       expect(await db.customer.count()).to.eq(1)

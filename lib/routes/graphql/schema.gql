@@ -1,0 +1,64 @@
+type Query {
+  conversations(limit: Int, offset: Int, type: String): [Conversation]
+  conversation(id: Int!): Conversation
+}
+
+type Subscription {
+  message(conversationId: Int): Message
+}
+
+# TODO: Mutations
+#   - JoinConversation(user, conversation)
+#   - LeaveConversation(user, conversation)
+#   - sendMessage(conversationId)
+#   - createPrivateConversation
+
+type Conversation {
+  id: Int
+  customerId: Int
+  customer: Customer
+  source: String
+  readByCustomer: Boolean
+  type: String
+  metadata: JSON
+  createdAt: DateTime
+  updatedAt: DateTime
+  messages(limit: Int, offset: Int): [Message]
+  staffs: [Staff]
+}
+
+type Message {
+  id: Int
+  createdAt: DateTime
+  updatedAt: DateTime
+  conversationId: Int
+  conversation: Conversation
+  authorType: String
+  authorId: Int
+  content: JSON
+  metadata: JSON
+}
+
+type Customer {
+  id: Int
+  createdAt: DateTime
+  displayName: String
+  email: String
+  avatarUrl: String
+  locale: String!
+  metadata: JSON
+  conversations: [Conversation]
+}
+
+type Staff {
+  id: Int
+  createdAt: DateTime
+  updatedAt: DateTime
+  externalId: String
+  displayName: String
+  metadata: JSON
+  permissions: [String],
+  conversations: [Conversation]
+}
+
+

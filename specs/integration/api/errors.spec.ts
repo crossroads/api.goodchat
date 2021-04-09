@@ -9,13 +9,10 @@ import {
 describe('API', () => {
 
   describe('Error handling', () => {
-    let app   : GoodchatApp
     let agent : TestAgent
 
     before(async () => {
-      [app] = await createGoodchatServer()
-
-      agent = createAgent(app);
+      [, agent] = await createGoodchatServer()
     });
 
     context('Unhandled routes', () => {

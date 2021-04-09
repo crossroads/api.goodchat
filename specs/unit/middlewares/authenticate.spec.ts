@@ -7,7 +7,7 @@ import _                                          from 'lodash'
 import { BLANK_CONFIG }                           from '../../samples/config'
 import { GoodChatAuthMode, GoodChatPermissions }  from '../../../lib/typings/goodchat'
 import { GoodchatError }                          from '../../../lib/utils/errors'
-import { Staff }                                  from '.prisma/client'
+import { Staff }                                  from '@prisma/client'
 import {
   createBlankServer,
   TestAgent
@@ -87,7 +87,7 @@ describe('Middlewares/authenticate', () => {
   it('returns a 403 if the user does not have the permissions required', async () => {
     authMethodStub = authMethodStub.returns(Promise.resolve({
       ...staff,
-      permissions: [GoodChatPermissions.CHAT_INTERNAL]
+      permissions: []
     }));
 
     await agent

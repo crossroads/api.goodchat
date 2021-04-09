@@ -12,13 +12,12 @@
  * Copyright (c) 2021 Crossroads Foundation
  */
 
-import { initializeCustomer, sunshineUserToCustomer } from '../../customer_service';
-import { SunshineAuthor, SunshineAuthorUser }         from '../../../typings/sunshine'
-import { registerWebhookHandler }                     from '..'
-import { upsertConversation }                         from '../../conversation_service'
-import { GoodChatConfig }                             from '../../../typings/goodchat'
-import { AuthorType }                                 from "@prisma/client"
-import  db                                            from "../../../db"
+import { initializeCustomer, sunshineUserToCustomer }                   from '../../customer_service';
+import { SunshineAuthor, SunshineAuthorUser }                           from '../../../typings/sunshine'
+import { registerWebhookHandler }                                       from '..'
+import { upsertConversation }                                           from '../../conversation_service'
+import { AuthorType, ConversationType }                                 from "@prisma/client"
+import  db                                                              from "../../../db"
 import {
   ConversationMessageEvent,
   WebhookEventBase,
@@ -50,7 +49,7 @@ export async function onMessageCreated(event: WebhookEventBase) : Promise<void> 
     readByCustomer:         customerId !== null,
     customerId:             customerId,
     metadata:               {},
-    private:                false,
+    type:                   ConversationType.CUSTOMER,
     source:                 payload.message.source.type
   })
 

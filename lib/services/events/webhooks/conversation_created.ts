@@ -16,6 +16,7 @@ import { upsertConversation }                                           from "..
 import { registerWebhookHandler }                                       from '..'
 import { ConversationCreatedEvent, WebhookEventBase, WebhookEventType } from "../../../typings/webhook_types";
 import logger                                                           from '../../../utils/logger'
+import { ConversationType }                                             from "@prisma/client";
 import {
   initializeCustomer,
   sunshineUserToCustomer
@@ -38,7 +39,7 @@ export async function onConversationCreated(event: WebhookEventBase) : Promise<v
       customerId:             customer.id,
       source:                 payload.source.type,
       readByCustomer:         true,
-      private:                false,
+      type:                   ConversationType.CUSTOMER,
       metadata:               {}
   })
 

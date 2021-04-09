@@ -72,6 +72,13 @@ $> npm run doctoc
 
 ## Prerequisites
 
+### System requirements
+
+- Node 14.x
+- NPM 7+
+
+NPM 7 or above is required in order to handle peer-dependencies of the apollo server. An older version of NPM can be used but it may require you to install some modules manually
+
 ### Dependencies
 
 Install the node dependencies using
@@ -175,6 +182,31 @@ When running the server from an NPM script, the server can be configured using t
 	* `staging`
   * `development` (default)
 * `NO_AUTH` - if set to "true" or "yes", will no support any form of authentication (good for testing)
+
+## GraphQL
+
+### Using the playground
+
+- Open [](http://localhost:8000/graphql) on your browser to view the playground
+- Make sure the Auth API is running, the default DEV environment will use localhost:3000 as an auth endpoint
+- At the bottom of the playground, set the HTTP Headers to include an Authorization header
+- Write your queries
+- Press play
+
+Here's an example query to get you started
+
+```gql
+query Conversations {
+  conversations {
+    id
+    type
+    messages {
+      id
+      content
+    }
+  }
+}
+```
 
 ## Testing
 
