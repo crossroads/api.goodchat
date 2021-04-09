@@ -72,6 +72,13 @@ $> npm run doctoc
 
 ## Prerequisites
 
+### System requirements
+
+- Node 14.x
+- NPM 7+
+
+NPM 7 or above is required in order to handle peer-dependencies of the apollo server. An older version of NPM can be used but it may require you to install some modules manually
+
 ### Dependencies
 
 Install the node dependencies using
