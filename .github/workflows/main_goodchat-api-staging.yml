@@ -44,7 +44,10 @@ jobs:
     - name: Set up Node.js version
       uses: actions/setup-node@v1
       with:
-        node-version: '12.x'
+        node-version: '14.x'
+
+    - name: Use NPM 7
+      run: npm install --global npm@7
 
     - name: npm install, build, and test
       env:
