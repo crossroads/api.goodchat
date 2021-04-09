@@ -183,6 +183,31 @@ When running the server from an NPM script, the server can be configured using t
   * `development` (default)
 * `NO_AUTH` - if set to "true" or "yes", will no support any form of authentication (good for testing)
 
+## GraphQL
+
+### Using the playground
+
+- Open [](http://localhost:8000/graphql) on your browser to view the playground
+- Make sure the Auth API is running, the default DEV environment will use localhost:3000 as an auth endpoint
+- At the bottom of the playground, set the HTTP Headers to include an Authorization header
+- Write your queries
+- Press play
+
+Here's an example query to get you started
+
+```gql
+query Conversations {
+  conversations {
+    id
+    type
+    messages {
+      id
+      content
+    }
+  }
+}
+```
+
 ## Testing
 
 Goodchat specs are written using [Mocha](https://www.npmjs.com/package/mocha), they are all located under the `spec/` folder.
