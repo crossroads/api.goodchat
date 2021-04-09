@@ -117,9 +117,6 @@ NODE_EXE=node
 # selectNodeVersion
 #
 
-# 3. Install npm 7
-
-npm install --global npm@7
 
 # 4. Install npm packages
 if [ -e "$DEPLOYMENT_TARGET/package.json" ]; then
