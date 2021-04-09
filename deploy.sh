@@ -110,7 +110,7 @@ fi
 
 # 2. Select node version
 
-NPM_CMD="npx --yes npm@7"
+NPM_CMD="npx npm@7"
 NODE_EXE=node
 
 #
