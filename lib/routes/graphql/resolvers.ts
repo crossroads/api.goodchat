@@ -6,7 +6,8 @@ import { MessageSubscription, pubsub, PubSubEvents }                       from 
 import { GraphQLContext, RootParent }                                      from "."
 import { CollectionArgs, ConversationArgs, MessageArgs }                   from "./data"
 
-export type RecordArgs = {
+export interface BaseArgs {}
+export interface RecordArgs extends BaseArgs {
   id: number
 }
 
@@ -108,7 +109,7 @@ const resolvers : IResolvers = {
 
   Message: {
     /* get conversation of a message */
-    conversation(parent: Message, _, ctx: GraphQLContext) {
+    conversation(parent: Message, args: BaseArgs, ctx: GraphQLContext) {
       return ctx.dataReader.getConversationById(parent.conversationId);
     }
   }
