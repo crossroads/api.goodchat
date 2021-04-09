@@ -43,6 +43,9 @@ jobs:
       with:
         node-version: '14.x'
 
+    - name: Use NPM 7
+      run: npm install --global npm@7
+
     - name: npm install, build, and test
       env:
         DB_CREDENTIALS: "testuser@test_database:testpassword"
