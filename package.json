@@ -17,7 +17,7 @@
     "test:coverage": "nyc npm run test",
     "coverage:json": "nyc report --reporter=json",
     "coverage:html": "nyc report --reporter=html",
-    "copy:assets": "rsync -R lib/routes/graphql/schema.gql  locales tsconfig.json ./dist",
+    "copy:assets": "rsync -rR lib/routes/graphql/schema.gql ./locales ./tsconfig.json ./dist",
     "clean": "rm -rf dist",
     "document": "typedoc --includeVersion",
     "doctoc": "doctoc README.md",
