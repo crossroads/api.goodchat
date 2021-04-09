@@ -10,9 +10,7 @@ ALTER TABLE "Conversation" ADD COLUMN  "type" "ConversationType";
 -- CreateIndex
 CREATE INDEX "Conversation.type_index" ON "Conversation"("type");
 
-UPDATE "Conversation"
-SET type = 'CUSTOMER'
-WHERE "customerId" IS NOT NULL;
+UPDATE "Conversation" SET type = 'CUSTOMER' -- default
 
 UPDATE "Conversation"
 SET type = 'PUBLIC'
