@@ -110,18 +110,14 @@ fi
 
 # 2. Select node version
 
-NPM_CMD=npm
+NPM_CMD="npx --yes npm@7"
 NODE_EXE=node
 
 #
 # selectNodeVersion
 #
 
-# 3. Install npm 7
-
-sudo npm install --global npm@7
-
-# 4. Install npm packages
+# 3. Install npm packages
 if [ -e "$DEPLOYMENT_TARGET/package.json" ]; then
   cd "$DEPLOYMENT_TARGET"
   echo "Running $NPM_CMD install"
