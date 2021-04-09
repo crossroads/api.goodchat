@@ -12,15 +12,15 @@ CREATE INDEX "Conversation.type_index" ON "Conversation"("type");
 
 UPDATE "Conversation"
 SET type = 'CUSTOMER'
-WHERE customerId != NULL;
+WHERE "customerId" IS NOT NULL;
 
 UPDATE "Conversation"
 SET type = 'PUBLIC'
-WHERE customerId = NULL AND private = false;
+WHERE "customerId" IS NULL AND private = false;
 
 UPDATE "Conversation"
 SET type = 'PRIVATE'
-WHERE customerId = NULL AND private = true;
+WHERE "customerId" IS NULL AND private = true;
 
 ALTER TABLE "Conversation" ALTER COLUMN "type" SET NOT NULL;
 
