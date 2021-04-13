@@ -8,13 +8,13 @@ import logger                                from '../../utils/logger'
 import authService                           from '../../services/auth_service'
 import { GoodChatConfig }                    from '../../typings/goodchat'
 import { Staff }                             from '@prisma/client'
-import { dataReader, DataReader }            from './data'
+import { abilities, Abilities }              from '../../services/abilities'
 
 const { info } = logger('graphql');
 
 export interface GraphQLContext {
-  staff: Staff,
-  dataReader: DataReader
+  staff:      Staff,
+  abilities:  Abilities
 }
 
 export interface RootParent {
@@ -41,7 +41,7 @@ async function buildGraphQL(config: GoodChatConfig) {
     const staff = await authService(config).authenticateHeaders(headers);
     return {
       staff,
-      dataReader: dataReader(staff)
+      abilities: abilities(staff)
     }
   }
 

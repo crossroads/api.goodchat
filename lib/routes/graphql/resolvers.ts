@@ -4,7 +4,7 @@ import db                                                                  from 
 import _                                                                   from 'lodash'
 import { MessageSubscription, pubsub, PubSubEvents }                       from "../../services/events"
 import { GraphQLContext, RootParent }                                      from "."
-import { CollectionArgs, ConversationArgs, MessageArgs }                   from "./data"
+import { CollectionArgs, ConversationArgs, MessageArgs }                   from "../../services/abilities"
 
 export interface BaseArgs {}
 export interface RecordArgs extends BaseArgs {
@@ -26,11 +26,11 @@ const resolvers : IResolvers = {
 
   Query: {
     conversations(parent: RootParent, args : ConversationArgs, ctx : GraphQLContext) {
-      return ctx.dataReader.getConversations(args);
+      return ctx.abilities.getConversations(args);
     },
 
     conversation(parent: RootParent, args : RecordArgs, ctx : GraphQLContext) {
-      return ctx.dataReader.getConversationById(args.id);
+      return ctx.abilities.getConversationById(args.id);
     }
   },
 
@@ -49,7 +49,7 @@ const resolvers : IResolvers = {
           }
 
           // Check if the user is allowed to view record
-          return (await context.dataReader.getMessage(payload.message.id)) !== null;
+          return (await context.abilities.getMessageById(payload.message.id)) !== null;
         }
       )
     }
@@ -62,7 +62,7 @@ const resolvers : IResolvers = {
   Conversation: {
     /* get messages of a conversation */
     messages(parent : Conversation, args: MessageArgs, ctx: GraphQLContext) {
-      return ctx.dataReader.getMessages({
+      return ctx.abilities.getMessages({
         ...args,
         conversationId: parent.id
       });
@@ -100,7 +100,7 @@ const resolvers : IResolvers = {
 
     /* get conversations of a customer */
     conversations(parent: Customer, args: CollectionArgs, ctx: GraphQLContext) {
-      return ctx.dataReader.getConversations({
+      return ctx.abilities.getConversations({
         ...args,
         customerId: parent.id
       })
@@ -110,7 +110,7 @@ const resolvers : IResolvers = {
   Message: {
     /* get conversation of a message */
     conversation(parent: Message, args: BaseArgs, ctx: GraphQLContext) {
-      return ctx.dataReader.getConversationById(parent.conversationId);
+      return ctx.abilities.getConversationById(parent.conversationId);
     }
   }
 };
