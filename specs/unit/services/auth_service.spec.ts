@@ -1,19 +1,15 @@
-import { GoodchatError } from '../../../lib/utils/errors'
-import { BLANK_CONFIG }  from '../../samples/config'
-import authService       from '../../../lib/services/auth_service'
-import * as factories    from '../../factories'
-import { expect }        from 'chai'
-import nock              from 'nock'
-import db                from '../../../lib/db'
+import { GoodchatError }                     from '../../../lib/utils/errors'
+import authService                           from '../../../lib/services/auth_service'
+import * as factories                        from '../../factories'
+import { expect }                            from 'chai'
+import nock                                  from 'nock'
+import db                                    from '../../../lib/db'
+import { AuthPayload, GoodChatPermissions }  from '../../../lib/typings/goodchat'
 import {
-  AuthPayload,
-  GoodChatAuthMode,
-  GoodChatPermissions
-}  from '../../../lib/typings/goodchat'
-
-const FAKE_HOST     = 'https://fake.biz'
-const FAKE_ENDPOINT = '/endpoint'
-const FAKE_URL      = `${FAKE_HOST}${FAKE_ENDPOINT}`
+  WEBHOOK_AUTH_CONFIG,
+  FAKE_AUTH_ENDPOINT,
+  FAKE_AUTH_HOST
+} from '../../samples/config'
 
 describe('Services/auth', () => {
   let apiCall : nock.Scope;
@@ -23,19 +19,13 @@ describe('Services/auth', () => {
   })
 
   describe('Webhook authentication', () => {
-    const subject = authService({
-      ...BLANK_CONFIG,
-      auth: {
-        mode: GoodChatAuthMode.WEBHOOK,
-        url: FAKE_URL
-      }
-    })
+    const subject = authService(WEBHOOK_AUTH_CONFIG)
 
     context('if the auth server returns a 200', () => {
 
       context('with a bad payload', () => {
         beforeEach(() => {
-          apiCall = nock(FAKE_HOST).post(FAKE_ENDPOINT).reply(200, {
+          apiCall = nock(FAKE_AUTH_HOST).post(FAKE_AUTH_ENDPOINT).reply(200, {
             'bad': 'schema'
           })
         })
@@ -59,7 +49,7 @@ describe('Services/auth', () => {
         }
 
         beforeEach(() => {
-          apiCall = nock(FAKE_HOST).post(FAKE_ENDPOINT).reply(200, payload)
+          apiCall = nock(FAKE_AUTH_HOST).post(FAKE_AUTH_ENDPOINT).reply(200, payload)
         })
 
         it('creates a staff member', async () => {
@@ -129,7 +119,7 @@ describe('Services/auth', () => {
 
     context('if the auth server returns a 403', () => {
       beforeEach(() => {
-        apiCall = nock(FAKE_HOST).post(FAKE_ENDPOINT).reply(403);
+        apiCall = nock(FAKE_AUTH_HOST).post(FAKE_AUTH_ENDPOINT).reply(403);
       })
 
       it('throws a forbidden error', async () => {
@@ -141,7 +131,7 @@ describe('Services/auth', () => {
 
     context('if any error occurs', () => {
       beforeEach(() => {
-        apiCall = nock(FAKE_HOST).post(FAKE_ENDPOINT).replyWithError('boom!')
+        apiCall = nock(FAKE_AUTH_HOST).post(FAKE_AUTH_ENDPOINT).replyWithError('boom!')
       })
 
       it('throws a GoodChatError', async () => {

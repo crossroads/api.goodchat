@@ -1,10 +1,14 @@
-import { Conversation, ConversationType, Customer, Message }               from "@prisma/client"
-import { IResolvers, withFilter }                                          from "apollo-server-koa"
-import db                                                                  from "../../db"
-import _                                                                   from 'lodash'
-import { MessageSubscription, pubsub, PubSubEvents }                       from "../../services/events"
-import { GraphQLContext, RootParent }                                      from "."
-import { CollectionArgs, ConversationArgs, MessageArgs }                   from "../../services/abilities"
+import { MessageEvent, pubsub, PubSubAction, PubSubEvent }         from "../../services/events"
+import { Conversation, ConversationType, Customer, Message }       from "@prisma/client"
+import { CollectionArgs, ConversationArgs, MessageArgs }           from "../../services/abilities"
+import { GraphQLContext, RootParent }                              from "."
+import { IResolvers, withFilter }                                  from "apollo-server-koa"
+import db                                                          from "../../db"
+import _                                                           from 'lodash'
+
+// ---------------------------
+// Types
+// ---------------------------
 
 export interface BaseArgs {}
 export interface RecordArgs extends BaseArgs {
@@ -12,7 +16,8 @@ export interface RecordArgs extends BaseArgs {
 }
 
 export type MessageSubscriptionArgs = {
-  conversationId?: number
+  conversationId?: number,
+  actions?: PubSubAction[]
 }
 
 // ---------------------------
@@ -39,20 +44,42 @@ const resolvers : IResolvers = {
   // ---------------------------
 
   Subscription: {
-    message: {
+    messageEvent: {
+      resolve: _.identity,
       subscribe: withFilter(
-        () => pubsub.asyncIterator(PubSubEvents.MESSAGE_CREATED),
-        async (payload: MessageSubscription, args: MessageSubscriptionArgs, context : GraphQLContext) => {
+        //
+        // PubSub event to listen to
+        //
+        () => pubsub.asyncIterator(PubSubEvent.MESSAGE),
+        //
+        // Predicate method to decide whether we should notify a user of this event
+        //
+        async (payload: MessageEvent, args: MessageSubscriptionArgs, context: GraphQLContext) => {
           if (args.conversationId && payload.message.conversationId !== args.conversationId) {
-            // The user is not interested in this record
-            return false;
+            return false; // The user is not interested in this record
+          }
+          
+          if (args.actions && !_.includes(args.actions, payload.action)) {
+            return false; // The user is not interested in this kind of action
           }
 
           // Check if the user is allowed to view record
-          return (await context.abilities.getMessageById(payload.message.id)) !== null;
+          return Boolean(
+            await context.abilities.getConversationById(payload.message.conversationId)
+          )
         }
       )
     }
+  },
+
+  // ---------------------------
+  // Enum resolvers
+  // ---------------------------
+
+  SubscriptionAction: {
+    CREATE: 'create',
+    UPDATE: 'update',
+    DELETE: 'delete'
   },
 
   // ---------------------------

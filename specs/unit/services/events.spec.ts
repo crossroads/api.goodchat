@@ -1,4 +1,4 @@
-import { pubsub, PubSubEvents }        from '../../../lib/services/events'
+import { pubsub, PubSubEvent }         from '../../../lib/services/events'
 import * as factories                  from '../../factories'
 import { expect }                      from 'chai'
 import _                               from 'lodash'
@@ -11,8 +11,8 @@ describe('Services/events', () => {
 
     beforeEach(async () => {
       events = [];
-      subId = await pubsub.subscribe(PubSubEvents.MESSAGE_CREATED, (body) => events.push([
-        PubSubEvents.MESSAGE_CREATED, body
+      subId = await pubsub.subscribe(PubSubEvent.MESSAGE, (body) => events.push([
+        PubSubEvent.MESSAGE, body
       ]));
     })
 
@@ -20,16 +20,16 @@ describe('Services/events', () => {
       await pubsub.unsubscribe(subId)
     })
 
-    it('Fires a message:new event when a message is created', async () => {
+    it('Fires a message created event when a message is created', async () => {
       expect(events).to.be.of.length(0)
       
       const message = await factories.messageFactory.create({})
 
       expect(events).to.be.of.length(1)
-      expect(events[0]).to.deep.eq([PubSubEvents.MESSAGE_CREATED, { message }])
+      expect(events[0]).to.deep.eq([PubSubEvent.MESSAGE, { action: 'create', message }])
     })
 
-    it('Fires a message:new event when a message is created via an upsert', async () => {
+    it('Fires a message created event when a message is created via an upsert', async () => {
       expect(events).to.be.of.length(0)
       
       const conversation = await factories.conversationFactory.create({});
@@ -42,10 +42,10 @@ describe('Services/events', () => {
       })
 
       expect(events).to.be.of.length(1)
-      expect(events[0]).to.deep.eq([PubSubEvents.MESSAGE_CREATED, { message }])
+      expect(events[0]).to.deep.eq([PubSubEvent.MESSAGE, { action: 'create', message }])
     })
 
-    it('Doesnt fire a message:new event when a message is updated via an upsert', async () => {
+    it('Fires a message updated event when a message is updated via an upsert', async () => {
       expect(events).to.be.of.length(0)
       
       const conversation = await factories.conversationFactory.create({});
@@ -61,7 +61,14 @@ describe('Services/events', () => {
       })
 
       expect(await db.message.count()).to.eq(1)
-      expect(events).to.be.of.length(1)
+      expect(events).to.be.of.length(2)
+
+      const [, payload] = events[1];
+
+      expect(payload.action).to.eq('update')
+      expect(payload.message).not.to.be.null;
+      expect(payload.message.id).to.eq(message.id)
+      expect(payload.message.metadata).to.deep.eq({ 'some': 'data' })
     })
   })
 });

@@ -33,7 +33,7 @@ export default function (cfg: GoodChatConfig) {
   }
 
   const authenticate = unsafe(async (token: string) : Promise<Staff> => {
-
+    
     if (cfg.auth.mode === GoodChatAuthMode.WEBHOOK) {
       /*
         === Webhook authentication
@@ -46,7 +46,7 @@ export default function (cfg: GoodChatConfig) {
       const { url } = cfg.auth;
       const method  = 'POST';
       const headers = { 'Authorization': `Bearer ${token}` };
-  
+
       const res     = await axios({ method, url, headers })
       const payload : unknown = res.data;
   

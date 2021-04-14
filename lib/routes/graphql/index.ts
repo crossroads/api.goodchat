@@ -57,7 +57,7 @@ async function buildGraphQL(config: GoodChatConfig) {
       ]
     }),
     subscriptions: {
-      path: '/subscriptions',
+      path: '/graphql/subscriptions',
       onConnect: async (params) : Promise<GraphQLContext> => {
         const ctx = await createContext(params as Record<string, string>);
         info(`User ${ctx.staff.id} connected`);        
