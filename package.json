@@ -16,8 +16,6 @@
     "test": "mocha",
     "test:fast": "npm run test -- --bail",
     "test:coverage": "nyc npm run test",
-    "coverage:json": "nyc report --reporter=json",
-    "coverage:html": "nyc report --reporter=html",
     "copy:assets": "rsync -rR lib/routes/graphql/schema.gql ./locales ./tsconfig.json ./dist",
     "clean": "rm -rf dist",
     "document": "typedoc --includeVersion",
@@ -29,11 +27,25 @@
     "db:migrate:test": "NODE_ENV=test kankyo -f exec -- prisma migrate dev --preview-feature",
     "db:migrate:azure": "kankyo exec -- prisma migrate deploy --preview-feature",
     "lint": "eslint . --ext .ts",
-    "studio": "NODE_ENV=development kankyo -f exec -- prisma studio"
+    "studio": "NODE_ENV=development kankyo -f exec -- prisma studio",
+    "codecov": "codecov"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/crossroads/api.goodchat.git"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "include": [
+      "lib/**/*.ts"
+    ],
+    "reporter": [
+      "html",
+      "lcov"
+    ],
+    "all": true
   },
   "keywords": [
     "omnichannel",
@@ -75,6 +87,7 @@
     "apollo-server-testing": "^2.22.2",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
+    "codecov": "^3.8.1",
     "cross-fetch": "^3.1.4",
     "doctoc": "^2.0.0",
     "eslint": "^7.21.0",

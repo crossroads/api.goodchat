@@ -55,9 +55,13 @@ jobs:
         DB_NAME: "test_database"
       run: |
         npm install
-        npm run build --if-present
+        npm run build
         npm run db:migrate:test
-        npm run test --if-present
+        npm run test:coverage
+
+    - run: npx codecov --token="${{secrets.CODECOV_TOKEN}}"
+      env:
+        npm_config_yes: true
 
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v2
