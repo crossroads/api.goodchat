@@ -1,7 +1,7 @@
-import { ConversationType, Staff }         from "@prisma/client";
-import _                                   from "lodash";
-import db                                  from "../../db";
-import { getAbilities }                    from "../../services/abilities";
+import { ConversationType, Staff }         from "@prisma/client"
+import _                                   from "lodash"
+import db                                  from "../../db"
+import { getConversationRules }            from "./rules"
 
 export type Pagination = {
   limit:   number
@@ -39,15 +39,18 @@ const normalizePages = (args: CollectionArgs) : Pagination => {
 // ---------------------------
 
 /**
- * Creates a data reader for a certain staff member, which automatically applies any
+ * Creates a set of secure methods for a certain staff member, which automatically applies any
  * security rules to the db request
  *
  * @export
  * @param {Staff} staff
  */
-export function dataReader(staff: Staff) {
+export function abilities(staff: Staff) {
 
   const clean  = <T extends Record<any, any>>(obj: T) => _.pickBy(obj, _.identity);
+
+
+  // --- CONVERSATIONS 
 
   const getConversations = async (args: ConversationArgs) => {
     const { offset, limit } = normalizePages(args);
@@ -56,8 +59,8 @@ export function dataReader(staff: Staff) {
       skip: offset,
       take: limit,
       where: clean({
-        ...getAbilities(staff, 'conversation'),
-        ..._.pickBy(args, ['type', 'id', 'customerId'])
+        ...getConversationRules(staff),
+        ..._.pick(args, ['type', 'id', 'customerId'])
       }),
       orderBy: [
         { updatedAt: 'desc' },
@@ -70,6 +73,8 @@ export function dataReader(staff: Staff) {
     return (await getConversations({ id, offset: 0, limit: 1 }))[0] || null;
   }
 
+  // --- MESSAGES
+
   const getMessages = async (args: MessageArgs) => {
     const { offset, limit } = normalizePages(args);
 
@@ -77,14 +82,14 @@ export function dataReader(staff: Staff) {
       skip: offset,
       take: limit,
       where: clean({
-        conversation: getAbilities(staff, 'conversation'), // Prevent the user from reading messages from non-entitled conversations
+        conversation: getConversationRules(staff), // Prevent the user from reading messages from non-entitled conversations
         id: args.id,
         conversationId: args.conversationId
       })
     })
   }
 
-  const getMessage = async (id: number) => {
+  const getMessageById = async (id: number) => {
     return (await getMessages({ id, offset: 0, limit: 1 }))[0] || null;
   }
 
@@ -92,8 +97,8 @@ export function dataReader(staff: Staff) {
     getConversations,
     getConversationById,
     getMessages,
-    getMessage
+    getMessageById
   }
 }
 
-export type DataReader = ReturnType<typeof dataReader>
+export type Abilities = ReturnType<typeof abilities>

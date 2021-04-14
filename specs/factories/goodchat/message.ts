@@ -13,7 +13,7 @@ import { conversationFactory }        from './conversation'
  */
 export const messageFactory = Factory.define<Message>(({ sequence, onCreate }) => {
   onCreate(async (data) => {
-    if (data.conversationId && await db.customer.findUnique({ where: { id: data.conversationId }}) === null) {
+    if (data.conversationId && await db.conversation.findUnique({ where: { id: data.conversationId }}) === null) {
       data.conversationId = (await conversationFactory.create()).id;
     }
     return db.message.create({
