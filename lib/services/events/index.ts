@@ -3,13 +3,13 @@
  *
  * This service serves as a handler for incoming Webhook events
  * Each even has a custom handler in the `events/webhooks` folder
- * 
+ *
  * It also supports:
- *  - Registering additional emitters 
+ *  - Registering additional emitters
  *  - Traditional EventEmitter functionalities
- * 
+ *
  * Created on Thu Mar 11 2021
- * 
+ *
  * Copyright (c) 2021 Crossroads Foundation
  */
 

@@ -58,7 +58,7 @@ const resolvers : IResolvers = {
           if (args.conversationId && payload.message.conversationId !== args.conversationId) {
             return false; // The user is not interested in this record
           }
-          
+
           if (args.actions && !_.includes(args.actions, payload.action)) {
             return false; // The user is not interested in this kind of action
           }

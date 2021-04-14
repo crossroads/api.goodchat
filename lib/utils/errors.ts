@@ -95,7 +95,7 @@ export function wrapError(err: unknown) : GoodchatError {
 
   const status  = Number(_.get(err, 'status',   500));
   const message = String(_.get(err, 'message',  'errors.unknown'));
-  
+
   return new GoodchatError(message, status, err);
 }
 

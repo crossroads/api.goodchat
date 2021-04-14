@@ -6,7 +6,7 @@ import { timer }      from '../../lib/utils/async';
 const { info, error } = logger('http');
 
 /**
- * Creates a middleware that logs incoming requests 
+ * Creates a middleware that logs incoming requests
  */
 export default () => {
   return async (ctx : Koa.Context, next: Koa.Next) => {

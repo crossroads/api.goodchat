@@ -50,12 +50,12 @@ db.$use(async (params, next) => {
   if (!_.includes(['create', 'upsert', 'delete', 'update'], action)) return result;
 
   if (params.model == 'Message') {
-    let messages  = toArray<Message>(result);
+    const messages  = toArray<Message>(result);
 
     if (action === 'upsert') {
       action = result.createdAt.getTime() === result.updatedAt.getTime() ? 'create' : 'update';
     }
-    
+
     await Promise.all(
       messages.map(message => {
         pubsub.publish(PubSubEvent.MESSAGE, { message, action })

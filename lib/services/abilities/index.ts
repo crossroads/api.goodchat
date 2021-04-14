@@ -50,7 +50,7 @@ export function abilities(staff: Staff) {
   const clean  = <T extends Record<any, any>>(obj: T) => _.pickBy(obj, _.identity);
 
 
-  // --- CONVERSATIONS 
+  // --- CONVERSATIONS
 
   const getConversations = async (args: ConversationArgs) => {
     const { offset, limit } = normalizePages(args);

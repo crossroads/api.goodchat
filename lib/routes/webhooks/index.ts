@@ -33,9 +33,9 @@ export default function(params: WebhooksParams) {
     KoaHelpers.noop : authenticate(config, [GoodChatPermissions.ADMIN]);
 
   /**
-   * 
+   *
    * When called, will connect to sunshine and magically set up all the webhooks
-   *  
+   *
    */
   router.post('/connect', authenticator, async (ctx) => {
     ctx.body    = await setupWebhooks(config);

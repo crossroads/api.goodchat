@@ -24,9 +24,9 @@ type EnvReader = ReadFunction<string> & {
  * - strict reads with process termination
  * - boolean reads
  * - number reads
- * 
+ *
  * e.g
- * 
+ *
  * ```typescript
  *  read('NODE_ENV', 'development')
  *  read.strict('GITHUB_TOKEN')
@@ -57,9 +57,9 @@ export const read : EnvReader = (() => {
   _.each(readers, (fn : any) => {
     fn.strict = (key: string) => {
       const val = fn(key);
-    
+
       if (val) return val;
-    
+
       error(`Missing environment variable '${key}'`);
       error(`Exiting`);
       process.exit(1);
