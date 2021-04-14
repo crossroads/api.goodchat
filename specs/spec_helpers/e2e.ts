@@ -1,4 +1,4 @@
-import goodchat                                                       from "../..";
+import { goodchat }                                                   from "../..";
 import http                                                           from 'http'
 import { promisify }                                                  from "util";
 import { WebSocketLink }                                              from '@apollo/client/link/ws'
