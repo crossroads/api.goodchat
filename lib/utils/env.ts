@@ -1,5 +1,6 @@
-import logger from './logger'
-import _      from 'lodash'
+import logger    from './logger'
+import _         from 'lodash'
+import { Maybe } from '../typings/lang';
 
 const { error } = logger('env');
 
@@ -38,19 +39,20 @@ type EnvReader = ReadFunction<string> & {
 export const read : EnvReader = (() => {
 
   const anyReader = (key : string, defaultVal? : any) : any => {
-    return process.env[key] || defaultVal || "";
+    return process.env[key] || defaultVal || null;
   }
 
   const readers : any = {
-    string: (key : string, defaultVal? : string) : string => {
+    string: (key : string, defaultVal? : string) : Maybe<string> => {
       return anyReader(key, defaultVal);
     },
-    bool: (key : string) : boolean => {
+    bool: (key : string) : Maybe<boolean> => {
       const val = readers.string(key);
-      return /^true$/i.test(val) || /^yes$/i.test(val)
+      return val === null ? null : /^true$/i.test(val) || /^yes$/i.test(val)
     },
-    number: (key : string, defaultVal? : number) : number => {
-      return Number(anyReader(key, defaultVal));
+    number: (key : string, defaultVal? : number) : Maybe<number> => {
+      const val = anyReader(key, defaultVal);
+      return val === null ? null : Number(val);
     }
   };
 
@@ -58,7 +60,7 @@ export const read : EnvReader = (() => {
     fn.strict = (key: string) => {
       const val = fn(key);
 
-      if (val) return val;
+      if (val !== null) return val;
 
       error(`Missing environment variable '${key}'`);
       error(`Exiting`);

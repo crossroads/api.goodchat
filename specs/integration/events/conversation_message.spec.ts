@@ -20,7 +20,7 @@ describe('Event conversation:message', () => {
     const webhookPayload  = factories.sunshineWebhookPayloadFactory.build({ events: [webhookEvent] });
 
     context('if the conversation doesnt exist locally', () => {
-      it('returns a 200', async () => {      
+      it('returns a 200', async () => {
         await agent.post('/webhooks/trigger')
           .send(webhookPayload)
           .expect(200)
@@ -28,7 +28,7 @@ describe('Event conversation:message', () => {
 
       it('creates a conversation', async () => {
         expect(await db.conversation.count()).to.eq(0);
-        
+
         await agent.post('/webhooks/trigger')
           .send(webhookPayload)
           .expect(200)
@@ -50,7 +50,7 @@ describe('Event conversation:message', () => {
 
       it('creates the customer', async () => {
         expect(await db.customer.count()).to.eq(0);
-        
+
         await agent.post('/webhooks/trigger')
           .send(webhookPayload)
           .expect(200)
@@ -117,7 +117,7 @@ describe('Event conversation:message', () => {
 
         expect(message.conversationId).to.eq(conversation.id);
       })
-      
+
       it('saves the content of the message', async () => {
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
 
@@ -190,6 +190,18 @@ describe('Event conversation:message', () => {
         expect((await db.conversation.findFirst()).source).to.eq(conversation.source)
       })
 
+      it('sets the source only if it is missing', async () => {
+        // Clear the source
+        await db.conversation.update({
+          where: { id: conversation.id },
+          data: { source: "" }
+        })
+
+        expect((await db.conversation.findFirst()).source).to.be.empty
+        await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+        expect((await db.conversation.findFirst()).source).to.eq(webhookEvent.payload.message.source.type)
+      })
+
       it('creates a system message', async () => {
         expect(await db.message.count()).to.eq(0)
 
@@ -198,14 +210,14 @@ describe('Event conversation:message', () => {
         expect(await db.message.count()).to.eq(1)
 
         const message = await db.message.findFirst();
-        
+
         expect(message.authorType).to.eq('SYSTEM');
         expect(message.authorId).to.eq(0);
       })
     })
 
     context('if the conversation doesnt exist locally', () => {
-      it('returns a 200', async () => {      
+      it('returns a 200', async () => {
         await agent.post('/webhooks/trigger')
           .send(webhookPayload)
           .expect(200)
@@ -213,7 +225,7 @@ describe('Event conversation:message', () => {
 
       it('creates a conversation with no customer', async () => {
         expect(await db.conversation.count()).to.eq(0);
-        
+
         await agent.post('/webhooks/trigger')
           .send(webhookPayload)
           .expect(200)

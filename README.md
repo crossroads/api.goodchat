@@ -3,6 +3,8 @@
 [![forthebadge](https://forthebadge.com/images/badges/made-with-typescript.svg)](https://forthebadge.com)
 [![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
 
+[![codecov](https://codecov.io/gh/crossroads/api.goodchat/branch/main/graph/badge.svg?token=16160ETKGA)](https://codecov.io/gh/crossroads/api.goodchat)
+
 GoodChat API is a standalone [node.js](https://nodejs.org) web service allowing easy integration with [smooch.io](https://smooch.io)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -48,8 +50,8 @@ That said, GoodChat was designed as a generic and reusable product and therefore
 - [x] Integration with Sunshine Conversations
 - [x] Webhooks support
 - [ ] Live subscriptions support (notifications, new messages)
-- [ ] Configuratbe Push Notification support	
-- [ ] REST/GQL Chat API 
+- [ ] Configuratbe Push Notification support
+- [ ] REST/GQL Chat API
 - [x] Configurable authentication methods (allowing easy integration with existing systems)
 
 <img src="./design/goodchat_integration.png" alt="drawing" width="700"/>
@@ -106,7 +108,7 @@ Running GoodChat requires the following Sunshine Conversation credentials:
 
 <details>
 	<summary>How to create a Sunshine Application</summary>
-  
+
 ##### Steps
 1. Login to your Sunshine Conversations account
 2. Head to your dashboard (https://app.smooch.io)
@@ -148,7 +150,7 @@ app.listen(8000, () => {
 
 ### Using the ready-made CLI script
 
-An pre-written startup script exists under the `/bin` folder to run the server. It can be used easily thanks to the following npm scripts: 
+An pre-written startup script exists under the `/bin` folder to run the server. It can be used easily thanks to the following npm scripts:
 
 Build the project
 
@@ -178,7 +180,7 @@ When running the server in a development environment (NODE_ENV=development), the
 When running the server from an NPM script, the server can be configured using the following environment variables
 
 * `NODE_ENV`  - defines the environment it's running on. Options:
-	* `production` 
+	* `production`
 	* `staging`
   * `development` (default)
 * `NO_AUTH` - if set to "true" or "yes", will no support any form of authentication (good for testing)

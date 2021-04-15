@@ -113,6 +113,7 @@ export function unsafe<T extends AnyFunc>(fn : T) : T {
       const ret = fn(...args);
       return isPromise(ret) ? ret.catch(e => Promise.reject(wrapError(e))) : ret;
     } catch (e) {
+      /* istanbul ignore next */
       throw wrapError(e);
     }
   }) as T

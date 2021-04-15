@@ -1,12 +1,12 @@
-import { Factory }      from 'fishery'
-import _                from 'lodash'
+import { Factory }        from 'fishery'
+import _                  from 'lodash'
 import * as factories     from '..'
 import { WebhookPayload } from '../../../lib/typings/webhook_types'
 
 /**
  * Creates a fake WebhookPayload
  *
- * 
+ *
  * @type {Factory<WebhookPayload>}
  * @exports
  */

@@ -39,7 +39,9 @@ export function createLogger (name = 'goodchat') : Logger {
     verbose: debug(`${name}:verbose`),
 
     panic: ((arg : any) : never => {
+      /* istanbul ignore next */
       panic(arg);
+      /* istanbul ignore next */
       return process.exit(1);
     })
   };

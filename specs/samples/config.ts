@@ -14,6 +14,8 @@ export const BLANK_CONFIG : GoodChatConfig = {
   }
 }
 
+export const NO_AUTH_CONFIG = BLANK_CONFIG;
+
 export const WEBHOOK_AUTH_CONFIG = {
   ...BLANK_CONFIG,
   auth: {

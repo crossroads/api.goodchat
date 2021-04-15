@@ -18,7 +18,7 @@ describe('Middlewares/webhooks', () => {
   const newServer = async (cb : AnyFunc = _.noop) => {
     return createBlankServer([ rescue(), await webhooks({ config: BLANK_CONFIG, callback: cb }) ])
   };
-  
+
   // ---- Vars
 
   let listIntegrations  : SinonStub
@@ -116,7 +116,7 @@ describe('Middlewares/webhooks', () => {
           "displayName": CUSTOM_INTEGRATION_NAME
         }];
 
-        beforeEach(() => {  
+        beforeEach(() => {
           listIntegrations.returns({ integrations: MOCK_INTEGRATIONS("1") })
           createIntegration.returns({ integrations: MOCK_INTEGRATIONS("2") })
           deleteIntegration
@@ -190,6 +190,18 @@ describe('Middlewares/webhooks', () => {
             type: "SpecialError"
           })
           .expect(422);
+      })
+    })
+
+    describe('HEAD /trigger', () => {
+      // For Sunshine Usage
+
+      it("returns 200", async () => {
+        const [_, agent] = await newServer();
+
+        await agent
+          .head('/webhooks/trigger')
+          .expect(200);
       })
     })
 

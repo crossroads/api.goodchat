@@ -15,17 +15,22 @@ describe('Utils/env', () => {
   context('reading types', () => {
     it('reads a string using the default reader', () => {
       expect(read('A_STRING')).to.equal('lorem ipsum');
+      expect(read.strict('A_STRING')).to.equal('lorem ipsum');
     })
 
     it('reads a string', () => {
       expect(read.string('A_STRING')).to.equal('lorem ipsum');
+      expect(read.string.strict('A_STRING')).to.equal('lorem ipsum');
     })
     it('reads a number', () => {
       expect(read.number('A_NUMBER')).to.equal(123);
+      expect(read.number.strict('A_NUMBER')).to.equal(123);
     })
     it('reads a bool', () => {
       expect(read.bool('A_BOOLEAN')).to.equal(true);
+      expect(read.bool.strict('A_BOOLEAN')).to.equal(true);
       expect(read.bool('AN_EVIL_BOOL')).to.equal(false);
+      expect(read.bool.strict('AN_EVIL_BOOL')).to.equal(false);
     })
   });
 
