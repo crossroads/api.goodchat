@@ -31,7 +31,7 @@ async function resolveHost() : Promise<string> {
 
   const ngrok = await import('ngrok');
 
-  info('firing up ngrok'); 
+  info('firing up ngrok');
 
   return ngrok.connect({
     proto: 'http',
@@ -41,7 +41,7 @@ async function resolveHost() : Promise<string> {
 
 function authConfig() : GoodChatAuthConfig {
   if (read.bool('NO_AUTH')) { return { mode: GoodChatAuthMode.NONE } }
-  
+
   return {
     mode: GoodChatAuthMode.WEBHOOK,
     url:  read.string.strict('GOODCHAT_AUTH_URL')
@@ -74,13 +74,13 @@ process.on('SIGTERM', panic);
     }
 
     const [app, apollo] = await goodchat(config)
-    
+
     const server = http.createServer(app.callback());
 
     apollo.installSubscriptionHandlers(server)
 
     const boot = promisify(server.listen.bind(server)) as (port: string|number) => Promise<void>
-    
+
     await boot(port)
 
     info(`goodchat host: ${host}`);

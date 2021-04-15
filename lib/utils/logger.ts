@@ -9,23 +9,23 @@ export interface Logger<T = debug.Debugger> {
 
 /**
  * Creates a Logger object with the following methods
- * 
+ *
  * - info
  * - error
  * - verbose
  * - panic (terminates)
  *
  * Example:
- * 
+ *
  * ```typescript
  * import logger from './logger'
- * 
+ *
  * const { info, error } = logger('myApp');
- * 
+ *
  * info('cool')
  * error('not cool')
  * ```
- * 
+ *
  * @export
  * @param {string} [name='goodchat']
  * @returns {Logger}

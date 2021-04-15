@@ -13,7 +13,7 @@ import { SunshineUser } from "../../lib/typings/sunshine";
 export function sunshineUserToCustomer(user: SunshineUser) : Unsaved<Customer> {
   const { profile } = user;
 
-  const name = (profile.givenName && profile.surname) ? 
+  const name = (profile.givenName && profile.surname) ?
     `${profile.givenName} ${profile.surname}` :
     'Anonymous'
 

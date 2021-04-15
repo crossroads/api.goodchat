@@ -5,7 +5,7 @@ const DEFAULT_LANG = 'en';
 
 /**
  * Parses the accept-language header, and returns the most appropriate supported language
- * 
+ *
  * ```typescript
  *  parseAcceptLanguage('zh_tw;q=0.9, en;q=0.8', ['en', 'zh_tw']) // => 'zh_tw'
  * ```

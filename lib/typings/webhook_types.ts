@@ -16,7 +16,7 @@ export enum WebhookEventType {
 
 /**
  * Sunshine Webhook Record
- * 
+ *
  * Documented here: https://docs.smooch.io/rest/#operation/eventWebhooks
  *
  * @export
@@ -70,7 +70,7 @@ export type WebhookEvent = (
 
 /**
  * Webhook payload
- * 
+ *
  * Documented here: https://docs.smooch.io/rest/#operation/eventWebhooks
  *
  * @export

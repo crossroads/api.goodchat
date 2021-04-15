@@ -6,22 +6,61 @@ import { Message } from '@prisma/client';
 // @TODO: swap engines with the redis one: https://github.com/davidyaha/graphql-redis-subscriptions
 const pubsub = new PubSub();
 
-export enum PubSubEvents {
-  MESSAGE_CREATED = 'message:new'
+// --------------------------------
+// Types
+// --------------------------------
+
+export enum PubSubEvent {
+  MESSAGE = 'message',
 }
 
-export type MessageSubscription = {
-  message: Message
+export enum PubSubAction {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete'
 }
+
+export interface PubSubSubscription {
+  action:   PubSubAction
+}
+
+export interface MessageEvent extends PubSubSubscription {
+  message:  Message
+}
+
+// --------------------------------
+// Helpers
+// --------------------------------
+
+function toArray<T>(value: T|T[]) : T[] {
+  if (_.isArray(value))  {
+    return value;
+  }
+  return [value];
+}
+
+// --------------------------------
+// Logic
+// --------------------------------
 
 db.$use(async (params, next) => {
   const result = await next(params);
+  let action   = params.action;
 
-  /* Fires an event when a new message is created */
-  if (params.model == 'Message' && _.includes(['create', 'upsert'], params.action)) {
-    if (result.createdAt.getTime() === result.updatedAt.getTime()) {
-      await pubsub.publish(PubSubEvents.MESSAGE_CREATED, { message: result });
+  if (!_.includes(['create', 'upsert', 'delete', 'update'], action)) return result;
+
+  if (params.model == 'Message') {
+    const messages  = toArray<Message>(result);
+
+    if (action === 'upsert') {
+      action = result.createdAt.getTime() === result.updatedAt.getTime() ? 'create' : 'update';
     }
+
+    await Promise.all(
+      messages.map(message => {
+        pubsub.publish(PubSubEvent.MESSAGE, { message, action })
+      })
+    )
   }
 
   return result;

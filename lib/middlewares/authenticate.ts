@@ -15,7 +15,7 @@ import {
 
 /**
  * Creates an authentication middleware
- * 
+ *
  * The middleware will:
  *  - return a 401 if it fails to authenticate a user
  *  - return a 403 if the user does not match the permissions passed as arg

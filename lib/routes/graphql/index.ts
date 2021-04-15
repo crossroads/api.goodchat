@@ -57,10 +57,10 @@ async function buildGraphQL(config: GoodChatConfig) {
       ]
     }),
     subscriptions: {
-      path: '/subscriptions',
+      path: '/graphql/subscriptions',
       onConnect: async (params) : Promise<GraphQLContext> => {
         const ctx = await createContext(params as Record<string, string>);
-        info(`User ${ctx.staff.id} connected`);        
+        info(`User ${ctx.staff.id} connected`);
         return ctx;
       },
       onDisconnect: () => {
@@ -73,7 +73,7 @@ async function buildGraphQL(config: GoodChatConfig) {
     context: ({ ctx, connection }) : Promise<GraphQLContext> => {
       return (
         connection ?
-          connection.context : 
+          connection.context :
           createContext(ctx.request.headers)
       )
     },

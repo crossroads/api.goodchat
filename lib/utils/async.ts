@@ -45,7 +45,7 @@ export async function map<T, TResult>(collection : Collection<T>, fn: (it: T, k:
  * Given an event emitter, will return a promise that waits for the specified event to be triggered.
  *
  * If a timeout is set, it will fail if the event does not occur within that range
- * 
+ *
  * @export
  * @param {string} event
  * @param {EventEmitter} source

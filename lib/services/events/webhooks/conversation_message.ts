@@ -1,10 +1,10 @@
 /*
  * This function handles incoming "conversation:message" Webhook events from sunshine
- * This event is fired when a user sends a message 
- * 
+ * This event is fired when a user sends a message
+ *
  * Actions taken:
  *  - Create a local message in the database
- * 
+ *
  * Reference: https://docs.smooch.io/rest/#operation/eventWebhooks
  *
  * Created on Thu Mar 11 2021

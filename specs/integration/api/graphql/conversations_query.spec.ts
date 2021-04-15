@@ -10,7 +10,7 @@ import { clearCurrentUser, setCurrentUser }         from '../../../spec_helpers/
 
 
 describe('GraphQL Conversations Query', () => {
-  let gqlAgent                : ApolloServerTestClient
+  let gqlAgent : ApolloServerTestClient
   
   before(async () => {
     [,, gqlAgent] = await createGoodchatServer()

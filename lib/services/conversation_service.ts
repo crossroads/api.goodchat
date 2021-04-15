@@ -32,6 +32,6 @@ export const upsertConversation = async (data: Unsaved<Conversation>) : Promise<
       data: update
     })
   }
-  
+
   return conversation;
 }

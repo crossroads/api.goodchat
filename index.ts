@@ -27,10 +27,10 @@ import {
  *    GoodChatAuthMode.NONE
  *   }
  *  })
- * 
+ *
  *  app.listen(8000, () => ...)
  * ```
- * 
+ *
  * @exports
  * @param {GoodChatConfig} config
  * @returns {Promise<GoodchatApp>}
@@ -52,7 +52,7 @@ export const goodchat = async (config: GoodChatConfig) : Promise<[GoodchatApp, A
     ctx.config = config;
     return next();
   });
-  
+
   app.use(log());
   app.use(rescue());
   app.use(i18n());

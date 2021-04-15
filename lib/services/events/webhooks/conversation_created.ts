@@ -2,9 +2,9 @@
  * This function handles incoming "conversation:create" Webhook events from sunshine
  *
  * Actions taken:
- *  - Create or update the local Customer record 
+ *  - Create or update the local Customer record
  *  - Create or update the local Conversation record
- * 
+ *
  * Reference: https://docs.smooch.io/rest/#operation/eventWebhooks
  *
  * Created on Thu Mar 11 2021

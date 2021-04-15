@@ -1,17 +1,23 @@
+# TODO: Mutations
+#   - JoinConversation(user, conversation)
+#   - LeaveConversation(user, conversation)
+#   - sendMessage(conversationId)
+#   - createPrivateConversation
+
 type Query {
   conversations(limit: Int, offset: Int, type: String): [Conversation]
   conversation(id: Int!): Conversation
 }
 
 type Subscription {
-  message(conversationId: Int): Message
+  messageEvent(conversationId: Int, actions: [SubscriptionAction]): MessageEvent
 }
 
-# TODO: Mutations
-#   - JoinConversation(user, conversation)
-#   - LeaveConversation(user, conversation)
-#   - sendMessage(conversationId)
-#   - createPrivateConversation
+enum SubscriptionAction {
+  CREATE
+  UPDATE
+  DELETE
+}
 
 type Conversation {
   id: Int
@@ -37,6 +43,11 @@ type Message {
   authorId: Int
   content: JSON
   metadata: JSON
+}
+
+type MessageEvent {
+  action: SubscriptionAction!
+  message: Message!
 }
 
 type Customer {

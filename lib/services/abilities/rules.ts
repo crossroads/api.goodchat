@@ -1,7 +1,6 @@
 import { Staff, ConversationType }                from "@prisma/client"
 import { GoodChatPermissions }                    from "../../typings/goodchat"
 import _                                          from "lodash"
-import { CollectionName }                         from "../../db";
 
 type Rules = Record<string, any>
 
@@ -14,7 +13,7 @@ type Rules = Record<string, any>
  * @returns {Rules}
  */
 export function getConversationRules(staff: Staff) : Rules {
-  
+
   function onlyIf<T>(perms: GoodChatPermissions[], val: T) : T | undefined {
     return _.find(perms, (p) => _.includes(staff.permissions, p)) ? val : void 0;
   }

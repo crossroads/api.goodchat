@@ -8,8 +8,7 @@ import { BLANK_CONFIG }                             from '../samples/config'
 import { ApolloServer }                             from 'apollo-server-koa'
 import {
   GoodchatApp,
-  GoodChatConfig,
-  GoodChatAuthMode
+  GoodChatConfig
 } from '../../lib/typings/goodchat'
 
 const koaAgent = require('supertest-koa-agent');
