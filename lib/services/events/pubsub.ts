@@ -31,6 +31,11 @@ export interface MessageEvent extends PubSubSubscription {
 const UNSUPPORTED = 'unsupported';
 
 const EVENT_PER_MODEL = {
+  /*
+    == Supported PubSub Models
+
+    Create a PubSubEvent and add a mapping here in order to support live updates for a new model
+  */
   'Message': PubSubEvent.MESSAGE
 }
 
