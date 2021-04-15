@@ -202,7 +202,7 @@ describe('E2E/Subscriptions', () => {
           `
         });
 
-        const message = await factories.messageFactory.create({ conversationId: privateConversation.id });
+        await factories.messageFactory.create({ conversationId: privateConversation.id });
 
         await sub.wait();
 
@@ -307,7 +307,7 @@ describe('E2E/Subscriptions', () => {
           `
         });
 
-        const message = await factories.messageFactory.create({ conversationId: privateConversation.id });
+        await factories.messageFactory.create({ conversationId: privateConversation.id });
 
         await sub.wait();
 
@@ -426,7 +426,7 @@ describe('E2E/Subscriptions', () => {
           client: gqlClient,
           query: gql`
             subscription newMessages {
-              messageEvent(actions: [UPDATE]) {
+              messageEvent(actions: [UPDATE, DELETE]) {
                 action
                 message {
                   id
@@ -465,6 +465,21 @@ describe('E2E/Subscriptions', () => {
         expect(sub.results, "Event received after update").to.be.of.length(2);
         expect(sub.results[0].data.messageEvent.action, "Update event received with correct action").eq('UPDATE')
         expect(sub.results[1].data.messageEvent.action, "Update event received with correct action").eq('UPDATE')
+
+        expect(
+          await db.message.deleteMany({
+            where: {
+              id: {
+                in: [message1.id, message2.id]
+              }
+            }
+          })
+        ).to.deep.equal({ count: 2 })
+
+        await sub.waitForResults({ len: 4 });
+
+        expect(sub.results[2].data.messageEvent.action, "Delete event received with correct action").eq('DELETE')
+        expect(sub.results[3].data.messageEvent.action, "Delete event received with correct action").eq('DELETE')
       })
     })
   });
