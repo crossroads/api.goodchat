@@ -49,19 +49,22 @@ jobs:
     - name: Use NPM 7
       run: npm install --global npm@7
 
-    - name: npm install, build, and test
+    - name: Run Specs
       env:
         DB_CREDENTIALS: "testuser@test_database:testpassword"
         DB_NAME: "test_database"
       run: |
         npm install
-        npm run build
         npm run db:migrate:test
         npm run test:coverage
 
-    - run: npx codecov --token="${{secrets.CODECOV_TOKEN}}"
+    - name: CODECOV
+      run: npx codecov --token="${{secrets.CODECOV_TOKEN}}"
       env:
         npm_config_yes: true
+
+    - name: Build project
+      run: npm run build
 
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v2
