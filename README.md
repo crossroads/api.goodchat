@@ -50,7 +50,7 @@ That said, GoodChat was designed as a generic and reusable product and therefore
 - [x] Integration with Sunshine Conversations
 - [x] Webhooks support
 - [ ] Live subscriptions support (notifications, new messages)
-- [ ] Configuratbe Push Notification support
+- [ ] Configurable Push Notification support
 - [ ] REST/GQL Chat API
 - [x] Configurable authentication methods (allowing easy integration with existing systems)
 
