@@ -27,7 +27,7 @@ describe('E2E/Subscriptions', () => {
   after(async () => {
     await e2e.teardownTestServer();
   })
-  
+
 
   // ---- Seed database
 
@@ -54,7 +54,7 @@ describe('E2E/Subscriptions', () => {
 
     context('As an admin user', () => {
 
-      before(async () => {  
+      before(async () => {
         e2e.mockAuthServerResponse({
           userId: USER_EXTERNAL_ID,
           permissions: [GoodChatPermissions.ADMIN],
@@ -71,7 +71,7 @@ describe('E2E/Subscriptions', () => {
       }, (getConv, type) => {
 
         it(`I receive new messages from ${type}`, async () => {
-          const sub = e2e.createSubscription({  
+          const sub = e2e.createSubscription({
             client: gqlClient,
             query: gql`
               subscription newMessages {
@@ -86,27 +86,27 @@ describe('E2E/Subscriptions', () => {
               }
             `
           });
-    
+
           const message = await factories.messageFactory.create({ conversationId: getConv().id });
-    
+
           await sub.waitForResults();
-    
+
           expect(sub.results).to.be.of.length(1);
           expect(sub.results[0].data.messageEvent).not.to.be.null;
-          
+
           const ev = sub.results[0].data.messageEvent;
-    
+
           expect(ev.action).to.eq('CREATE');
           expect(ev.message.id).to.eq(message.id);
           expect(ev.message.conversationId).to.eq(getConv().id);
           expect(ev.message.content).to.deep.eq(message.content);
-    
+
           sub.disconnect();
         })
       });
 
       it('I don\'t receive new messages from other private conversations', async () => {
-        const sub = e2e.createSubscription({  
+        const sub = e2e.createSubscription({
           client: gqlClient,
           query: gql`
             subscription newMessages {
@@ -134,7 +134,7 @@ describe('E2E/Subscriptions', () => {
 
     context('As a user with customer chat permissions', () => {
 
-      before(async () => {  
+      before(async () => {
         e2e.mockAuthServerResponse({
           userId: USER_EXTERNAL_ID,
           permissions: [GoodChatPermissions.CHAT_CUSTOMER],
@@ -151,7 +151,7 @@ describe('E2E/Subscriptions', () => {
       }, (getConv, type) => {
 
         it(`I receive new messages from ${type}`, async () => {
-          const sub = e2e.createSubscription({  
+          const sub = e2e.createSubscription({
             client: gqlClient,
             query: gql`
               subscription newMessages {
@@ -166,27 +166,27 @@ describe('E2E/Subscriptions', () => {
               }
             `
           });
-    
+
           const message = await factories.messageFactory.create({ conversationId: getConv().id });
-    
+
           await sub.waitForResults();
-    
+
           expect(sub.results).to.be.of.length(1);
           expect(sub.results[0].data.messageEvent).not.to.be.null;
-          
+
           const ev = sub.results[0].data.messageEvent;
-    
+
           expect(ev.action).to.eq('CREATE');
           expect(ev.message.id).to.eq(message.id);
           expect(ev.message.conversationId).to.eq(getConv().id);
           expect(ev.message.content).to.deep.eq(message.content);
-    
+
           sub.disconnect();
         })
       });
 
       it('I don\'t receive new messages from other private conversations', async () => {
-        const sub = e2e.createSubscription({  
+        const sub = e2e.createSubscription({
           client: gqlClient,
           query: gql`
             subscription newMessages {
@@ -202,7 +202,7 @@ describe('E2E/Subscriptions', () => {
           `
         });
 
-        const message = await factories.messageFactory.create({ conversationId: privateConversation.id });
+        await factories.messageFactory.create({ conversationId: privateConversation.id });
 
         await sub.wait();
 
@@ -214,7 +214,7 @@ describe('E2E/Subscriptions', () => {
 
     context('As a user with no permissions', () => {
 
-      before(async () => {  
+      before(async () => {
         e2e.mockAuthServerResponse({
           userId: USER_EXTERNAL_ID,
           permissions: [],
@@ -230,7 +230,7 @@ describe('E2E/Subscriptions', () => {
       }, (getConv, type) => {
 
         it(`I receive new messages from ${type}`, async () => {
-          const sub = e2e.createSubscription({  
+          const sub = e2e.createSubscription({
             client: gqlClient,
             query: gql`
               subscription newMessages {
@@ -245,27 +245,27 @@ describe('E2E/Subscriptions', () => {
               }
             `
           });
-    
+
           const message = await factories.messageFactory.create({ conversationId: getConv().id });
-    
+
           await sub.waitForResults();
-    
+
           expect(sub.results).to.be.of.length(1);
           expect(sub.results[0].data.messageEvent).not.to.be.null;
-          
+
           const ev = sub.results[0].data.messageEvent;
-    
+
           expect(ev.action).to.eq('CREATE');
           expect(ev.message.id).to.eq(message.id);
           expect(ev.message.conversationId).to.eq(getConv().id);
           expect(ev.message.content).to.deep.eq(message.content);
-    
+
           sub.disconnect();
         })
       });
 
       it('I don\'t receive new messages from customer conversations', async () => {
-        const sub = e2e.createSubscription({  
+        const sub = e2e.createSubscription({
           client: gqlClient,
           query: gql`
             subscription newMessages {
@@ -291,7 +291,7 @@ describe('E2E/Subscriptions', () => {
       })
 
       it('I don\'t receive new messages from other private conversations', async () => {
-        const sub = e2e.createSubscription({  
+        const sub = e2e.createSubscription({
           client: gqlClient,
           query: gql`
             subscription newMessages {
@@ -307,7 +307,7 @@ describe('E2E/Subscriptions', () => {
           `
         });
 
-        const message = await factories.messageFactory.create({ conversationId: privateConversation.id });
+        await factories.messageFactory.create({ conversationId: privateConversation.id });
 
         await sub.wait();
 
@@ -319,7 +319,7 @@ describe('E2E/Subscriptions', () => {
 
     describe('Filtering', () => {
 
-      before(async () => {  
+      before(async () => {
         e2e.mockAuthServerResponse({
           userId: USER_EXTERNAL_ID,
           permissions: [GoodChatPermissions.ADMIN],
@@ -330,7 +330,7 @@ describe('E2E/Subscriptions', () => {
       after(() => e2e.cleanAllApiMocks());
 
       it('filters on the specified action', async () => {
-        const sub = e2e.createSubscription({  
+        const sub = e2e.createSubscription({
           client: gqlClient,
           query: gql`
             subscription newMessages {
@@ -345,11 +345,11 @@ describe('E2E/Subscriptions', () => {
             }
           `
         });
-  
+
         const message = await factories.messageFactory.create({ conversationId: publicConversation.id });
-  
+
         await sub.wait();
-  
+
         expect(sub.error).to.be.null
         expect(sub.results, "No event for creation").to.be.of.length(0);
 
@@ -376,7 +376,7 @@ describe('E2E/Subscriptions', () => {
       })
 
       it('filters on the specified conversation', async () => {
-        const sub = e2e.createSubscription({  
+        const sub = e2e.createSubscription({
           client: gqlClient,
           variables: { cid: publicConversation.id },
           query: gql`
@@ -392,11 +392,11 @@ describe('E2E/Subscriptions', () => {
             }
           `
         });
-  
+
         await factories.messageFactory.create({ conversationId: myPivateConversation.id });
-  
+
         await sub.wait();
-  
+
         expect(sub.error).to.be.null
         expect(sub.results, "No event for other conversation").to.be.of.length(0);
 
@@ -406,6 +406,80 @@ describe('E2E/Subscriptions', () => {
 
         expect(sub.error).to.be.null
         expect(sub.results, "Event received for conversation subscribed to").to.be.of.length(1);
+      })
+    })
+
+    describe('Batch events', () => {
+
+      before(async () => {
+        e2e.mockAuthServerResponse({
+          userId: USER_EXTERNAL_ID,
+          permissions: [GoodChatPermissions.ADMIN],
+          displayName: 'Jane Doe'
+        })
+      })
+
+      after(() => e2e.cleanAllApiMocks());
+
+      it('sends multiple events when batch operations take place', async () => {
+        const sub = e2e.createSubscription({
+          client: gqlClient,
+          query: gql`
+            subscription newMessages {
+              messageEvent(actions: [UPDATE, DELETE]) {
+                action
+                message {
+                  id
+                  content
+                  conversationId
+                }
+              }
+            }
+          `
+        });
+
+        const message1 = await factories.messageFactory.create({ conversationId: publicConversation.id });
+        const message2 = await factories.messageFactory.create({ conversationId: publicConversation.id });
+
+        await sub.wait();
+
+        expect(sub.error).to.be.null
+        expect(sub.results, "No event for creation").to.be.of.length(0);
+
+        expect(
+          await db.message.updateMany({
+            where: {
+              id: {
+                in: [message1.id, message2.id]
+              }
+            },
+            data: {
+              metadata: { 'some': 'data' }
+            }
+          })
+        ).to.deep.equal({ count: 2 })
+
+        await sub.waitForResults({ len: 2 });
+
+        expect(sub.error).to.be.null
+        expect(sub.results, "Event received after update").to.be.of.length(2);
+        expect(sub.results[0].data.messageEvent.action, "Update event received with correct action").eq('UPDATE')
+        expect(sub.results[1].data.messageEvent.action, "Update event received with correct action").eq('UPDATE')
+
+        expect(
+          await db.message.deleteMany({
+            where: {
+              id: {
+                in: [message1.id, message2.id]
+              }
+            }
+          })
+        ).to.deep.equal({ count: 2 })
+
+        await sub.waitForResults({ len: 4 });
+
+        expect(sub.results[2].data.messageEvent.action, "Delete event received with correct action").eq('DELETE')
+        expect(sub.results[3].data.messageEvent.action, "Delete event received with correct action").eq('DELETE')
       })
     })
   });

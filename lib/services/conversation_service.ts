@@ -22,7 +22,7 @@ export const upsertConversation = async (data: Unsaved<Conversation>) : Promise<
     update['customerId'] = data.customerId
   }
 
-  if (conversation.source === null && data.source !== null) {
+  if (!conversation.source && _.isString(data.source)) {
     update['source'] = data.source
   }
 

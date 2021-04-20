@@ -7,8 +7,7 @@ import { GoodChatConfig }   from '../../../lib/typings/goodchat'
 import { WebhookEventType } from '../../../lib/typings/webhook_types'
 import {
   Integration,
-  IntegrationsApi,
-  WebhooksApi
+  IntegrationsApi
 } from 'sunshine-conversations-client'
 
 const { info } = logger('webhooks');
@@ -38,17 +37,6 @@ export async function getCustomIntegration(appId : string) : Promise<Integration
 }
 
 /**
- * If the current server already has a custom integration, returns true
- *
- * @export
- * @param {string} appId
- * @returns {Promise<Boolean>}
- */
-export async function integrationExists(appId : string) : Promise<boolean> {
-  return (await getCustomIntegration(appId)) !== null;
-}
-
-/**
  * Deletes the custom integration of the running server
  *
  * @export
@@ -73,27 +61,6 @@ export async function clearIntegration(appId : string) {
  */
 export function webhookTarget(config : GoodChatConfig) : string {
   return prefixProtocol(`${config.goodchatHost}/webhooks/trigger`);
-}
-
-/**
- * Returns true if the current server's webhook trigger is registered on smooch.io
- *
- * @export
- * @param {GoodChatConfig} config
- * @returns {Promise<Boolean>}
- */
-export async function webhookExists(config : GoodChatConfig) : Promise<boolean> {
-  const api           = new WebhooksApi();
-  const endpoint      = webhookTarget(config);
-  const integration   = await getCustomIntegration(config.smoochAppId);
-
-  if (integration === null) {
-    return false;
-  }
-
-  const { webhooks }  = await api.listWebhooks(config.smoochAppId, integration.id);
-
-  return Boolean(_.find(webhooks, ['target', endpoint]));
 }
 
 /**

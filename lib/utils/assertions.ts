@@ -1,22 +1,7 @@
-import { throwNotFound, throwUnprocessable }  from "./errors"
-import _                  from "lodash"
+import { throwUnprocessable }  from "./errors"
+import _                       from "lodash"
 
 type RaiseFunc = (...args: any[]) => never
-
-/**
- * Throws if a record is null
- *
- * @export
- * @template T
- * @param {T} record
- * @param {string} [msg='errors.not_found']
- * @returns {asserts}
- */
-export function exists<T>(record: T, msg = 'errors.not_found') : asserts record {
-  if (record === void 0 || record === null) {
-    throwNotFound(msg, record);
-  }
-}
 
 type PojoType = "undefined" | "boolean" | "number" | "string" | "symbol" | "object" | "array"
 
@@ -56,7 +41,10 @@ export type MiniSchema<T> = {
  * @returns
  */
 export function minischema<T>(sch: PojoSchema<T>) : MiniSchema<T> {
-  let raise : RaiseFunc = () => throwUnprocessable();
+  let raise : RaiseFunc = () => {
+    /* istanbul ignore next */
+    throwUnprocessable();
+  }
 
   const out : MiniSchema<T> = {
     // --- calls the error handler if obj doesn't match the schema

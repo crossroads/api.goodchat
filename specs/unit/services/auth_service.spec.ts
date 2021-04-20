@@ -6,6 +6,7 @@ import nock                                  from 'nock'
 import db                                    from '../../../lib/db'
 import { AuthPayload, GoodChatPermissions }  from '../../../lib/typings/goodchat'
 import {
+  NO_AUTH_CONFIG,
   WEBHOOK_AUTH_CONFIG,
   FAKE_AUTH_ENDPOINT,
   FAKE_AUTH_HOST
@@ -138,6 +139,14 @@ describe('Services/auth', () => {
         await expect(subject.authenticate("sometoken")).to.be.rejectedWith(GoodchatError, 'boom!')
         expect(apiCall.isDone()).to.be.true
       })
+    })
+  })
+
+  describe('No auth mode', () => {
+    const subject = authService(NO_AUTH_CONFIG)
+
+    it('authenticate throws a disabled error', async () => {
+      await expect(subject.authenticate("sometoken")).to.be.rejectedWith(GoodchatError, 'errors.authentication.disabled')
     })
   })
 });
