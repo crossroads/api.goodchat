@@ -645,7 +645,11 @@ describe('Services/abilities', () => {
         let postMessageStub : sinon.SinonStub
 
         beforeEach(async () => {
-          postMessageStub = sinon.stub(MessagesApi.prototype, 'postMessage').returns(Promise.resolve({ id: 'aSunshineId' }))
+          postMessageStub = sinon.stub(MessagesApi.prototype, 'postMessage').returns(Promise.resolve({
+            messages: [
+              factories.sunshineMessageFactory.build({ id: 'aSunshineId' })
+            ]
+          }))
           whatsappConversation  = await factories.conversationFactory.create({type: ConversationType.CUSTOMER })
           localConversation  = await factories.conversationFactory.create({type: ConversationType.PUBLIC })
         })
@@ -664,8 +668,14 @@ describe('Services/abilities', () => {
               BLANK_CONFIG.smoochAppId,
               whatsappConversation.sunshineConversationId,
               {
-                type: 'text',
-                text: 'Hi'
+                author: {
+                  displayName: "goodchat",
+                  type: "business"
+                },
+                content: {
+                  type: 'text',
+                  text: 'Hi'
+                }
               }
             ]);
             expect(message.sunshineMessageId).to.eq('aSunshineId');

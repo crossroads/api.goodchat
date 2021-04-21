@@ -154,15 +154,23 @@ export function abilities(staff: Staff, config?: GoodChatConfig) {
 
     await joinConversation(conversationId)
 
-    if (conversation.type !== ConversationType.CUSTOMER || !config?.smoochAppId) {
+    if (conversation.type !== ConversationType.CUSTOMER || !config) {
       return db.message.create({ data: unsaveMessage }); // No Sunshine
     }
 
-    const sunshineMessageId = (await sunshineMessages.postMessage(
+    const { messages } = await sunshineMessages.postMessage(
       config.smoochAppId,
       conversation.sunshineConversationId,
-      content
-    )).id;
+      {
+        "author": {
+          "type": "business",
+          "displayName": config.appName
+        },
+        "content": content
+      }
+    );
+
+    const sunshineMessageId = messages[0].id;
 
     //
     // Note:

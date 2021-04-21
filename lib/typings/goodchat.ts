@@ -39,6 +39,7 @@ export interface AuthPayload {
 // --- App Config
 
 export interface GoodChatConfig {
+  appName:            string
   smoochAppId:        string
   smoochApiKeyId:     string
   smoochApiKeySecret: string

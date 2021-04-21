@@ -28,7 +28,9 @@ describe('GraphQL SendMessage mutations', () => {
   });
 
   beforeEach(async () => {
-    postMessageStub = sinon.stub(MessagesApi.prototype, 'postMessage').returns(Promise.resolve({ id: 'aSunshineId' }))
+    postMessageStub = sinon.stub(MessagesApi.prototype, 'postMessage').returns(Promise.resolve({
+      messages: [factories.sunshineMessageFactory.build()]
+    }))
 
     // Create staff members
     admin = await factories.staffFactory.create({ permissions: [GoodChatPermissions.ADMIN] })

@@ -10,7 +10,8 @@ import { promisify }        from 'util'
 import { read }             from '../lib/utils/env'
 import {
   GoodChatAuthConfig,
-  GoodChatAuthMode
+  GoodChatAuthMode,
+  GoodChatConfig
 } from '../lib/typings/goodchat';
 import { setupWebhooks }    from '../lib/routes/webhooks/setup';
 
@@ -65,7 +66,8 @@ process.on('SIGTERM', panic);
 
     const host = await resolveHost();
 
-    const config = {
+    const config : GoodChatConfig = {
+      appName:                read('GOODCHAT_APP_NAME', 'GoodChat'),
       goodchatHost:           host,
       smoochAppId:            read.strict('SMOOCH_APP_ID'),
       smoochApiKeyId:         read.strict('SMOOCH_API_KEY_ID'),
