@@ -7,16 +7,19 @@ import { Customer }     from '@prisma/client'
 
 /**
  * Creates a fake Customer record
- * 
+ *
  * @type {Factory<Customer>}
  * @exports
  */
 export const customerFactory = Factory.define<Customer>(({ sequence, onCreate }) => {
   onCreate(data => db.customer.create({ data: _.omit(data, 'id') }));
 
+  const now = new Date();
+
   return {
     id: sequence,
-    createdAt: new Date(),
+    createdAt: now,
+    updatedAt: now,
     externalId: null,
     sunshineUserId: faker.random.uuid(),
     displayName: faker.name.firstName(),

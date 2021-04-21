@@ -1,9 +1,10 @@
-import * as i18nService       from '../services/i18n'
-import { isPromise }          from './async'
-import { I18n }               from 'i18n'
-import _                      from 'lodash'
-import { AnyFunc }            from '../typings/lang'
-import axios                  from 'axios'
+import * as i18nService   from '../services/i18n'
+import { isPromise }      from './async'
+import { I18n }           from 'i18n'
+import _                  from 'lodash'
+import { AnyFunc }        from '../typings/lang'
+import axios              from 'axios'
+import * as apolloErrors  from 'apollo-server-errors'
 
 /**
  * Different kinds of errors GoodChat can throw
@@ -62,13 +63,33 @@ export class GoodchatError<T = any> extends Error {
     this.details  = details;
   }
 
-  serialize(lang: string = i18nService.defaultLanguage) {
+  translatedMessage(lang: string = i18nService.defaultLanguage) {
     this.i18n.setLocale(lang);
+    return this.i18n.__(this.message);
+  }
+
+  serialize(lang: string = i18nService.defaultLanguage) {
     return {
-      error:    this.i18n.__(this.message),
+      error:    this.translatedMessage(lang),
       status:   this.status,
       type:     this.type
     }
+  }
+
+  toApolloError(lang: string = i18nService.defaultLanguage) {
+    const message = this.translatedMessage(lang);
+
+    const Klass = ({
+      401: apolloErrors.AuthenticationError,
+      403: apolloErrors.ForbiddenError,
+      422: apolloErrors.UserInputError
+    })[this.status] || apolloErrors.ApolloError;
+
+    const error = new Klass(message);
+
+    error.extensions = { ...error.extensions, exception: this.serialize(lang) };
+
+    return error;
   }
 }
 
@@ -124,26 +145,32 @@ export function unsafe<T extends AnyFunc>(fn : T) : T {
 // ---- Helpers
 
 export function throwNotFound(message = 'errors.not_found', details = {}) : never {
+  /* istanbul ignore next */
   throw new GoodchatError(message, 404, details, ErrorTypes.NOT_FOUND);
 }
 
 export function throwInternal(message = 'errors.unknown', details = {}) : never {
+  /* istanbul ignore next */
   throw new GoodchatError(message, 500, details, ErrorTypes.INTERNAL);
 }
 
 export function throwDisabled(message = 'errors.disabled', details = {}) : never {
+  /* istanbul ignore next */
   throw new GoodchatError(message, 409, details, ErrorTypes.DISABLED);
 }
 
 export function throwUnprocessable(message = 'errors.unprocessable', details = {}) : never {
+  /* istanbul ignore next */
   throw new GoodchatError(message, 422, details, ErrorTypes.UNPROCESSABLE);
 }
 
-export function throwUnauthorized(message = 'errors.unauthorized', details = {}) : never {
+export function throwUnauthenticated(message = 'errors.unauthenticated', details = {}) : never {
+  /* istanbul ignore next */
   throw new GoodchatError(message, 401, details, ErrorTypes.UNAUTHORIZED);
 }
 
 export function throwForbidden(message = 'errors.forbidden', details = {}) : never {
+  /* istanbul ignore next */
   throw new GoodchatError(message, 403, details, ErrorTypes.FORBIDDEN);
 }
 

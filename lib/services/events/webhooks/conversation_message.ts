@@ -12,12 +12,12 @@
  * Copyright (c) 2021 Crossroads Foundation
  */
 
-import { initializeCustomer, sunshineUserToCustomer }                   from '../../customer_service';
-import { SunshineAuthor, SunshineAuthorUser }                           from '../../../typings/sunshine'
-import { registerWebhookHandler }                                       from '..'
-import { upsertConversation }                                           from '../../conversation_service'
-import { AuthorType, ConversationType }                                 from "@prisma/client"
-import  db                                                              from "../../../db"
+import { initializeCustomer, sunshineUserToCustomer }   from '../../customer_service';
+import { SunshineAuthor, SunshineAuthorUser }           from '../../../typings/sunshine'
+import { registerWebhookHandler }                       from '..'
+import { upsertConversation }                           from '../../conversation_service'
+import { AuthorType, ConversationType }                 from "@prisma/client"
+import  db                                              from "../../../db"
 import {
   ConversationMessageEvent,
   WebhookEventBase,
@@ -56,6 +56,8 @@ export async function onMessageCreated(event: WebhookEventBase) : Promise<void> 
   await db.message.upsert({
     where: { sunshineMessageId: payload.message.id },
     create: {
+      createdAt: new Date(payload.message.received),
+      updatedAt: new Date(payload.message.received),
       sunshineMessageId: payload.message.id,
       conversationId: conversation.id,
       content: { ...payload.message.content },

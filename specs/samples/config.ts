@@ -5,6 +5,7 @@ export const FAKE_AUTH_ENDPOINT = '/endpoint'
 export const FAKE_AUTH_URL      = `${FAKE_AUTH_HOST}${FAKE_AUTH_ENDPOINT}`
 
 export const BLANK_CONFIG : GoodChatConfig = {
+  appName:                'goodchat',
   smoochAppId:            'sample_app_id',
   smoochApiKeyId:         'sample_api_key_id',
   smoochApiKeySecret:     'sample_api_key_secret',
