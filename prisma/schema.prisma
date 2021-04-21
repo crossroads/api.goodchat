@@ -25,6 +25,7 @@ model Staff {
 model Customer {
   id                Int       @default(autoincrement()) @id
   createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
   externalId        String?   @db.VarChar(255)
   sunshineUserId    String    @db.VarChar(255) @unique
   displayName       String
@@ -42,6 +43,8 @@ model StaffConversations {
   staffId         Int
   conversation    Conversation @relation(fields: [conversationId], references: [id])
   conversationId  Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@id([staffId, conversationId])
 }

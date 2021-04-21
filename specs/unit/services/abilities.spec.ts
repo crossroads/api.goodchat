@@ -8,6 +8,14 @@ import { GoodchatError }                                   from '../../../lib/ut
 import { MessagesApi }                                     from 'sunshine-conversations-client'
 import sinon                                               from 'sinon'
 import { BLANK_CONFIG }                                    from '../../samples/config'
+import db                                                  from '../../../lib/db'
+
+const membersOf = async (conversationId: number) : Promise<number[]> => {
+  const records = await db.staffConversations.findMany({
+    where: { conversationId }
+  });
+  return _.map(records, 'staffId');
+}
 
 describe('Services/abilities', () => {
   let admin         : Staff
@@ -216,6 +224,203 @@ describe('Services/abilities', () => {
 
           const chat = await abilities(baseStaff).getConversationById(myPrivateChat.id);
           expect(chat).to.deep.equal(myPrivateChat);
+        })
+      })
+    })
+
+    describe('#joinConversation', () => {
+
+      context('As an admin', () => {
+
+        it('allows me to join a customer chat', async () => {
+          const { conversationId, staffId } = await abilities(admin).joinConversation(customerChats[0].id);
+
+          expect(conversationId).to.equal(customerChats[0].id);
+          expect(staffId).to.equal(admin.id);
+          expect(await membersOf(customerChats[0].id)).to.include(admin.id)
+        })
+
+        it('allows me to join a public chat', async () => {
+          const { conversationId, staffId } = await abilities(admin).joinConversation(publicChats[0].id);
+
+          expect(conversationId).to.equal(publicChats[0].id);
+          expect(staffId).to.equal(admin.id);
+          expect(await membersOf(publicChats[0].id)).to.include(admin.id)
+        })
+
+        it('does not allow me to add myself to private chats I am not a member of', async () => {
+          await expect(
+            abilities(admin).joinConversation(privateChats[0].id)
+          ).to.be.rejectedWith(GoodchatError, 'errors.forbidden')
+        })
+      })
+
+      context('As an staff with customer permissions', () => {
+
+        it('allows me to join a customer chat', async () => {
+          const { conversationId, staffId } = await abilities(customerStaff).joinConversation(customerChats[0].id);
+
+          expect(conversationId).to.equal(customerChats[0].id);
+          expect(staffId).to.equal(customerStaff.id);
+          expect(await membersOf(customerChats[0].id)).to.include(customerStaff.id)
+        })
+
+        it('allows me to join a public chat', async () => {
+          const { conversationId, staffId } = await abilities(customerStaff).joinConversation(publicChats[0].id);
+
+          expect(conversationId).to.equal(publicChats[0].id);
+          expect(staffId).to.equal(customerStaff.id);
+          expect(await membersOf(publicChats[0].id)).to.include(customerStaff.id)
+        })
+
+        it('does not allow me to add myself to private chats I am not a member of', async () => {
+          await expect(
+            abilities(customerStaff).joinConversation(privateChats[0].id)
+          ).to.be.rejectedWith(GoodchatError, 'errors.forbidden')
+        })
+      })
+
+      context('As an staff with no permissions', () => {
+
+        it('does not allow me to join a customer chat', async () => {
+          await expect(
+            abilities(baseStaff).joinConversation(customerChats[0].id)
+          ).to.be.rejectedWith(GoodchatError, 'errors.forbidden')
+        })
+
+        it('allows me to join a public chat', async () => {
+          const { conversationId, staffId } = await abilities(baseStaff).joinConversation(publicChats[0].id);
+
+          expect(conversationId).to.equal(publicChats[0].id);
+          expect(staffId).to.equal(baseStaff.id);
+          expect(await membersOf(publicChats[0].id)).to.include(baseStaff.id)
+        })
+
+        it('does not allow me to add myself to private chats I am not a member of', async () => {
+          await expect(
+            abilities(baseStaff).joinConversation(privateChats[0].id)
+          ).to.be.rejectedWith(GoodchatError, 'errors.forbidden')
+        })
+      })
+    })
+
+    describe('#addToConversation', () => {
+      let otherStaff : Staff
+      let otherAdmin : Staff
+
+      beforeEach(async () => {
+        otherStaff = await factories.staffFactory.create({ permissions: [] });
+        otherAdmin = await factories.staffFactory.create({ permissions: [GoodChatPermissions.ADMIN] });
+      })
+
+      _.each({
+        'an admin': () => admin,
+        'a staff with customer permissions': () => customerStaff
+      }, (getStaff, staffType) => {
+
+        context(`As ${staffType}`, () => {
+          it('allows me add an entitled user to a customer chat', async () => {
+            const { conversationId, staffId } = await abilities(getStaff()).addToConversation(
+              customerChats[0].id,
+              otherAdmin
+            );
+
+            expect(conversationId).to.equal(customerChats[0].id);
+            expect(staffId).to.equal(otherAdmin.id);
+            expect(await membersOf(customerChats[0].id)).to.include(otherAdmin.id)
+          })
+
+          it('prevents me from adding an user without permissions to a customer chat', async () => {
+            await expect(
+              abilities(getStaff()).addToConversation(
+                customerChats[0].id,
+                otherStaff
+              )
+            ).to.be.rejectedWith(GoodchatError, 'errors.forbidden')
+          })
+
+          it('allows me add a user to a public chat', async () => {
+            const { conversationId, staffId } = await abilities(getStaff()).addToConversation(
+              publicChats[0].id,
+              otherStaff
+            );
+
+            expect(conversationId).to.equal(publicChats[0].id);
+            expect(staffId).to.equal(otherStaff.id);
+            expect(await membersOf(publicChats[0].id)).to.include(otherStaff.id)
+          })
+
+          it('prevents me from adding a user to a private chat I don\'t belong to', async () => {
+            await expect(
+              abilities(getStaff()).addToConversation(
+                privateChats[0].id,
+                otherAdmin
+              )
+            ).to.be.rejectedWith(GoodchatError, 'errors.forbidden')
+          })
+
+          it('allows me to add a user to a private chat I belong to', async () => {
+            const myPrivateChat = await factories.conversationFactory.create(
+              { type: ConversationType.PRIVATE },
+              { transient: { members: [getStaff()] } }
+            )
+
+            const { conversationId, staffId } = await abilities(getStaff()).addToConversation(
+              myPrivateChat.id,
+              otherStaff
+            );
+
+            expect(conversationId).to.equal(myPrivateChat.id);
+            expect(staffId).to.equal(otherStaff.id);
+            expect(await membersOf(myPrivateChat.id)).to.include(otherStaff.id)
+          })
+        })
+      });
+
+      context(`As staff member with no permissions`, () => {
+        it('prevents me from adding a user to a customer chat', async () => {
+          await expect(
+            abilities(baseStaff).addToConversation(
+              customerChats[0].id,
+              otherAdmin
+            )
+          ).to.be.rejectedWith(GoodchatError, 'errors.forbidden')
+        })
+
+        it('allows me add a user to a public chat', async () => {
+          const { conversationId, staffId } = await abilities(baseStaff).addToConversation(
+            publicChats[0].id,
+            otherStaff
+          );
+
+          expect(conversationId).to.equal(publicChats[0].id);
+          expect(staffId).to.equal(otherStaff.id);
+          expect(await membersOf(publicChats[0].id)).to.include(otherStaff.id)
+        })
+
+        it('prevents me from adding a user to a private chat I don\'t belong to', async () => {
+          await expect(
+            abilities(baseStaff).addToConversation(
+              privateChats[0].id,
+              otherStaff
+            )
+          ).to.be.rejectedWith(GoodchatError, 'errors.forbidden')
+        })
+
+        it('allows me to add a user to a private chat I belong to', async () => {
+          const myPrivateChat = await factories.conversationFactory.create(
+            { type: ConversationType.PRIVATE },
+            { transient: { members: [baseStaff] } }
+          )
+
+          const { conversationId, staffId } = await abilities(baseStaff).addToConversation(
+            myPrivateChat.id,
+            otherStaff
+          );
+
+          expect(conversationId).to.equal(myPrivateChat.id);
+          expect(staffId).to.equal(otherStaff.id);
+          expect(await membersOf(myPrivateChat.id)).to.include(otherStaff.id)
         })
       })
     })
@@ -479,6 +684,21 @@ describe('Services/abilities', () => {
         })
       });
 
+      describe('Auto-joining a conversation', () => {
+        it('automatically adds me to a conversation when sending a message', async () => {
+          expect(await membersOf(customerChat.id)).not.to.include(admin.id)
+
+          const message = await abilities(admin).sendMessage(customerChat.id, {
+            type: 'text',
+            text: 'Hi'
+          });
+
+          expect(message).not.to.be.null
+          expect(message.conversationId).to.deep.eq(customerChat.id);
+          expect(await membersOf(customerChat.id)).to.include(admin.id)
+        })
+      })
+
       context('As an admin', () => {
         it('allows me to send a message to a customer chat', async () => {
           const message = await abilities(admin).sendMessage(customerChat.id, {
@@ -501,7 +721,7 @@ describe('Services/abilities', () => {
         })
 
         it('does not allow me to send a message to private chats I am not a member of', async () => {
-          expect(
+          await expect(
             abilities(admin).sendMessage(privateChat.id, {
               type: 'text',
               text: 'Hi'
@@ -547,7 +767,7 @@ describe('Services/abilities', () => {
         })
 
         it('does not allow me to send a message to private chats I am not a member of', async () => {
-          expect(
+          await expect(
             abilities(customerStaff).sendMessage(privateChat.id, {
               type: 'text',
               text: 'Hi'
@@ -573,7 +793,7 @@ describe('Services/abilities', () => {
 
       context('As a staff with no permissions', () => {
         it('does not allow me to send a message to a customer chat', async () => {
-          expect(
+          await expect(
             abilities(baseStaff).sendMessage(customerChat.id, {
               type: 'text',
               text: 'Hi'
@@ -592,7 +812,7 @@ describe('Services/abilities', () => {
         })
 
         it('does not allow me to send a message to private chats I am not a member of', async () => {
-          expect(
+          await expect(
             abilities(baseStaff).sendMessage(privateChat.id, {
               type: 'text',
               text: 'Hi'

@@ -145,26 +145,32 @@ export function unsafe<T extends AnyFunc>(fn : T) : T {
 // ---- Helpers
 
 export function throwNotFound(message = 'errors.not_found', details = {}) : never {
+  /* istanbul ignore next */
   throw new GoodchatError(message, 404, details, ErrorTypes.NOT_FOUND);
 }
 
 export function throwInternal(message = 'errors.unknown', details = {}) : never {
+  /* istanbul ignore next */
   throw new GoodchatError(message, 500, details, ErrorTypes.INTERNAL);
 }
 
 export function throwDisabled(message = 'errors.disabled', details = {}) : never {
+  /* istanbul ignore next */
   throw new GoodchatError(message, 409, details, ErrorTypes.DISABLED);
 }
 
 export function throwUnprocessable(message = 'errors.unprocessable', details = {}) : never {
+  /* istanbul ignore next */
   throw new GoodchatError(message, 422, details, ErrorTypes.UNPROCESSABLE);
 }
 
 export function throwUnauthenticated(message = 'errors.unauthenticated', details = {}) : never {
+  /* istanbul ignore next */
   throw new GoodchatError(message, 401, details, ErrorTypes.UNAUTHORIZED);
 }
 
 export function throwForbidden(message = 'errors.forbidden', details = {}) : never {
+  /* istanbul ignore next */
   throw new GoodchatError(message, 403, details, ErrorTypes.FORBIDDEN);
 }
 

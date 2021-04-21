@@ -1,9 +1,8 @@
-import { Staff, ConversationType }                from "@prisma/client"
+import { Staff, ConversationType, Conversation }  from "@prisma/client"
 import { GoodChatPermissions }                    from "../../typings/goodchat"
 import _                                          from "lodash"
 
 type Rules = Record<string, any>
-
 
 /**
  * Returns a where clause that filters conversations based on the user
@@ -50,3 +49,24 @@ export function getConversationRules(staff: Staff) : Rules {
   return rules;
 }
 
+/**
+ * For a given user, returns the types of conversation the user can be a part of
+ *
+ * @export
+ * @param {Staff} staff
+ * @returns {ConversationType[]}
+ */
+export function allowedConversationTypes(staff: Staff) : ConversationType[] {
+  const has = (perm: GoodChatPermissions) => _.includes(staff.permissions, perm);
+
+  const types : ConversationType[] = [
+    ConversationType.PUBLIC,
+    ConversationType.PRIVATE
+  ];
+
+  if (has(GoodChatPermissions.CHAT_CUSTOMER) || has(GoodChatPermissions.ADMIN)) {
+    types.push(ConversationType.CUSTOMER);
+  }
+
+  return types;
+}

@@ -1,10 +1,10 @@
-import { AuthorType, ConversationType, Message, Staff }  from "@prisma/client"
-import _                                                 from "lodash"
-import { MessagesApi }                                   from "sunshine-conversations-client"
-import db, { Unsaved }                                   from "../../db"
-import { GoodChatConfig, MessageContent }                from "../../typings/goodchat"
-import { throwForbidden }                                from "../../utils/errors"
-import { getConversationRules }                          from "./rules"
+import { AuthorType, ConversationType, Message, Staff }                            from "@prisma/client"
+import _                                                                           from "lodash"
+import { MessagesApi }                                                             from "sunshine-conversations-client"
+import db, { Unsaved }                                                             from "../../db"
+import { GoodChatConfig, MessageContent }                                          from "../../typings/goodchat"
+import { throwForbidden }                                                          from "../../utils/errors"
+import { allowedConversationTypes, getConversationRules }                          from "./rules"
 
 export type Pagination = {
   limit:   number
@@ -55,6 +55,8 @@ export function abilities(staff: Staff, config?: GoodChatConfig) {
 
   // --- CONVERSATIONS
 
+  /* Listing conversations I'm entitled to see */
+
   const getConversations = async (args: ConversationArgs) => {
     const { offset, limit } = normalizePages(args);
 
@@ -72,11 +74,51 @@ export function abilities(staff: Staff, config?: GoodChatConfig) {
     });
   }
 
+  /* Fetching a single conversation, if I'm entitled to see it */
+
   const getConversationById = async (id: number) => {
     return (await getConversations({ id, offset: 0, limit: 1 }))[0] || null;
   }
 
+  /* Adding a staff member to a conversation that I have access to */
+
+  const addToConversation = async (id: number, user: Staff) => {
+    const allowedTypes = allowedConversationTypes(user);
+    const conversation = await getConversationById(id);
+
+    if (!conversation) {
+      // I can't add someone to a conversation I don't have access to
+      throwForbidden();
+    }
+
+    if (_.includes(allowedTypes, conversation.type) === false) {
+      // I can't add someone to a conversation that they are not allowed to see
+      throwForbidden();
+    }
+
+    const compoundId = {
+      staffId: user.id,
+      conversationId: id
+    }
+
+    return db.staffConversations.upsert({
+      where: {
+        staffId_conversationId: compoundId
+      },
+      update: {},
+      create: { ...compoundId },
+    })
+  }
+
+  /* Adding myself to a conversation that I have access to */
+
+  const joinConversation = async (id: number) => {
+    return addToConversation(id, staff); // adding myself to a conversation
+  }
+
   // --- MESSAGES
+
+  /* Listing messages that I have access to */
 
   const getMessages = async (args: MessageArgs) => {
     const { offset, limit } = normalizePages(args);
@@ -109,6 +151,8 @@ export function abilities(staff: Staff, config?: GoodChatConfig) {
       authorId: staff.id,
       metadata: {}
     };
+
+    await joinConversation(conversationId)
 
     if (conversation.type !== ConversationType.CUSTOMER || !config?.smoochAppId) {
       return db.message.create({ data: unsaveMessage }); // No Sunshine
@@ -148,7 +192,9 @@ export function abilities(staff: Staff, config?: GoodChatConfig) {
     getMessages,
     getMessageById,
     sendMessage,
-    sendTextMessage
+    sendTextMessage,
+    joinConversation,
+    addToConversation
   }
 }
 
