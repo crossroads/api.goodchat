@@ -1,15 +1,15 @@
-import { ApolloError, ApolloServer, gql }                                from 'apollo-server-koa'
-import { makeExecutableSchema }                                          from "graphql-tools"
-import * as scalars                                                      from 'graphql-scalars'
-import { promises as fs }                                                from 'fs'
-import path                                                              from 'path'
-import resolvers                                                         from './resolvers'
-import logger                                                            from '../../utils/logger'
-import authService                                                       from '../../services/auth_service'
-import { GoodChatConfig }                                                from '../../typings/goodchat'
-import { Staff }                                                         from '@prisma/client'
-import { abilities, Abilities }                                          from '../../services/abilities'
-import { GoodchatError, wrapError }                                      from '../../utils/errors'
+import { ApolloError, ApolloServer, gql }   from 'apollo-server-koa'
+import { makeExecutableSchema }             from "graphql-tools"
+import * as scalars                         from 'graphql-scalars'
+import { promises as fs }                   from 'fs'
+import path                                 from 'path'
+import resolvers                            from './resolvers'
+import logger                               from '../../utils/logger'
+import authService                          from '../../services/auth_service'
+import { GoodChatConfig }                   from '../../typings/goodchat'
+import { Staff }                            from '@prisma/client'
+import { abilities, Abilities }             from '../../services/abilities'
+import { GoodchatError }                    from '../../utils/errors'
 
 const { info } = logger('graphql');
 

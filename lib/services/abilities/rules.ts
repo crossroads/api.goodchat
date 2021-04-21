@@ -1,4 +1,4 @@
-import { Staff, ConversationType, Conversation }  from "@prisma/client"
+import { Staff, ConversationType }                from "@prisma/client"
 import { GoodChatPermissions }                    from "../../typings/goodchat"
 import _                                          from "lodash"
 
