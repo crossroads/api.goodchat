@@ -70,16 +70,12 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Interfaces</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/lib_typings_lang.json.html" class="tsd-kind-icon">Json</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
 							<h3>Type aliases</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="lib_typings_lang.html#anyfunc" class="tsd-kind-icon">Any<wbr>Func</a></li>
 								<li class="tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter"><a href="lib_typings_lang.html#arguments" class="tsd-kind-icon">Arguments</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="lib_typings_lang.html#json" class="tsd-kind-icon">Json</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="lib_typings_lang.html#jsonobject" class="tsd-kind-icon">Json<wbr>Object</a></li>
 								<li class="tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter"><a href="lib_typings_lang.html#listable" class="tsd-kind-icon">Listable</a></li>
 								<li class="tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter"><a href="lib_typings_lang.html#maybe" class="tsd-kind-icon">Maybe</a></li>
 							</ul>
@@ -95,7 +91,7 @@
 					<div class="tsd-signature tsd-kind-icon">Any<wbr>Func<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/bb64558/lib/typings/lang.ts#L13">lib/typings/lang.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/d0e105d/lib/typings/lang.ts#L15">lib/typings/lang.ts:15</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -126,7 +122,7 @@
 					<div class="tsd-signature tsd-kind-icon">Arguments&lt;T&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">infer </span> U<span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">U</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/bb64558/lib/typings/lang.ts#L3">lib/typings/lang.ts:3</a></li>
+							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/d0e105d/lib/typings/lang.ts#L5">lib/typings/lang.ts:5</a></li>
 						</ul>
 					</aside>
 					<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -136,13 +132,33 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="json" class="tsd-anchor"></a>
+					<h3>Json</h3>
+					<div class="tsd-signature tsd-kind-icon">Json<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Prisma.InputJsonValue</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/d0e105d/lib/typings/lang.ts#L11">lib/typings/lang.ts:11</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="jsonobject" class="tsd-anchor"></a>
+					<h3>Json<wbr>Object</h3>
+					<div class="tsd-signature tsd-kind-icon">Json<wbr>Object<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Prisma.InputJsonObject</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/d0e105d/lib/typings/lang.ts#L13">lib/typings/lang.ts:13</a></li>
+						</ul>
+					</aside>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
 					<a name="listable" class="tsd-anchor"></a>
 					<h3>Listable</h3>
 					<div class="tsd-signature tsd-kind-icon">Listable&lt;T&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/bb64558/lib/typings/lang.ts#L7">lib/typings/lang.ts:7</a></li>
+							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/d0e105d/lib/typings/lang.ts#L9">lib/typings/lang.ts:9</a></li>
 						</ul>
 					</aside>
 					<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -158,7 +174,7 @@
 					<div class="tsd-signature tsd-kind-icon">Maybe&lt;T&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/bb64558/lib/typings/lang.ts#L5">lib/typings/lang.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/crossroads/api.goodchat/blob/d0e105d/lib/typings/lang.ts#L7">lib/typings/lang.ts:7</a></li>
 						</ul>
 					</aside>
 					<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -183,14 +199,17 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/lib_typings_lang.json.html" class="tsd-kind-icon">Json</a>
-					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
 						<a href="lib_typings_lang.html#anyfunc" class="tsd-kind-icon">Any<wbr>Func</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
 						<a href="lib_typings_lang.html#arguments" class="tsd-kind-icon">Arguments</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="lib_typings_lang.html#json" class="tsd-kind-icon">Json</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="lib_typings_lang.html#jsonobject" class="tsd-kind-icon">Json<wbr>Object</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
 						<a href="lib_typings_lang.html#listable" class="tsd-kind-icon">Listable</a>

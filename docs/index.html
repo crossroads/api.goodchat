@@ -63,6 +63,7 @@
 				</a>
 				<p><a href="https://forthebadge.com"><img src="https://forthebadge.com/images/badges/made-with-typescript.svg" alt="forthebadge"></a>
 				<a href="https://forthebadge.com"><img src="https://forthebadge.com/images/badges/built-with-love.svg" alt="forthebadge"></a></p>
+				<p><a href="https://codecov.io/gh/crossroads/api.goodchat"><img src="https://codecov.io/gh/crossroads/api.goodchat/branch/main/graph/badge.svg?token=16160ETKGA" alt="codecov"></a></p>
 				<p>GoodChat API is a standalone <a href="https://nodejs.org">node.js</a> web service allowing easy integration with <a href="https://smooch.io">smooch.io</a></p>
 				<!-- START doctoc generated TOC please keep comment here to allow auto update -->
 				<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -122,8 +123,8 @@
 					<li><input checked="" disabled="" type="checkbox"> Integration with Sunshine Conversations</li>
 					<li><input checked="" disabled="" type="checkbox"> Webhooks support</li>
 					<li><input disabled="" type="checkbox"> Live subscriptions support (notifications, new messages)</li>
-					<li><input disabled="" type="checkbox"> Configuratbe Push Notification support    </li>
-					<li><input disabled="" type="checkbox"> REST/GQL Chat API </li>
+					<li><input disabled="" type="checkbox"> Configurable Push Notification support</li>
+					<li><input disabled="" type="checkbox"> REST/GQL Chat API</li>
 					<li><input checked="" disabled="" type="checkbox"> Configurable authentication methods (allowing easy integration with existing systems)</li>
 				</ul>
 				<img src="./design/goodchat_integration.png" alt="drawing" width="700"/>
@@ -140,6 +141,14 @@
 				<a href="#prerequisites" id="prerequisites" style="color: inherit; text-decoration: none;">
 					<h2>Prerequisites</h2>
 				</a>
+				<a href="#system-requirements" id="system-requirements" style="color: inherit; text-decoration: none;">
+					<h3>System requirements</h3>
+				</a>
+				<ul>
+					<li>Node 14.x</li>
+					<li>NPM 7+</li>
+				</ul>
+				<p>NPM 7 or above is required in order to handle peer-dependencies of the apollo server. An older version of NPM can be used but it may require you to install some modules manually</p>
 				<a href="#dependencies" id="dependencies" style="color: inherit; text-decoration: none;">
 					<h3>Dependencies</h3>
 				</a>
@@ -171,14 +180,17 @@
 				</a>
 				<details>
 					<summary>How to create a Sunshine Application</summary>
-					##### Steps
-					1. Login to your Sunshine Conversations account
-					2. Head to your dashboard (https://app.smooch.io)
-					3. On the right side click on the `Create new app` button
-				</details>
+					<a href="#steps" id="steps" style="color: inherit; text-decoration: none;">
+						<h5>Steps</h5>
+					</a>
+					<ol>
+						<li>Login to your Sunshine Conversations account</li>
+						<li>Head to your dashboard (<a href="https://app.smooch.io">https://app.smooch.io</a>)</li>
+				<li>On the right side click on the <code>Create new app</code> button</details></li>
+				</ol>
 				<details>
 					<summary>How to create a Sunshine ID/Secret Key pair</summary>
-					<a href="#steps" id="steps" style="color: inherit; text-decoration: none;">
+					<a href="#steps-1" id="steps-1" style="color: inherit; text-decoration: none;">
 						<h4>Steps</h4>
 					</a>
 					<ol>
@@ -213,7 +225,7 @@
 				<a href="#using-the-ready-made-cli-script" id="using-the-ready-made-cli-script" style="color: inherit; text-decoration: none;">
 					<h3>Using the ready-made CLI script</h3>
 				</a>
-				<p>An pre-written startup script exists under the <code>/bin</code> folder to run the server. It can be used easily thanks to the following npm scripts: </p>
+				<p>An pre-written startup script exists under the <code>/bin</code> folder to run the server. It can be used easily thanks to the following npm scripts:</p>
 				<p>Build the project</p>
 				<pre><code class="language-bash"><span style="color: #000000">$&gt; npm run build</span>
 </code></pre>
@@ -238,13 +250,38 @@
 				<p>When running the server from an NPM script, the server can be configured using the following environment variables</p>
 				<ul>
 					<li><code>NODE_ENV</code>  - defines the environment it&#39;s running on. Options:<ul>
-							<li><code>production</code> </li>
+							<li><code>production</code></li>
 							<li><code>staging</code></li>
 							<li><code>development</code> (default)</li>
 						</ul>
 					</li>
 					<li><code>NO_AUTH</code> - if set to &quot;true&quot; or &quot;yes&quot;, will no support any form of authentication (good for testing)</li>
 				</ul>
+				<a href="#graphql" id="graphql" style="color: inherit; text-decoration: none;">
+					<h2>GraphQL</h2>
+				</a>
+				<a href="#using-the-playground" id="using-the-playground" style="color: inherit; text-decoration: none;">
+					<h3>Using the playground</h3>
+				</a>
+				<ul>
+					<li>Open <a href="http://localhost:8000/graphql"></a> on your browser to view the playground</li>
+					<li>Make sure the Auth API is running, the default DEV environment will use localhost:3000 as an auth endpoint</li>
+					<li>At the bottom of the playground, set the HTTP Headers to include an Authorization header</li>
+					<li>Write your queries</li>
+					<li>Press play</li>
+				</ul>
+				<p>Here&#39;s an example query to get you started</p>
+				<pre><code class="language-gql">query Conversations {
+  conversations {
+    id
+    type
+    messages {
+      id
+      content
+    }
+  }
+}
+</code></pre>
 				<a href="#testing" id="testing" style="color: inherit; text-decoration: none;">
 					<h2>Testing</h2>
 				</a>
@@ -318,10 +355,22 @@
 						<a href="modules/lib_middlewares_rescue.html">lib/middlewares/rescue</a>
 					</li>
 					<li class=" tsd-kind-module">
+						<a href="modules/lib_routes_graphql.html">lib/routes/graphql</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_routes_graphql_resolvers.html">lib/routes/graphql/resolvers</a>
+					</li>
+					<li class=" tsd-kind-module">
 						<a href="modules/lib_routes_webhooks.html">lib/routes/webhooks</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/lib_routes_webhooks_setup.html">lib/routes/webhooks/setup</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_services_abilities.html">lib/services/abilities</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_services_abilities_rules.html">lib/services/abilities/rules</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/lib_services_auth_service.html">lib/services/auth_<wbr>service</a>
@@ -334,6 +383,9 @@
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/lib_services_events.html">lib/services/events</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_services_events_pubsub.html">lib/services/events/pubsub</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="modules/lib_services_events_webhooks_conversation_created.html">lib/services/events/webhooks/conversation_<wbr>created</a>
