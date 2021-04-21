@@ -4,6 +4,10 @@ import { expect }                                          from 'chai'
 import _                                                   from 'lodash'
 import { Conversation, ConversationType, Message, Staff }  from '@prisma/client'
 import { GoodChatPermissions }                             from '../../../lib/typings/goodchat'
+import { GoodchatError }                                   from '../../../lib/utils/errors'
+import { MessagesApi }                                     from 'sunshine-conversations-client'
+import sinon                                               from 'sinon'
+import { BLANK_CONFIG }                                    from '../../samples/config'
 
 describe('Services/abilities', () => {
   let admin         : Staff
@@ -57,7 +61,7 @@ describe('Services/abilities', () => {
             { type: ConversationType.PRIVATE },
             { transient: { members: [admin] } }
           )
-          
+
           const chats = await abilities(admin).getConversations({ type: ConversationType.PRIVATE });
           expect(chats.length).to.eq(1);
           expect(chats[0]).to.deep.eq(myPrivateChat)
@@ -90,13 +94,13 @@ describe('Services/abilities', () => {
             { type: ConversationType.PRIVATE },
             { transient: { members: [customerStaff] } }
           )
-          
+
           const chats = await abilities(customerStaff).getConversations({ type: ConversationType.PRIVATE });
           expect(chats.length).to.eq(1);
           expect(chats[0]).to.deep.eq(myPrivateChat)
         })
       })
-      
+
       context('As an staff member with no permissions', () => {
 
         it('prevents me from reading customer chats', async () => {
@@ -122,7 +126,7 @@ describe('Services/abilities', () => {
             { type: ConversationType.PRIVATE },
             { transient: { members: [baseStaff] } }
           )
-          
+
           const chats = await abilities(baseStaff).getConversations({ type: ConversationType.PRIVATE });
           expect(chats.length).to.eq(1);
           expect(chats[0]).to.deep.eq(myPrivateChat)
@@ -153,7 +157,7 @@ describe('Services/abilities', () => {
             { type: ConversationType.PRIVATE },
             { transient: { members: [admin] } }
           )
-          
+
           const chat = await abilities(admin).getConversationById(myPrivateChat.id);
           expect(chat).to.deep.equal(myPrivateChat);
         })
@@ -181,12 +185,12 @@ describe('Services/abilities', () => {
             { type: ConversationType.PRIVATE },
             { transient: { members: [customerStaff] } }
           )
-          
+
           const chat = await abilities(customerStaff).getConversationById(myPrivateChat.id);
           expect(chat).to.deep.equal(myPrivateChat);
         })
       })
-      
+
       context('As an staff member with no permissions', () => {
 
         it('prevents me from reading one customer chat by ID', async () => {
@@ -209,7 +213,7 @@ describe('Services/abilities', () => {
             { type: ConversationType.PRIVATE },
             { transient: { members: [baseStaff] } }
           )
-          
+
           const chat = await abilities(baseStaff).getConversationById(myPrivateChat.id);
           expect(chat).to.deep.equal(myPrivateChat);
         })
@@ -262,7 +266,7 @@ describe('Services/abilities', () => {
           )
 
           const myMessages = await factories.messageFactory.createList(2, { conversationId: myPrivateChat.id })
-          
+
           const messages = await abilities(admin).getMessages({ conversationId: myPrivateChat.id });
 
           expect(messages).to.deep.eq(myMessages);
@@ -296,7 +300,7 @@ describe('Services/abilities', () => {
           )
 
           const myMessages = await factories.messageFactory.createList(2, { conversationId: myPrivateChat.id })
-          
+
           const messages = await abilities(customerStaff).getMessages({ conversationId: myPrivateChat.id });
 
           expect(messages).to.deep.eq(myMessages);
@@ -328,7 +332,7 @@ describe('Services/abilities', () => {
           )
 
           const myMessages = await factories.messageFactory.createList(2, { conversationId: myPrivateChat.id })
-          
+
           const messages = await abilities(baseStaff).getMessages({ conversationId: myPrivateChat.id });
 
           expect(messages).to.deep.eq(myMessages);
@@ -360,13 +364,13 @@ describe('Services/abilities', () => {
           )
 
           const expectedMessage = await factories.messageFactory.create({ conversationId: myPrivateChat.id })
-          
+
           const message = await abilities(admin).getMessageById(expectedMessage.id);
 
           expect(message).to.deep.eq(expectedMessage);
         })
       })
-      
+
       context('As a customer staff', () => {
         it('allows me to read one message by Id from customer chats', async () => {
           const message = await abilities(customerStaff).getMessageById(customerChatMessages[0].id);
@@ -390,7 +394,7 @@ describe('Services/abilities', () => {
           )
 
           const expectedMessage = await factories.messageFactory.create({ conversationId: myPrivateChat.id })
-          
+
           const message = await abilities(customerStaff).getMessageById(expectedMessage.id);
 
           expect(message).to.deep.eq(expectedMessage);
@@ -420,10 +424,195 @@ describe('Services/abilities', () => {
           )
 
           const expectedMessage = await factories.messageFactory.create({ conversationId: myPrivateChat.id })
-          
+
           const message = await abilities(baseStaff).getMessageById(expectedMessage.id);
 
           expect(message).to.deep.eq(expectedMessage);
+        })
+      })
+    })
+
+    describe('#sendMessage', () => {
+
+      describe('Forward to Sunshine Conversations', () => {
+        let whatsappConversation : Conversation
+        let localConversation : Conversation
+        let postMessageStub : sinon.SinonStub
+
+        beforeEach(async () => {
+          postMessageStub = sinon.stub(MessagesApi.prototype, 'postMessage').returns(Promise.resolve({ id: 'aSunshineId' }))
+          whatsappConversation  = await factories.conversationFactory.create({type: ConversationType.CUSTOMER })
+          localConversation  = await factories.conversationFactory.create({type: ConversationType.PUBLIC })
+        })
+
+        afterEach(() => postMessageStub.restore())
+
+        context('for a customer conversation', () => {
+          it('pushes the message to sunshine conversation', async () => {
+            expect(postMessageStub.callCount).to.eq(0);
+            const message = await abilities(admin, BLANK_CONFIG).sendMessage(whatsappConversation.id, {
+              type: 'text',
+              text: 'Hi'
+            });
+            expect(postMessageStub.callCount).to.eq(1);
+            expect(postMessageStub.getCall(0).args).to.deep.eq([
+              BLANK_CONFIG.smoochAppId,
+              whatsappConversation.sunshineConversationId,
+              {
+                type: 'text',
+                text: 'Hi'
+              }
+            ]);
+            expect(message.sunshineMessageId).to.eq('aSunshineId');
+          })
+        })
+
+        context('for a local conversation', () => {
+          it('does not push the message to sunshine conversation', async () => {
+            expect(postMessageStub.callCount).to.eq(0);
+            await abilities(admin, BLANK_CONFIG).sendMessage(localConversation.id, {
+              type: 'text',
+              text: 'Hi'
+            });
+            expect(postMessageStub.callCount).to.eq(0);
+          })
+        })
+      });
+
+      context('As an admin', () => {
+        it('allows me to send a message to a customer chat', async () => {
+          const message = await abilities(admin).sendMessage(customerChat.id, {
+            type: 'text',
+            text: 'Hi'
+          });
+
+          expect(message).not.to.be.null
+          expect(message.conversationId).to.deep.eq(customerChat.id);
+        })
+
+        it('allows me to send one message to a public chat', async () => {
+          const message = await abilities(admin).sendMessage(publicChat.id, {
+            type: 'text',
+            text: 'Hi'
+          });
+
+          expect(message).not.to.be.null
+          expect(message.conversationId).to.deep.eq(publicChat.id);
+        })
+
+        it('does not allow me to send a message to private chats I am not a member of', async () => {
+          expect(
+            abilities(admin).sendMessage(privateChat.id, {
+              type: 'text',
+              text: 'Hi'
+            })
+          ).to.be.rejectedWith(GoodchatError, 'errors.forbidden')
+        })
+
+        it('allows me to send a message by Id from a chat I am a member of', async () => {
+          const myPrivateChat = await factories.conversationFactory.create(
+            { type: ConversationType.PRIVATE },
+            { transient: { members: [admin] } }
+          )
+
+          const message = await abilities(admin).sendMessage(myPrivateChat.id, {
+            type: 'text',
+            text: 'Hi'
+          });
+
+          expect(message).not.to.be.null
+          expect(message.conversationId).to.deep.eq(myPrivateChat.id);
+        })
+      })
+
+      context('As a customer staff', () => {
+        it('allows me to send a message to a customer chat', async () => {
+          const message = await abilities(customerStaff).sendMessage(customerChat.id, {
+            type: 'text',
+            text: 'Hi'
+          });
+
+          expect(message).not.to.be.null
+          expect(message.conversationId).to.deep.eq(customerChat.id);
+        })
+
+        it('allows me to send one message to a public chat', async () => {
+          const message = await abilities(customerStaff).sendMessage(publicChat.id, {
+            type: 'text',
+            text: 'Hi'
+          });
+
+          expect(message).not.to.be.null
+          expect(message.conversationId).to.deep.eq(publicChat.id);
+        })
+
+        it('does not allow me to send a message to private chats I am not a member of', async () => {
+          expect(
+            abilities(customerStaff).sendMessage(privateChat.id, {
+              type: 'text',
+              text: 'Hi'
+            })
+          ).to.be.rejectedWith(GoodchatError, 'errors.forbidden')
+        })
+
+        it('allows me to send a message by Id from a chat I am a member of', async () => {
+          const myPrivateChat = await factories.conversationFactory.create(
+            { type: ConversationType.PRIVATE },
+            { transient: { members: [customerStaff] } }
+          )
+
+          const message = await abilities(customerStaff).sendMessage(myPrivateChat.id, {
+            type: 'text',
+            text: 'Hi'
+          });
+
+          expect(message).not.to.be.null
+          expect(message.conversationId).to.deep.eq(myPrivateChat.id);
+        })
+      })
+
+      context('As a staff with no permissions', () => {
+        it('does not allow me to send a message to a customer chat', async () => {
+          expect(
+            abilities(baseStaff).sendMessage(customerChat.id, {
+              type: 'text',
+              text: 'Hi'
+            })
+          ).to.be.rejectedWith(GoodchatError, 'errors.forbidden')
+        })
+
+        it('allows me to send one message to a public chat', async () => {
+          const message = await abilities(baseStaff).sendMessage(publicChat.id, {
+            type: 'text',
+            text: 'Hi'
+          });
+
+          expect(message).not.to.be.null
+          expect(message.conversationId).to.deep.eq(publicChat.id);
+        })
+
+        it('does not allow me to send a message to private chats I am not a member of', async () => {
+          expect(
+            abilities(baseStaff).sendMessage(privateChat.id, {
+              type: 'text',
+              text: 'Hi'
+            })
+          ).to.be.rejectedWith(GoodchatError, 'errors.forbidden')
+        })
+
+        it('allows me to send a message by Id from a chat I am a member of', async () => {
+          const myPrivateChat = await factories.conversationFactory.create(
+            { type: ConversationType.PRIVATE },
+            { transient: { members: [baseStaff] } }
+          )
+
+          const message = await abilities(baseStaff).sendMessage(myPrivateChat.id, {
+            type: 'text',
+            text: 'Hi'
+          });
+
+          expect(message).not.to.be.null
+          expect(message.conversationId).to.deep.eq(myPrivateChat.id);
         })
       })
     })

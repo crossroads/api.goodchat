@@ -1,10 +1,10 @@
-import { MessageEvent, pubsub, PubSubAction, PubSubEvent }         from "../../services/events"
-import { Conversation, ConversationType, Customer, Message }       from "@prisma/client"
-import { CollectionArgs, ConversationArgs, MessageArgs }           from "../../services/abilities"
-import { GraphQLContext, RootParent }                              from "."
-import { IResolvers, withFilter }                                  from "apollo-server-koa"
-import db                                                          from "../../db"
-import _                                                           from 'lodash'
+import { MessageEvent, pubsub, PubSubAction, PubSubEvent }    from "../../services/events"
+import { Conversation, ConversationType, Customer, Message }  from "@prisma/client"
+import { CollectionArgs, ConversationArgs, MessageArgs }      from "../../services/abilities"
+import { GraphQLContext, RootParent }                         from "."
+import { IResolvers, withFilter }                             from "apollo-server-koa"
+import db                                                     from "../../db"
+import _                                                      from 'lodash'
 
 // ---------------------------
 // Types
@@ -18,6 +18,11 @@ export interface RecordArgs extends BaseArgs {
 export type MessageSubscriptionArgs = {
   conversationId?: number,
   actions?: PubSubAction[]
+}
+
+export type SendMessageArgs = {
+  conversationId: number
+  text: string
 }
 
 // ---------------------------
@@ -36,6 +41,16 @@ const resolvers : IResolvers = {
 
     conversation(parent: RootParent, args : RecordArgs, ctx : GraphQLContext) {
       return ctx.abilities.getConversationById(args.id);
+    }
+  },
+
+  // ---------------------------
+  // Mutations
+  // ---------------------------
+
+  Mutation: {
+    sendMessage: async (parent: RootParent, args: SendMessageArgs, ctx : GraphQLContext) => {
+      return ctx.abilities.sendTextMessage(args.conversationId, args.text);
     }
   },
 

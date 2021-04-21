@@ -98,7 +98,7 @@ model Message {
   updatedAt                 DateTime    @updatedAt
   conversationId            Int
   conversation              Conversation @relation(fields: [conversationId], references: [id])
-  sunshineMessageId         String    @unique
+  sunshineMessageId         String?    @unique
   authorType                AuthorType
   authorId                  Int
   content                   Json

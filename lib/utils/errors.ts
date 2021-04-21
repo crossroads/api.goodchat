@@ -1,9 +1,10 @@
-import * as i18nService       from '../services/i18n'
-import { isPromise }          from './async'
-import { I18n }               from 'i18n'
-import _                      from 'lodash'
-import { AnyFunc }            from '../typings/lang'
-import axios                  from 'axios'
+import * as i18nService   from '../services/i18n'
+import { isPromise }      from './async'
+import { I18n }           from 'i18n'
+import _                  from 'lodash'
+import { AnyFunc }        from '../typings/lang'
+import axios              from 'axios'
+import * as apolloErrors  from 'apollo-server-errors'
 
 /**
  * Different kinds of errors GoodChat can throw
@@ -62,13 +63,33 @@ export class GoodchatError<T = any> extends Error {
     this.details  = details;
   }
 
-  serialize(lang: string = i18nService.defaultLanguage) {
+  translatedMessage(lang: string = i18nService.defaultLanguage) {
     this.i18n.setLocale(lang);
+    return this.i18n.__(this.message);
+  }
+
+  serialize(lang: string = i18nService.defaultLanguage) {
     return {
-      error:    this.i18n.__(this.message),
+      error:    this.translatedMessage(lang),
       status:   this.status,
       type:     this.type
     }
+  }
+
+  toApolloError(lang: string = i18nService.defaultLanguage) {
+    const message = this.translatedMessage(lang);
+
+    const Klass = ({
+      401: apolloErrors.AuthenticationError,
+      403: apolloErrors.ForbiddenError,
+      422: apolloErrors.UserInputError
+    })[this.status] || apolloErrors.ApolloError;
+
+    const error = new Klass(message);
+
+    error.extensions = { ...error.extensions, exception: this.serialize(lang) };
+
+    return error;
   }
 }
 
@@ -139,7 +160,7 @@ export function throwUnprocessable(message = 'errors.unprocessable', details = {
   throw new GoodchatError(message, 422, details, ErrorTypes.UNPROCESSABLE);
 }
 
-export function throwUnauthorized(message = 'errors.unauthorized', details = {}) : never {
+export function throwUnauthenticated(message = 'errors.unauthenticated', details = {}) : never {
   throw new GoodchatError(message, 401, details, ErrorTypes.UNAUTHORIZED);
 }
 

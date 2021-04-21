@@ -1,6 +1,7 @@
-import { Staff }              from "@prisma/client";
-import { I18n }               from "i18n"
-import Koa                    from "koa"
+import { Staff }             from "@prisma/client";
+import { I18n }              from "i18n"
+import Koa                   from "koa"
+import { SunshineContent }   from "./sunshine";
 
 // --- Authentication config
 
@@ -59,3 +60,5 @@ export interface KoaChatContext extends Koa.ParameterizedContext<KoaChatState> {
 export type KoaChatMiddleware = Koa.Middleware<KoaChatState, KoaChatContext>
 
 export type GoodchatApp = Koa<KoaChatContext>
+
+export type MessageContent = SunshineContent // We maintain the same data structure as sunshine for messages

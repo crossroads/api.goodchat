@@ -1,9 +1,3 @@
-# TODO: Mutations
-#   - JoinConversation(user, conversation)
-#   - LeaveConversation(user, conversation)
-#   - sendMessage(conversationId)
-#   - createPrivateConversation
-
 type Query {
   conversations(limit: Int, offset: Int, type: String): [Conversation]
   conversation(id: Int!): Conversation
@@ -11,6 +5,20 @@ type Query {
 
 type Subscription {
   messageEvent(conversationId: Int, actions: [SubscriptionAction]): MessageEvent
+}
+
+type Mutation {
+  # TODO: Mutations
+  #   - JoinConversation(conversation)
+  #   - AddToConversation(user, conversation)
+  #   - LeaveConversation(conversation)
+  #   - createConversation(private?)
+  #   - sendImage
+  #   - sendLocation
+  #   - sendLink
+  #   - sendXXX
+
+  sendMessage(conversationId: Int!, text: String!) : Message!
 }
 
 enum SubscriptionAction {

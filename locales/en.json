@@ -3,6 +3,7 @@
   "errors": {
     "unknown": "Internal Server Error",
     "unauthorized": "Unauthorized",
+    "unauthenticated": "Unauthenticated",
     "forbidden": "Forbidden",
     "not_found": "Resource not found",
     "disabled": "Disabled feature",

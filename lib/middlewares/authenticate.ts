@@ -1,11 +1,11 @@
-import authService                            from '../services/auth_service'
-import Koa                                    from 'koa'
-import _                                      from 'lodash'
-import { readBearer }                         from '../utils/http'
-import { throwUnauthorized, throwForbidden }  from '../utils/errors'
-import compose                                from 'koa-compose'
-import rescue                                 from './rescue'
-import { Listable }                           from '../typings/lang'
+import authService                               from '../services/auth_service'
+import Koa                                       from 'koa'
+import _                                         from 'lodash'
+import { readBearer }                            from '../utils/http'
+import { throwUnauthenticated, throwForbidden }  from '../utils/errors'
+import compose                                   from 'koa-compose'
+import rescue                                    from './rescue'
+import { Listable }                              from '../typings/lang'
 import {
   GoodChatConfig,
   KoaChatMiddleware,
@@ -29,7 +29,7 @@ export default (config: GoodChatConfig, permissions : Listable<GoodChatPermissio
   const middleware : KoaChatMiddleware = async (ctx: KoaChatContext, next: Koa.Next) => {
     const token = readBearer(ctx);
 
-    if (!token) throwUnauthorized();
+    if (!token) throwUnauthenticated();
 
     const staff = await authenticate(token);
 

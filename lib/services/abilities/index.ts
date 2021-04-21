@@ -1,7 +1,10 @@
-import { ConversationType, Staff }         from "@prisma/client"
-import _                                   from "lodash"
-import db                                  from "../../db"
-import { getConversationRules }            from "./rules"
+import { AuthorType, ConversationType, Message, Staff }  from "@prisma/client"
+import _                                                 from "lodash"
+import { MessagesApi }                                   from "sunshine-conversations-client"
+import db, { Unsaved }                                   from "../../db"
+import { GoodChatConfig, MessageContent }                from "../../typings/goodchat"
+import { throwForbidden }                                from "../../utils/errors"
+import { getConversationRules }                          from "./rules"
 
 export type Pagination = {
   limit:   number
@@ -45,10 +48,10 @@ const normalizePages = (args: CollectionArgs) : Pagination => {
  * @export
  * @param {Staff} staff
  */
-export function abilities(staff: Staff) {
+export function abilities(staff: Staff, config?: GoodChatConfig) {
 
   const clean  = <T extends Record<any, any>>(obj: T) => _.pickBy(obj, _.identity);
-
+  const sunshineMessages = new MessagesApi();
 
   // --- CONVERSATIONS
 
@@ -93,11 +96,59 @@ export function abilities(staff: Staff) {
     return (await getMessages({ id, offset: 0, limit: 1 }))[0] || null;
   }
 
+  const sendMessage = async (conversationId: number, content: MessageContent) => {
+    const conversation = await getConversationById(conversationId);
+
+    if (conversation === null) throwForbidden();
+
+    const unsaveMessage : Unsaved<Message> = {
+      conversationId,
+      content: content,
+      sunshineMessageId: null,
+      authorType: AuthorType.STAFF,
+      authorId: staff.id,
+      metadata: {}
+    };
+
+    if (conversation.type !== ConversationType.CUSTOMER || !config?.smoochAppId) {
+      return db.message.create({ data: unsaveMessage }); // No Sunshine
+    }
+
+    const sunshineMessageId = (await sunshineMessages.postMessage(
+      config.smoochAppId,
+      conversation.sunshineConversationId,
+      content
+    )).id;
+
+    //
+    // Note:
+    // We do an upsert to handle the scenario where a webhook is fired fast enough to
+    // generate a race condition
+    //
+    return await db.message.upsert({
+      where: { sunshineMessageId },
+      update: {},
+      create: {
+        ...unsaveMessage,
+        sunshineMessageId
+      }
+    });
+  }
+
+  const sendTextMessage = (conversationId: number, text: string) => {
+    return sendMessage(conversationId, {
+      type: 'text',
+      text: text
+    })
+  }
+
   return {
     getConversations,
     getConversationById,
     getMessages,
-    getMessageById
+    getMessageById,
+    sendMessage,
+    sendTextMessage
   }
 }
 

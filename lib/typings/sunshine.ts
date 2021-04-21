@@ -1,8 +1,13 @@
 // --------------------------
 //  Sunshine Types
+//
+// @TODO: Add more supported message content types
+//
+// Ref: https://docs.smooch.io/guide/structured-messages/
+//
 // --------------------------
 
-import { Maybe, Json }  from "./lang";
+import { Maybe, Json, JsonObject }  from "./lang";
 
 /**
  * Sunshine Content Object - Common properties
@@ -10,7 +15,7 @@ import { Maybe, Json }  from "./lang";
  * @export
  * @interface SunshineContentBase
  */
-export interface SunshineContentBase {
+export interface SunshineContentBase extends JsonObject {
   type: string
 }
 
