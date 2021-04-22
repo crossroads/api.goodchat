@@ -39,10 +39,14 @@ async function buildGraphQL(config: GoodChatConfig) {
   info('booting apollo')
 
   const createContext = async (headers: Record<string, string>) : Promise<GraphQLContext> => {
-    const staff = await authService(config).authenticateHeaders(headers);
-    return {
-      staff,
-      abilities: abilities(staff, config)
+    try {
+      const staff = await authService(config).authenticateHeaders(headers);
+      return {
+        staff,
+        abilities: abilities(staff, config)
+      }
+    } catch (e) {
+      throw (e instanceof GoodchatError) ? e.toApolloError() : e;
     }
   }
 

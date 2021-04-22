@@ -6,11 +6,10 @@ import * as logger                from '../../../lib/middlewares/logs'
 import * as rescue                from '../../../lib/middlewares/rescue'
 import * as i18n                  from '../../../lib/middlewares/i18n'
 import * as webhooks              from '../../../lib/routes/webhooks'
-import { BLANK_CONFIG }           from '../../samples/config'
 
 describe('Bootstrap', () => {
   const boot = async () => {
-    return await goodchat(BLANK_CONFIG)
+    return await goodchat()
   }
 
   afterEach(() => sinon.restore());
@@ -22,10 +21,16 @@ describe('Bootstrap', () => {
       i18n,
       webhooks
     }, (mw, name) => {
-      it(`initializes the ${name} middleware`, async () => {
-        const spy = sinon.spy(mw, 'default');
-        await boot();
-        expect(spy.callCount).to.eq(1);
+      context(`${name} middleware`, () => {
+        let spy : sinon.SinonSpy
+
+        beforeEach(() => { spy = sinon.spy(mw, 'default'); })
+        afterEach(() => { spy.restore() })
+
+        it(`initializes the middleware`, async () => {
+          await boot();
+          expect(spy.callCount).to.be.gte(1)
+        });
       });
     });
   });

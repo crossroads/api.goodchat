@@ -1,10 +1,44 @@
-import { PubSub }          from 'apollo-server-koa'
 import db                  from '../../db'
 import _                   from 'lodash'
-import { Message, Prisma } from '@prisma/client';
+import { Message, Prisma } from '@prisma/client'
+import { RedisPubSub }     from 'graphql-redis-subscriptions'
+import Redis               from 'ioredis'
+import config              from '../../config'
+import logger              from '../../utils/logger'
+import { waitForEvent }    from '../../utils/async'
 
-// @TODO: swap engines with the redis one: https://github.com/davidyaha/graphql-redis-subscriptions
-const pubsub = new PubSub();
+const SECOND = 1000;
+
+const { error, info, panic } = logger('pubsub');
+
+const publisher = new Redis(config.redis.url);
+const subscriber = new Redis(config.redis.url);
+
+publisher.on('error', error)
+subscriber.on('error', error)
+
+//
+// We expect a connection event within the first 15 seconds.
+// The process is terminated unless that is the case.
+//
+const connection = Promise.all([
+  waitForEvent('connect', publisher, { timeout: 15 * SECOND }),
+  waitForEvent('connect', subscriber, { timeout: 15 * SECOND })
+])
+.then(() => info('redis connection established'))
+.catch(panic);
+
+export const connect = () => connection
+
+export const disconnect = () => {
+  publisher.disconnect();
+  subscriber.disconnect();
+}
+
+const pubsub = new RedisPubSub({
+  subscriber,
+  publisher
+});
 
 // --------------------------------
 // Types & Enums
