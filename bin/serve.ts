@@ -6,13 +6,9 @@ require('kankyo').inject({ verbose: true }); // eslint-disable-line
 import goodchat             from '..'
 import http                 from 'http'
 import logger               from '../lib/utils/logger'
+import config               from '../lib/config'
 import { promisify }        from 'util'
 import { read }             from '../lib/utils/env'
-import {
-  GoodChatAuthConfig,
-  GoodChatAuthMode,
-  GoodChatConfig
-} from '../lib/typings/goodchat';
 import { setupWebhooks }    from '../lib/routes/webhooks/setup';
 
 const port  = read.number('PORT', 8000);
@@ -25,11 +21,7 @@ const { info, panic } = logger('server');
 // Helpers
 // -------------------------
 
-async function resolveHost() : Promise<string> {
-  if (!dev) {
-    return read.strict('GOODCHAT_HOST');
-  }
-
+async function resolveDevHost() : Promise<string> {
   const ngrok = await import('ngrok');
 
   info('firing up ngrok');
@@ -38,15 +30,6 @@ async function resolveHost() : Promise<string> {
     proto: 'http',
     addr:   port
   });
-}
-
-function authConfig() : GoodChatAuthConfig {
-  if (read.bool('NO_AUTH')) { return { mode: GoodChatAuthMode.NONE } }
-
-  return {
-    mode: GoodChatAuthMode.WEBHOOK,
-    url:  read.string.strict('GOODCHAT_AUTH_URL')
-  }
 }
 
 // -------------------------
@@ -64,18 +47,11 @@ process.on('SIGTERM', panic);
   try {
     info(`${env} environment detected`);
 
-    const host = await resolveHost();
-
-    const config : GoodChatConfig = {
-      appName:                read('GOODCHAT_APP_NAME', 'GoodChat'),
-      goodchatHost:           host,
-      smoochAppId:            read.strict('SMOOCH_APP_ID'),
-      smoochApiKeyId:         read.strict('SMOOCH_API_KEY_ID'),
-      smoochApiKeySecret:     read.strict('SMOOCH_API_KEY_SECRET'),
-      auth:                   authConfig()
+    if (dev) {
+     config.goodchatHost = await resolveDevHost();
     }
 
-    const [app, apollo] = await goodchat(config)
+    const [app, apollo] = await goodchat()
 
     const server = http.createServer(app.callback());
 
@@ -85,7 +61,7 @@ process.on('SIGTERM', panic);
 
     await boot(port)
 
-    info(`goodchat host: ${host}`);
+    info(`goodchat host: ${config.goodchatHost}`);
     info(`goodchat port: ${port}`);
 
     if (dev) {

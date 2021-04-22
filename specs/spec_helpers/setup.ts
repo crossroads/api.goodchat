@@ -10,6 +10,7 @@ import chaiPromises           from 'chai-as-promised'
 import db                     from '../../lib/db'
 import axios                  from 'axios'
 import { each }               from '../../lib/utils/async'
+import * as pubsub            from '../../lib/services/events'
 
 axios.defaults.adapter = require('axios/lib/adapters/http')
 
@@ -49,4 +50,5 @@ beforeEach(async () => {
 
 after(async () => {
   await db.$disconnect();
+  await pubsub.disconnect();
 })

@@ -14,8 +14,7 @@ import {
   HttpLink,
   ApolloClient,
   InMemoryCache,
-  DocumentNode,
-  SubscriptionOptions
+  DocumentNode
 } from '@apollo/client/core'
 
 let server : http.Server
@@ -49,7 +48,7 @@ export async function bootTestServer() : Promise<TestServerInfo> {
     return { url, host, port }
   }
 
-  const [koa, apollo] = await goodchat(WEBHOOK_AUTH_CONFIG);
+  const [koa, apollo] = await goodchat();
 
   server = http.createServer(koa.callback());
 
@@ -246,6 +245,6 @@ export function createSubscription(params: SubscriptionTestParams) {
       return error;
     }
   }
-  
+
 }
 

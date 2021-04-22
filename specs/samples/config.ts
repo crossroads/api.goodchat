@@ -10,6 +10,9 @@ export const BLANK_CONFIG : GoodChatConfig = {
   smoochApiKeyId:         'sample_api_key_id',
   smoochApiKeySecret:     'sample_api_key_secret',
   goodchatHost:           'localhost:8000',
+  redis: {
+    url: 'redis://127.0.0.1:6379'
+  },
   auth: {
     mode: GoodChatAuthMode.NONE
   }

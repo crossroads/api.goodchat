@@ -28,14 +28,11 @@ export async function createGoodchatServer(config: Partial<GoodChatConfig> = {})
   TestAgent,
   ApolloServerTestClient
 ]> {
-  const [app, apollo] = await goodchat({
-    ...DEFAULT_CONFIG,
-    ...config
-  });
+  const [app, apollo] = await goodchat();
 
   // @ts-ignore B/c context is marked as private.
   const oldContext = apollo.context;
-  
+
   // @ts-ignore B/c context is marked as private.
   apollo.context = (params : any) => {
     return oldContext({
@@ -48,7 +45,7 @@ export async function createGoodchatServer(config: Partial<GoodChatConfig> = {})
       }
     });
   }
-  
+
   return [[app, apollo], koaAgent(app), createTestClient(apollo)];
 }
 

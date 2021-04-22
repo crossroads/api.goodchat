@@ -21,7 +21,7 @@ describe('API', () => {
           .get('/i/dont/exist')
           .expect('Content-Type', /json/)
           .expect(404)
-        
+
         expect(body.status).to.equal(404);
         expect(body.error).to.equal('Not Found');
       })

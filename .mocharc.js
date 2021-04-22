@@ -1,6 +1,6 @@
 
 
-process.env['DEBUG'] = '-*'
+process.env['DEBUG'] = '-*,*:error'
 process.env['NODE_ENV'] = 'test'
 
 require('kankyo').inject({ verbose: true, env: 'test' })

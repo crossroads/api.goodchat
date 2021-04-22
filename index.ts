@@ -8,8 +8,8 @@ import i18n                   from './lib/middlewares/i18n'
 import * as initializers      from './lib/initializers'
 import { handleWebhookEvent } from './lib/services/events'
 import { ApolloServer }       from 'apollo-server-koa'
+import config                 from './lib/config'
 import {
-  GoodChatConfig,
   GoodchatApp,
   KoaChatContext
 } from './lib/typings/goodchat'
@@ -18,24 +18,15 @@ import {
  * Creates a goodchat Koa application
  *
  * ```typescript
- *  const app = goodchat({
- *   smoochAppId:            'sample_app_id',
- *   smoochApiKeyId:         'sample_api_key_id',
- *   smoochApiKeySecret:     'sample_api_key_secret',
- *   goodchatHost:           'localhost:8000',
- *   auth: {
- *    GoodChatAuthMode.NONE
- *   }
- *  })
+ *  const [app] = goodchat()
  *
  *  app.listen(8000, () => ...)
  * ```
  *
  * @exports
- * @param {GoodChatConfig} config
  * @returns {Promise<GoodchatApp>}
  */
-export const goodchat = async (config: GoodChatConfig) : Promise<[GoodchatApp, ApolloServer]> => {
+export const goodchat = async () : Promise<[GoodchatApp, ApolloServer]> => {
   const app : GoodchatApp = new Koa();
 
   // ----------------------

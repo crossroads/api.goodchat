@@ -45,6 +45,9 @@ export interface GoodChatConfig {
   smoochApiKeySecret: string
   goodchatHost:       string
   auth:               GoodChatAuthConfig
+  redis: {
+    url: string
+  }
 }
 
 // --- Koa Types
