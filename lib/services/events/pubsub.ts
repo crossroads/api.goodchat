@@ -11,6 +11,8 @@ const SECOND = 1000;
 
 const { error, info, panic } = logger('pubsub');
 
+console.log(config.redis.url)
+
 const publisher = new Redis(config.redis.url);
 const subscriber = new Redis(config.redis.url);
 
