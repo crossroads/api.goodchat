@@ -24,8 +24,8 @@ subscriber.on('error', error)
 // The process is terminated unless that is the case.
 //
 const connection = Promise.all([
-  waitForEvent('connect', publisher, { timeout: 15 * SECOND }),
-  waitForEvent('connect', subscriber, { timeout: 15 * SECOND })
+  waitForEvent('connect', publisher, { timeout: 60 * SECOND }),
+  waitForEvent('connect', subscriber, { timeout: 60 * SECOND })
 ])
 .then(() => info('redis connection established'))
 .catch(panic);
