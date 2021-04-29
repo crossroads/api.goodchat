@@ -6,6 +6,7 @@
 import _                      from 'lodash'
 import chai, { expect }       from 'chai'
 import sinonChai              from 'sinon-chai'
+import timekeeper             from 'timekeeper'
 import chaiPromises           from 'chai-as-promised'
 import db                     from '../../lib/db'
 import axios                  from 'axios'
@@ -51,6 +52,10 @@ beforeEach(async () => {
   await Promise.all(
     jobs.getAllJobs().map(job => job.queue.obliterate())
   )
+})
+
+afterEach(() => {
+  timekeeper.reset();
 })
 
 after(async () => {
