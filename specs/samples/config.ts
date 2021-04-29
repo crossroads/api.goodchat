@@ -1,4 +1,5 @@
 import { GoodChatAuthMode, GoodChatConfig } from "../../lib/typings/goodchat";
+import { read }                             from "../../lib/utils/env";
 
 export const FAKE_AUTH_HOST     = 'https://fake.biz'
 export const FAKE_AUTH_ENDPOINT = '/endpoint'
@@ -12,6 +13,9 @@ export const BLANK_CONFIG : GoodChatConfig = {
   goodchatHost:           'localhost:8000',
   redis: {
     url: 'redis://127.0.0.1:6379'
+  },
+  jobs: {
+    delay: read.number('JOB_DELAY', 1000)
   },
   auth: {
     mode: GoodChatAuthMode.NONE

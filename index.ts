@@ -6,7 +6,7 @@ import log                    from './lib/middlewares/logs'
 import rescue                 from './lib/middlewares/rescue'
 import i18n                   from './lib/middlewares/i18n'
 import * as initializers      from './lib/initializers'
-import { handleWebhookEvent } from './lib/services/events'
+import webhookJob             from './lib/jobs/webhook.job'
 import { ApolloServer }       from 'apollo-server-koa'
 import config                 from './lib/config'
 import {
@@ -50,7 +50,9 @@ export const goodchat = async () : Promise<[GoodchatApp, ApolloServer]> => {
   app.use(bodyParser());
   app.use(hooks({
     config:   config,
-    callback: (ev) => handleWebhookEvent(ev, config)
+    callback: (ev) => {
+      webhookJob.queue.add(ev.type, ev, { delay: config.jobs.delay });
+    }
   }));
 
   const gqlServer = await graphql(config);
