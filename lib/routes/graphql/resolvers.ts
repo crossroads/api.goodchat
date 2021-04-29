@@ -97,6 +97,12 @@ const resolvers : IResolvers = {
     DELETE: 'delete'
   },
 
+  ConversationType: {
+    CUSTOMER: 'CUSTOMER',
+    PRIVATE: 'PRIVATE',
+    PUBLIC: 'PUBLIC'
+  },
+
   // ---------------------------
   // Nested resolvers
   // ---------------------------

@@ -24,6 +24,48 @@ describe('GraphQL Conversations Query', () => {
 
   afterEach(() => clearCurrentUser())
 
+  describe('Filtering', () => {
+    let user : Staff
+
+    beforeEach(async () => {
+      user = await factories.staffFactory.create({ permissions: [GoodChatPermissions.ADMIN] })
+
+      await factories.conversationFactory.create({ type: ConversationType.CUSTOMER });
+      await factories.conversationFactory.create({ type: ConversationType.PUBLIC });
+      await factories.conversationFactory.create(
+        { type: ConversationType.PRIVATE },
+        { transient: { members: [user] } }
+      );
+
+      setCurrentUser(user)
+    })
+
+    context('by type', () => {
+      [
+        'CUSTOMER',
+        'PRIVATE',
+        'PUBLIC'
+      ].forEach(type => {
+        it(`should filter successfully on the ${type} type`, async () => {
+          const { data, errors } : any = await gqlAgent.query({
+            query: gql`
+              query getConversations {
+                conversations(type: ${type}) {
+                  id
+                  type
+                }
+              }
+            `
+          })
+
+          expect(errors).to.be.undefined
+          expect(data.conversations).to.be.of.length(1)
+          expect(data.conversations[0].type).to.eq(type)
+        })
+      })
+    })
+  })
+
   describe('Nested relationships', () => {
     let user                : Staff
     let conversation        : Conversation
