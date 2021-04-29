@@ -95,6 +95,9 @@ describe('Event conversation:message', () => {
 
       it('returns a 200', async () => {
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
       })
 
       it('creates a Message', async () => {
