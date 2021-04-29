@@ -1,5 +1,5 @@
 type Query {
-  conversations(limit: Int, offset: Int, type: String): [Conversation!]
+  conversations(limit: Int, offset: Int, type: String): [Conversation!]!
   conversation(id: Int!): Conversation
 }
 
@@ -37,7 +37,7 @@ type Conversation {
   metadata: JSON!
   createdAt: DateTime!
   updatedAt: DateTime!
-  messages(limit: Int, offset: Int): [Message!]
+  messages(limit: Int, offset: Int): [Message!]!
   staffs: [Staff!]
 }
 
@@ -66,7 +66,7 @@ type Customer {
   avatarUrl: String
   locale: String!
   metadata: JSON!
-  conversations: [Conversation!]
+  conversations: [Conversation!]!
 }
 
 type Staff {
@@ -76,8 +76,8 @@ type Staff {
   externalId: String
   displayName: String!
   metadata: JSON!
-  permissions: [String!],
-  conversations: [Conversation!]
+  permissions: [String!]!,
+  conversations: [Conversation!]!
 }
 
 
