@@ -38,15 +38,15 @@ type Conversation {
   createdAt: DateTime!
   updatedAt: DateTime!
   messages(limit: Int, offset: Int): [Message!]!
-  staffs: [Staff!]
+  staffs: [Staff!]!
 }
 
 type Message {
   id: Int!
   createdAt: DateTime!
   updatedAt: DateTime!
-  conversationId: Int
-  conversation: Conversation
+  conversationId: Int!
+  conversation: Conversation!
   authorType: String!
   authorId: Int!
   content: JSON!
