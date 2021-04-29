@@ -8,7 +8,12 @@ import _                                                                        
 import { AuthorType, Conversation, ConversationType, Customer, Message, Staff }    from '@prisma/client';
 import { clearCurrentUser, setCurrentUser }                                        from '../../../spec_helpers/fake_auth';
 import { GoodChatPermissions }                                                     from '../../../../lib/typings/goodchat';
+import timekeeper                                                                  from 'timekeeper';
 
+const addDays = (date: Date, n: number) => {
+  const day = 1000 * 60 * 60 * 24;
+  return new Date(date.getTime() + n * day)
+}
 
 describe('GraphQL Conversations Query', () => {
   let gqlAgent : ApolloServerTestClient
@@ -105,6 +110,55 @@ describe('GraphQL Conversations Query', () => {
       expect(data.conversations[0].customer.displayName).to.eq(customer.displayName)
       expect(data.conversations[0].customer.conversations).to.be.of.length(1)
       expect(data.conversations[0].customer.conversations[0].id).to.eq(conversation.id)
+    })
+
+    it('returns the messages ordered by most recent first by default', async () => {
+      const now = new Date();
+
+      timekeeper.travel(addDays(now, 5));
+
+      const newestMessage = await factories.messageFactory.create({
+        conversationId: conversation.id,
+        authorId: user.id,
+        authorType: AuthorType.STAFF
+      })
+
+      timekeeper.travel(addDays(now, 3));
+
+      const newerMessage = await factories.messageFactory.create({
+        conversationId: conversation.id,
+        authorId: user.id,
+        authorType: AuthorType.STAFF
+      })
+
+      const { data } : any = await gqlAgent.query({
+        query: gql`
+          query getConversations {
+            conversations {
+              id
+              type
+              messages {
+                id
+                content
+                createdAt
+                conversation {
+                  id
+                }
+              }
+            }
+          }
+        `
+      })
+
+      expect(data.conversations).to.be.of.length(1)
+      expect(data.conversations[0].messages).to.be.of.length(3)
+      expect(
+        _.map(data.conversations[0].messages, 'id')
+      ).to.deep.equal([
+        newestMessage.id,
+        newerMessage.id,
+        message.id,
+      ])
     })
 
     it('returns customer as null if it is not a customer conversation', async () => {

@@ -130,7 +130,10 @@ export function abilities(staff: Staff, config?: GoodChatConfig) {
         conversation: getConversationRules(staff), // Prevent the user from reading messages from non-entitled conversations
         id: args.id,
         conversationId: args.conversationId
-      })
+      }),
+      orderBy: [
+        { createdAt: 'desc' }
+      ]
     })
   }
 

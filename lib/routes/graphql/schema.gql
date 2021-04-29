@@ -1,10 +1,10 @@
 type Query {
-  conversations(limit: Int, offset: Int, type: String): [Conversation]
+  conversations(limit: Int, offset: Int, type: String): [Conversation!]!
   conversation(id: Int!): Conversation
 }
 
 type Subscription {
-  messageEvent(conversationId: Int, actions: [SubscriptionAction]): MessageEvent
+  messageEvent(conversationId: Int, actions: [SubscriptionAction]): MessageEvent!
 }
 
 type Mutation {
@@ -28,29 +28,29 @@ enum SubscriptionAction {
 }
 
 type Conversation {
-  id: Int
+  id: Int!
   customerId: Int
   customer: Customer
-  source: String
-  readByCustomer: Boolean
-  type: String
-  metadata: JSON
-  createdAt: DateTime
-  updatedAt: DateTime
-  messages(limit: Int, offset: Int): [Message]
-  staffs: [Staff]
+  source: String!
+  readByCustomer: Boolean!
+  type: String!
+  metadata: JSON!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  messages(limit: Int, offset: Int): [Message!]!
+  staffs: [Staff!]!
 }
 
 type Message {
-  id: Int
-  createdAt: DateTime
-  updatedAt: DateTime
-  conversationId: Int
-  conversation: Conversation
-  authorType: String
-  authorId: Int
-  content: JSON
-  metadata: JSON
+  id: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  conversationId: Int!
+  conversation: Conversation!
+  authorType: String!
+  authorId: Int!
+  content: JSON!
+  metadata: JSON!
 }
 
 type MessageEvent {
@@ -59,25 +59,25 @@ type MessageEvent {
 }
 
 type Customer {
-  id: Int
-  createdAt: DateTime
-  displayName: String
+  id: Int!
+  createdAt: DateTime!
+  displayName: String!
   email: String
   avatarUrl: String
   locale: String!
-  metadata: JSON
-  conversations: [Conversation]
+  metadata: JSON!
+  conversations: [Conversation!]!
 }
 
 type Staff {
-  id: Int
-  createdAt: DateTime
-  updatedAt: DateTime
+  id: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
   externalId: String
-  displayName: String
-  metadata: JSON
-  permissions: [String],
-  conversations: [Conversation]
+  displayName: String!
+  metadata: JSON!
+  permissions: [String!]!,
+  conversations: [Conversation!]!
 }
 
 

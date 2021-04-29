@@ -40,7 +40,12 @@ describe('Event conversation:create', () => {
 
     it('queues up a job', async () =>{
       expect(queueSpy.callCount).to.eq(0)
+
       await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+      // Wait for the worker to pickup the job and process it
+      await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+
       expect(queueSpy.callCount).to.eq(1)
     })
 
@@ -104,6 +109,9 @@ describe('Event conversation:create', () => {
       await agent.post('/webhooks/trigger')
         .send(webhookPayload)
         .expect(200)
+
+      // Wait for the worker to pickup the job and process it
+      await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
     });
 
     it('doesnt create a new conversation', async () => {

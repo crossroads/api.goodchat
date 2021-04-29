@@ -28,7 +28,6 @@ const allJobs : Record<string, GoodChatJob> = {};
 export function createJob<In, Out, Types extends string>(name: string, processor: Processor<In, Out, Types>) {
 
   const scheduler = new QueueScheduler(name, { connection: createConnection() });
-  console.log('QUEUE ' + name)
 
   const queue = new Queue<In, Out, Types>(name, {
     connection: createConnection()
