@@ -510,7 +510,9 @@ describe('Services/abilities', () => {
 
           const messages = await abilities(customerStaff).getMessages({ conversationId: myPrivateChat.id });
 
-          expect(messages).to.deep.eq(myMessages);
+          expect(
+            _.map(messages, 'id')
+          ).to.have.deep.members(_.map(myMessages, 'id'));
         })
       })
 
@@ -542,7 +544,9 @@ describe('Services/abilities', () => {
 
           const messages = await abilities(baseStaff).getMessages({ conversationId: myPrivateChat.id });
 
-          expect(messages).to.deep.eq(myMessages);
+          expect(
+            _.map(messages, 'id')
+          ).to.have.deep.members(_.map(myMessages, 'id'));
         })
       })
     })
