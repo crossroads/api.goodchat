@@ -11,6 +11,8 @@ import db                     from '../../lib/db'
 import axios                  from 'axios'
 import { each }               from '../../lib/utils/async'
 import * as pubsub            from '../../lib/services/events'
+import * as redisConnections  from '../../lib/redis'
+import * as jobs              from '../../lib/jobs/job'
 
 axios.defaults.adapter = require('axios/lib/adapters/http')
 
@@ -46,9 +48,14 @@ before(async () => {
 
 beforeEach(async () => {
   await resetDatabase();
+  await Promise.all(
+    jobs.getAllJobs().map(job => job.queue.obliterate())
+  )
 })
 
 after(async () => {
   await db.$disconnect();
   await pubsub.disconnect();
+  await jobs.shutdown(job => job.queue.obliterate());
+  await redisConnections.closeAllConnections();
 })

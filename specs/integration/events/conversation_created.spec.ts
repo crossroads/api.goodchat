@@ -1,8 +1,11 @@
 import { expect, assert }         from 'chai'
 import _                          from 'lodash'
+import sinon                      from 'sinon'
 import * as factories             from '../../factories'
 import db                         from '../../../lib/db'
 import { Conversation, Customer } from '@prisma/client'
+import webhookJob                 from '../../../lib/jobs/webhook.job'
+import { waitForEvent }           from '../../../lib/utils/async'
 import {
   createGoodchatServer,
   TestAgent
@@ -13,8 +16,20 @@ const webhookPayload  = factories.sunshineWebhookPayloadFactory.build({ events: 
 
 describe('Event conversation:create', () => {
   let agent : TestAgent
+  let workerSpy : sinon.SinonSpy
+  let queueSpy : sinon.SinonSpy
 
   before(async () => { [, agent] = await createGoodchatServer(); })
+
+  beforeEach(async () => {
+    workerSpy = sinon.spy(webhookJob.worker, 'processJob')
+    queueSpy = sinon.spy(webhookJob.queue, 'add')
+  })
+
+  afterEach(() => {
+    workerSpy.restore()
+    queueSpy.restore()
+  })
 
   context("if it doesn't exist locally", () => {
 
@@ -23,8 +38,19 @@ describe('Event conversation:create', () => {
       expect(await db.customer.count()).to.eq(0)
     });
 
+    it('queues up a job', async () =>{
+      expect(queueSpy.callCount).to.eq(0)
+      await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+      expect(queueSpy.callCount).to.eq(1)
+    })
+
     it('creates a Conversation record', async () => {
       await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+      // Wait for the worker to pickup the job and process it
+      await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+
+      expect(workerSpy.callCount).to.eq(1)
 
       expect(await db.conversation.count()).to.eq(1)
 
@@ -37,9 +63,12 @@ describe('Event conversation:create', () => {
       expect(conversation.source).to.eq(webhookEvent.payload.source.client.type)
       expect(await db.customer.findFirst({ where: { id: conversation.customerId } })).to.not.be.null
     })
-    
+
     it('creates a Customer record', async () => {
       await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+      // Wait for the worker to pickup the job and process it
+      await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
 
       expect(await db.customer.count()).to.eq(1)
 
@@ -55,7 +84,7 @@ describe('Event conversation:create', () => {
       expect(customer.sunshineUserId).to.eq(webhookEvent.payload.user.id)
     })
   })
- 
+
   context("if it already exists locally", () => {
     let customer : Customer;
     let conversation : Conversation;
@@ -83,6 +112,9 @@ describe('Event conversation:create', () => {
         .send(webhookPayload)
         .expect(200)
 
+      // Wait for the worker to pickup the job and process it
+      await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+
       expect(await db.conversation.count()).to.eq(1)
     })
 
@@ -91,6 +123,9 @@ describe('Event conversation:create', () => {
       await agent.post('/webhooks/trigger')
         .send(webhookPayload)
         .expect(200)
+
+      // Wait for the worker to pickup the job and process it
+      await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
 
       expect(await db.customer.count()).to.eq(1)
     })
@@ -105,6 +140,9 @@ describe('Event conversation:create', () => {
       await agent.post('/webhooks/trigger')
         .send(webhookPayload)
         .expect(200)
+
+      // Wait for the worker to pickup the job and process it
+      await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
 
       expect(await db.customer.count()).to.eq(1)
 
@@ -131,6 +169,9 @@ describe('Event conversation:create', () => {
         await agent.post('/webhooks/trigger')
           .send(webhookPayload)
           .expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
 
         const conv = await db.conversation.findFirst();
 

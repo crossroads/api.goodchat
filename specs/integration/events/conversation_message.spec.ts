@@ -3,6 +3,8 @@ import _                          from 'lodash'
 import * as factories             from '../../factories'
 import db                         from '../../../lib/db'
 import { Conversation, Customer } from '@prisma/client'
+import webhookJob                 from '../../../lib/jobs/webhook.job'
+import { waitForEvent }           from '../../../lib/utils/async'
 import {
   createGoodchatServer,
   TestAgent
@@ -33,6 +35,9 @@ describe('Event conversation:message', () => {
           .send(webhookPayload)
           .expect(200)
 
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+
         expect(await db.conversation.count()).to.eq(1);
 
         const conversation = await db.conversation.findFirst({
@@ -54,6 +59,9 @@ describe('Event conversation:message', () => {
         await agent.post('/webhooks/trigger')
           .send(webhookPayload)
           .expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
 
         expect(await db.customer.count()).to.eq(1);
 
@@ -91,18 +99,31 @@ describe('Event conversation:message', () => {
 
       it('creates a Message', async () => {
         expect(await db.message.count()).to.eq(0);
+
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+
         expect(await db.message.count()).to.eq(1);
       })
 
       it('sets the customer id of the conversation if missing', async () => {
         expect((await db.conversation.findFirst()).customerId).to.be.null
+
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+
         expect((await db.conversation.findFirst()).customerId).to.eq(customer.id)
       })
 
       it('assigns the new Message to the customer', async () => {
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
 
         const message = await db.message.findFirst();
 
@@ -113,6 +134,9 @@ describe('Event conversation:message', () => {
       it('adds the new Message to the conversation', async () => {
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
 
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+
         const message = await db.message.findFirst();
 
         expect(message.conversationId).to.eq(conversation.id);
@@ -121,6 +145,9 @@ describe('Event conversation:message', () => {
       it('saves the content of the message', async () => {
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
 
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+
         const message = await db.message.findFirst();
 
         expect(message.content).to.deep.eq(webhookEvent.payload.message.content)
@@ -128,6 +155,9 @@ describe('Event conversation:message', () => {
 
       it('initializes the message record with empty metadata', async () => {
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
 
         const message = await db.message.findFirst();
 
@@ -138,11 +168,19 @@ describe('Event conversation:message', () => {
         beforeEach(async () => {
           // Receive the message the first time
           await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+          // Wait for the worker to pickup the job and process it
+          await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
         })
 
         it('doesnt duplicate the message', async () => {
           expect(await db.message.count()).to.eq(1);
+
           await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+          // Wait for the worker to pickup the job and process it
+          await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+
           expect(await db.message.count()).to.eq(1);
         })
       })
@@ -170,22 +208,38 @@ describe('Event conversation:message', () => {
 
       it('returns a 200', async () => {
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
       })
 
       it('does not create a new one', async () => {
         expect(await db.conversation.count()).to.eq(1)
+
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+
         expect(await db.conversation.count()).to.eq(1)
       })
 
       it('does not nullify the customerId', async () => {
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+
         expect((await db.conversation.findFirst()).customerId).not.to.be.null
         expect((await db.conversation.findFirst()).customerId).to.eq(conversation.customerId)
       })
 
       it('does not alter the source', async () => {
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+
         expect((await db.conversation.findFirst()).source).not.to.be.null
         expect((await db.conversation.findFirst()).source).to.eq(conversation.source)
       })
@@ -198,7 +252,12 @@ describe('Event conversation:message', () => {
         })
 
         expect((await db.conversation.findFirst()).source).to.be.empty
+
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+
         expect((await db.conversation.findFirst()).source).to.eq(webhookEvent.payload.message.source.type)
       })
 
@@ -206,6 +265,9 @@ describe('Event conversation:message', () => {
         expect(await db.message.count()).to.eq(0)
 
         await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
 
         expect(await db.message.count()).to.eq(1)
 
@@ -221,6 +283,9 @@ describe('Event conversation:message', () => {
         await agent.post('/webhooks/trigger')
           .send(webhookPayload)
           .expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
       })
 
       it('creates a conversation with no customer', async () => {
@@ -229,6 +294,9 @@ describe('Event conversation:message', () => {
         await agent.post('/webhooks/trigger')
           .send(webhookPayload)
           .expect(200)
+
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
 
         expect(await db.conversation.count()).to.eq(1);
 

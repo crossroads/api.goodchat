@@ -18,6 +18,9 @@ const loadConfig = () : GoodChatConfig => {
     smoochApiKeyId:         read.strict('SMOOCH_API_KEY_ID'),
     smoochApiKeySecret:     read.strict('SMOOCH_API_KEY_SECRET'),
     auth:                   authConfig(),
+    jobs: {
+      delay: read.number('JOB_DELAY', 1000)
+    },
     redis: {
       url: read.strict('REDIS_URL')
     },

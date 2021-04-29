@@ -45,6 +45,9 @@ export interface GoodChatConfig {
   smoochApiKeySecret: string
   goodchatHost:       string
   auth:               GoodChatAuthConfig
+  jobs: {
+    delay: number
+  },
   redis: {
     url: string
   }
