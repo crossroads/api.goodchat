@@ -1,5 +1,5 @@
 type Query {
-  conversations(limit: Int, offset: Int, type: String): [Conversation!]!
+  conversations(limit: Int, offset: Int, type: ConversationType): [Conversation!]!
   conversation(id: Int!): Conversation
 }
 
@@ -21,6 +21,12 @@ type Mutation {
   sendMessage(conversationId: Int!, text: String!) : Message!
 }
 
+enum ConversationType {
+  CUSTOMER
+  PRIVATE
+  PUBLIC
+}
+
 enum SubscriptionAction {
   CREATE
   UPDATE
@@ -33,7 +39,7 @@ type Conversation {
   customer: Customer
   source: String!
   readByCustomer: Boolean!
-  type: String!
+  type: ConversationType!
   metadata: JSON!
   createdAt: DateTime!
   updatedAt: DateTime!
