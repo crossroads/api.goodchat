@@ -62,7 +62,6 @@ model Conversation {
   customerId                Int?
   customer                  Customer? @relation(fields: [customerId], references: [id])
   source                    String
-  readByCustomer            Boolean  @default(false)
   type                      ConversationType
   metadata                  Json
   readReceipts              ReadReceipt[]
