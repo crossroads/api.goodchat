@@ -10,7 +10,7 @@ interface ConversationFactoryParams {
 
 /**
  * Creates a fake Conversation record
- * 
+ *
  * @type {Factory<Conversation>}
  * @exports
  */
@@ -44,6 +44,7 @@ export const conversationFactory = Factory.define<Conversation, ConversationFact
   afterBuild((data) => {
     if (data.type !== ConversationType.CUSTOMER) {
       data.customerId = null;
+      data.sunshineConversationId = null;
     }
   });
 

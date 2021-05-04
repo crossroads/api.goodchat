@@ -1,14 +1,14 @@
-import { abilities }                                       from '../../../lib/services/abilities'
-import * as factories                                      from '../../factories'
+import { abilities }                                       from '../../../../lib/services/abilities'
+import * as factories                                      from '../../../factories'
 import { expect }                                          from 'chai'
 import _                                                   from 'lodash'
 import { Conversation, ConversationType, Message, Staff }  from '@prisma/client'
-import { GoodChatPermissions }                             from '../../../lib/typings/goodchat'
-import { GoodchatError }                                   from '../../../lib/utils/errors'
+import { GoodChatPermissions }                             from '../../../../lib/typings/goodchat'
+import { GoodchatError }                                   from '../../../../lib/utils/errors'
 import { MessagesApi }                                     from 'sunshine-conversations-client'
 import sinon                                               from 'sinon'
-import { BLANK_CONFIG }                                    from '../../samples/config'
-import db                                                  from '../../../lib/db'
+import db                                                  from '../../../../lib/db'
+import config                                              from '../../../../lib/config'
 
 const membersOf = async (conversationId: number) : Promise<number[]> => {
   const records = await db.staffConversations.findMany({
@@ -16,6 +16,8 @@ const membersOf = async (conversationId: number) : Promise<number[]> => {
   });
   return _.map(records, 'staffId');
 }
+
+const ids = (records: any[]) => _.map(records, 'id')
 
 describe('Services/abilities', () => {
   let admin         : Staff
@@ -449,7 +451,7 @@ describe('Services/abilities', () => {
       context('As an admin', () => {
         it('allows me to read messages from customer chats', async () => {
           const messages = await abilities(admin).getMessages({ conversationId: customerChat.id });
-          expect(messages).to.deep.eq(customerChatMessages);
+          expect(ids(messages)).to.have.deep.members(ids(customerChatMessages));
         })
 
         it('allows me to read messages from public chats', async () => {
@@ -644,38 +646,41 @@ describe('Services/abilities', () => {
     })
 
     describe('#sendMessage', () => {
+      let postMessageStub : sinon.SinonStub
+
+      beforeEach(() => {
+        postMessageStub = sinon.stub(MessagesApi.prototype, 'postMessage').returns(Promise.resolve({
+          messages: [
+            factories.sunshineMessageFactory.build({ id: 'aSunshineId' })
+          ]
+        }))
+      })
+
+      afterEach(() => postMessageStub.restore())
 
       describe('Forward to Sunshine Conversations', () => {
         let whatsappConversation : Conversation
         let localConversation : Conversation
-        let postMessageStub : sinon.SinonStub
 
         beforeEach(async () => {
-          postMessageStub = sinon.stub(MessagesApi.prototype, 'postMessage').returns(Promise.resolve({
-            messages: [
-              factories.sunshineMessageFactory.build({ id: 'aSunshineId' })
-            ]
-          }))
           whatsappConversation  = await factories.conversationFactory.create({type: ConversationType.CUSTOMER })
           localConversation  = await factories.conversationFactory.create({type: ConversationType.PUBLIC })
         })
 
-        afterEach(() => postMessageStub.restore())
-
         context('for a customer conversation', () => {
           it('pushes the message to sunshine conversation', async () => {
             expect(postMessageStub.callCount).to.eq(0);
-            const message = await abilities(admin, BLANK_CONFIG).sendMessage(whatsappConversation.id, {
+            const message = await abilities(admin).sendMessage(whatsappConversation.id, {
               type: 'text',
               text: 'Hi'
             });
             expect(postMessageStub.callCount).to.eq(1);
             expect(postMessageStub.getCall(0).args).to.deep.eq([
-              BLANK_CONFIG.smoochAppId,
+              config.smoochAppId,
               whatsappConversation.sunshineConversationId,
               {
                 author: {
-                  displayName: "goodchat",
+                  displayName: "GoodChat",
                   type: "business"
                 },
                 content: {
@@ -691,7 +696,7 @@ describe('Services/abilities', () => {
         context('for a local conversation', () => {
           it('does not push the message to sunshine conversation', async () => {
             expect(postMessageStub.callCount).to.eq(0);
-            await abilities(admin, BLANK_CONFIG).sendMessage(localConversation.id, {
+            await abilities(admin).sendMessage(localConversation.id, {
               type: 'text',
               text: 'Hi'
             });

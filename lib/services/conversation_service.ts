@@ -9,10 +9,13 @@ import db, { Unsaved }          from "../db"
  * @param {Unsaved<Conversation>} data
  * @returns {Promise<Conversation>}
  */
-export const upsertConversation = async (data: Unsaved<Conversation>) : Promise<Conversation> => {
+export const upsertConversation = async (sunshineConversationId: string, data: Unsaved<Conversation>) : Promise<Conversation> => {
   const conversation = await db.conversation.upsert({
-    where: { sunshineConversationId: data.sunshineConversationId },
-    create: data,
+    where: { sunshineConversationId },
+    create: {
+      ...data,
+      sunshineConversationId
+    },
     update: _.omit(data, ['metadata', 'externalId', 'source', 'customerId'])
   })
 
