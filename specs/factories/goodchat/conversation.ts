@@ -57,7 +57,6 @@ export const conversationFactory = Factory.define<Conversation, ConversationFact
     sunshineConversationId: _.uniqueId(),
     customerId: factories.customerFactory.build().id,
     source: 'whatsapp',
-    readByCustomer: true,
     type: ConversationType.CUSTOMER,
     metadata: {}
   }

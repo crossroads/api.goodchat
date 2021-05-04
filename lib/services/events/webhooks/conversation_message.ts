@@ -46,7 +46,6 @@ export async function onMessageCreated(event: WebhookEventBase) : Promise<void> 
 
   const conversation = await upsertConversation(payload.conversation.id, {
     sunshineConversationId: payload.conversation.id,
-    readByCustomer:         customerId !== null,
     customerId:             customerId,
     metadata:               {},
     type:                   ConversationType.CUSTOMER,

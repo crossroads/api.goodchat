@@ -38,7 +38,6 @@ export async function onConversationCreated(event: WebhookEventBase) : Promise<v
     sunshineConversationId: payload.conversation.id,
     customerId:             customer.id,
     source:                 payload.source.type,
-    readByCustomer:         true,
     type:                   ConversationType.CUSTOMER,
     metadata:               {}
   })
