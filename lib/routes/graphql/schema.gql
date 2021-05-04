@@ -38,8 +38,8 @@ enum SubscriptionAction {
 
 type ReadReceipt {
   id: Int!
-  staffId: Int!
-  staff: Staff!
+  userId: Int!
+  userType: String!
   conversationId: Int!
   conversation: Conversation!
   lastReadMessageId: Int!
