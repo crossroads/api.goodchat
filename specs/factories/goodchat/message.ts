@@ -4,10 +4,9 @@ import db                             from '../../../lib/db'
 import { AuthorType, Message }        from '@prisma/client'
 import { conversationFactory }        from './conversation'
 
-
 /**
  * Creates a fake Message record
- * 
+ *
  * @type {Factory<Message>}
  * @exports
  */

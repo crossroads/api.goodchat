@@ -1,10 +1,10 @@
-import { MessageEvent, pubsub, PubSubAction, PubSubEvent }    from "../../services/events"
-import { Conversation, ConversationType, Customer, Message }  from "@prisma/client"
-import { CollectionArgs, ConversationArgs, MessageArgs }      from "../../services/abilities"
-import { GraphQLContext, RootParent }                         from "."
-import { IResolvers, withFilter }                             from "apollo-server-koa"
-import db                                                     from "../../db"
-import _                                                      from 'lodash'
+import { MessageEvent, pubsub, PubSubAction, PubSubEvent }     from "../../services/events"
+import { Conversation, ConversationType, Customer, Message }   from "@prisma/client"
+import { CollectionArgs, ConversationsArgs, MessageArgs }      from "../../services/abilities"
+import { GraphQLContext, RootParent }                          from "."
+import { IResolvers, withFilter }                              from "apollo-server-koa"
+import db                                                      from "../../db"
+import _                                                       from 'lodash'
 
 // ---------------------------
 // Types
@@ -35,7 +35,7 @@ const resolvers : IResolvers = {
   // ---------------------------
 
   Query: {
-    conversations(parent: RootParent, args : ConversationArgs, ctx : GraphQLContext) {
+    conversations(parent: RootParent, args : ConversationsArgs, ctx : GraphQLContext) {
       return ctx.abilities.getConversations(args);
     },
 
@@ -51,6 +51,18 @@ const resolvers : IResolvers = {
   Mutation: {
     sendMessage: async (parent: RootParent, args: SendMessageArgs, ctx : GraphQLContext) => {
       return ctx.abilities.sendTextMessage(args.conversationId, args.text);
+    },
+
+    startTyping: async (parent: RootParent, args: { conversationId: number }, ctx : GraphQLContext) => {
+      return ctx.activities.startTyping(args.conversationId);
+    },
+
+    stopTyping: async (parent: RootParent, args: { conversationId: number }, ctx : GraphQLContext) => {
+      return ctx.activities.stopTyping(args.conversationId);
+    },
+
+    markAsRead: async (parent: RootParent, args: { conversationId: number }, ctx : GraphQLContext) => {
+      return ctx.activities.markAsRead(args.conversationId);
     }
   },
 

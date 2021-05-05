@@ -1,21 +1,22 @@
-import { ApolloError, ApolloServer, gql }   from 'apollo-server-koa'
-import { makeExecutableSchema }             from "graphql-tools"
-import * as scalars                         from 'graphql-scalars'
-import { promises as fs }                   from 'fs'
-import path                                 from 'path'
-import resolvers                            from './resolvers'
-import logger                               from '../../utils/logger'
-import authService                          from '../../services/auth_service'
-import { GoodChatConfig }                   from '../../typings/goodchat'
-import { Staff }                            from '@prisma/client'
-import { abilities, Abilities }             from '../../services/abilities'
-import { GoodchatError }                    from '../../utils/errors'
+import { ApolloError, ApolloServer, gql }                from 'apollo-server-koa'
+import { makeExecutableSchema }                          from "graphql-tools"
+import * as scalars                                      from 'graphql-scalars'
+import { promises as fs }                                from 'fs'
+import path                                              from 'path'
+import resolvers                                         from './resolvers'
+import logger                                            from '../../utils/logger'
+import authService                                       from '../../services/auth_service'
+import { GoodChatConfig }                                from '../../typings/goodchat'
+import { Staff }                                         from '@prisma/client'
+import { abilities, Abilities, activities, Activities }  from '../../services/abilities'
+import { GoodchatError }                                 from '../../utils/errors'
 
 const { info } = logger('graphql');
 
 export interface GraphQLContext {
   staff:      Staff,
-  abilities:  Abilities
+  abilities:  Abilities,
+  activities: Activities
 }
 
 export interface RootParent {
@@ -43,7 +44,8 @@ async function buildGraphQL(config: GoodChatConfig) {
       const staff = await authService(config).authenticateHeaders(headers);
       return {
         staff,
-        abilities: abilities(staff, config)
+        abilities: abilities(staff),
+        activities: activities(staff)
       }
     } catch (e) {
       throw (e instanceof GoodchatError) ? e.toApolloError() : e;

@@ -19,6 +19,9 @@ type Mutation {
   #   - sendXXX
 
   sendMessage(conversationId: Int!, text: String!) : Message!
+  startTyping(conversationId: Int!) : Conversation!
+  stopTyping(conversationId: Int!) : Conversation!
+  markAsRead(conversationId: Int!) : ReadReceipt!
 }
 
 enum ConversationType {
@@ -31,6 +34,18 @@ enum SubscriptionAction {
   CREATE
   UPDATE
   DELETE
+}
+
+type ReadReceipt {
+  id: Int!
+  userId: Int!
+  userType: String!
+  conversationId: Int!
+  conversation: Conversation!
+  lastReadMessageId: Int!
+  lastReadMessage: Message!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 type Conversation {

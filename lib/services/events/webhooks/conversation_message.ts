@@ -44,9 +44,8 @@ export async function onMessageCreated(event: WebhookEventBase) : Promise<void> 
   const { payload } = (<ConversationMessageEvent>event);
   const customerId  = await getCustomerId(payload.message.author);
 
-  const conversation = await upsertConversation({
+  const conversation = await upsertConversation(payload.conversation.id, {
     sunshineConversationId: payload.conversation.id,
-    readByCustomer:         customerId !== null,
     customerId:             customerId,
     metadata:               {},
     type:                   ConversationType.CUSTOMER,

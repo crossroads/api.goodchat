@@ -34,11 +34,10 @@ export async function onConversationCreated(event: WebhookEventBase) : Promise<v
   const payload = (<ConversationCreatedEvent>event).payload;
   const customer = await initializeCustomer(sunshineUserToCustomer(payload.user));
 
-  await upsertConversation({
+  await upsertConversation(payload.conversation.id, {
     sunshineConversationId: payload.conversation.id,
     customerId:             customer.id,
     source:                 payload.source.type,
-    readByCustomer:         true,
     type:                   ConversationType.CUSTOMER,
     metadata:               {}
   })
