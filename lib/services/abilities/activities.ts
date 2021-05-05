@@ -8,12 +8,12 @@ import db                                                from "../../db"
 export function activities(staff: Staff) {
 
   const crud = abilities(staff);
-  const sunchineActivities = new ActivitiesApi();
+  const sunshineActivities = new ActivitiesApi();
 
   // --- Helpers
 
   const triggerSunshineActivity = (sunshineConversationId: string, type: string) => {
-    return sunchineActivities.postActivity(config.smoochAppId, sunshineConversationId, {
+    return sunshineActivities.postActivity(config.smoochAppId, sunshineConversationId, {
       "author": {
         "type": "business"
       },
