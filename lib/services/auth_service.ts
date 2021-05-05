@@ -1,67 +1,61 @@
 import { throwDisabled, throwUnprocessable, unsafe }  from "../utils/errors"
+import { GoodChatAuthMode, AuthPayload }              from "../typings/goodchat"
 import { MiniSchema, minischema }                     from "../utils/assertions"
+import { parseBearer }                                from "../utils/http"
 import { Staff }                                      from "@prisma/client"
+import config                                         from "../config"
 import axios                                          from "axios"
 import db                                             from "../db"
 import _                                              from "lodash"
-import { parseBearer }                                from "../utils/http"
-import {
-  GoodChatAuthMode,
-  GoodChatConfig,
-  AuthPayload
-} from "../typings/goodchat"
 
-export default function (cfg: GoodChatConfig) {
+const schema : MiniSchema<AuthPayload> = minischema({
+  "displayName" :   ["string"],
+  "permissions" :   ["array"],
+  "userId"      :   ["string", "number"]
+}).onError(() => throwUnprocessable())
 
-  const schema : MiniSchema<AuthPayload> = minischema({
-    "displayName" :   ["string"],
-    "permissions" :   ["array"],
-    "userId"      :   ["string", "number"]
-  }).onError(() => throwUnprocessable())
-
-  const resolveStaff = async (payload: AuthPayload) : Promise<Staff> => {
-    return await db.staff.upsert({
-      where: { externalId: String(payload.userId) },
-      update: _.pick(payload, 'displayName', 'permissions'),
-      create: {
-        displayName: payload.displayName,
-        permissions: payload.permissions,
-        externalId: String(payload.userId),
-        metadata: {},
-      }
-    });
-  }
-
-  const authenticate = unsafe(async (token: string) : Promise<Staff> => {
-
-    if (cfg.auth.mode === GoodChatAuthMode.WEBHOOK) {
-      /*
-        === Webhook authentication
-
-        We forward the token to the auth server, which should return us a payload with:
-          - the user id
-          - the permissions
-          - a display name
-      */
-      const { url } = cfg.auth;
-      const method  = 'POST';
-      const headers = { 'Authorization': `Bearer ${token}` };
-
-      const res     = await axios({ method, url, headers })
-      const payload : unknown = res.data;
-
-      schema.validate(payload);
-
-      return resolveStaff(payload);
+const resolveStaff = async (payload: AuthPayload) : Promise<Staff> => {
+  return await db.staff.upsert({
+    where: { externalId: String(payload.userId) },
+    update: _.pick(payload, 'displayName', 'permissions'),
+    create: {
+      displayName: payload.displayName,
+      permissions: payload.permissions,
+      externalId: String(payload.userId),
+      metadata: {},
     }
+  });
+}
 
-    throwDisabled('errors.authentication.disabled')
-  })
+const authenticate = unsafe(async (token: string) : Promise<Staff> => {
 
-  const authenticateHeaders = <O extends Record<string, any>>(headers: O) => {
-    const bearer = _.get(headers, 'authorization') || _.get(headers, 'Authorization', '');
-    return authenticate(parseBearer(bearer) || '');
+  if (config.auth.mode === GoodChatAuthMode.WEBHOOK) {
+    /*
+      === Webhook authentication
+
+      We forward the token to the auth server, which should return us a payload with:
+        - the user id
+        - the permissions
+        - a display name
+    */
+    const { url } = config.auth;
+    const method  = 'POST';
+    const headers = { 'Authorization': `Bearer ${token}` };
+
+    const res     = await axios({ method, url, headers })
+    const payload : unknown = res.data;
+
+    schema.validate(payload);
+
+    return resolveStaff(payload);
   }
 
-  return { authenticate, authenticateHeaders }
+  throwDisabled('errors.authentication.disabled')
+})
+
+const authenticateHeaders = <O extends Record<string, any>>(headers: O) => {
+  const bearer = _.get(headers, 'authorization') || _.get(headers, 'Authorization', '');
+  return authenticate(parseBearer(bearer) || '');
 }
+
+export default { authenticate, authenticateHeaders }

@@ -1,15 +1,14 @@
+import { abilities, Abilities, activities, Activities }  from '../../services/abilities'
 import { ApolloError, ApolloServer, gql }                from 'apollo-server-koa'
 import { makeExecutableSchema }                          from "graphql-tools"
-import * as scalars                                      from 'graphql-scalars'
 import { promises as fs }                                from 'fs'
-import path                                              from 'path'
+import { GoodchatError }                                 from '../../utils/errors'
+import * as scalars                                      from 'graphql-scalars'
+import authService                                       from '../../services/auth_service'
+import { Staff }                                         from '@prisma/client'
 import resolvers                                         from './resolvers'
 import logger                                            from '../../utils/logger'
-import authService                                       from '../../services/auth_service'
-import { GoodChatConfig }                                from '../../typings/goodchat'
-import { Staff }                                         from '@prisma/client'
-import { abilities, Abilities, activities, Activities }  from '../../services/abilities'
-import { GoodchatError }                                 from '../../utils/errors'
+import path                                              from 'path'
 
 const { info } = logger('graphql');
 
@@ -26,10 +25,9 @@ export interface RootParent {
 /**
  * Creates an Apollo GraphQL Server
  *
- * @param {GoodChatConfig} config
  * @returns
  */
-async function buildGraphQL(config: GoodChatConfig) {
+async function buildGraphQL() {
 
   info('loading schema');
 
@@ -41,7 +39,7 @@ async function buildGraphQL(config: GoodChatConfig) {
 
   const createContext = async (headers: Record<string, string>) : Promise<GraphQLContext> => {
     try {
-      const staff = await authService(config).authenticateHeaders(headers);
+      const staff = await authService.authenticateHeaders(headers);
       return {
         staff,
         abilities: abilities(staff),

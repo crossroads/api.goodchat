@@ -1,20 +1,19 @@
-import sinon                   from 'sinon'
-import { Staff }               from "@prisma/client";
+import authService  from '../../lib/services/auth_service'
+import { Staff }    from "@prisma/client";
+import sinon        from 'sinon'
 
-const authServiceMod = require('../../lib/services/auth_service');
-
-let authServiceStub     : sinon.SinonStub
+let authServiceStubs : sinon.SinonStub[]
 
 export function setCurrentUser(staff: Staff) {
-  authServiceStub = sinon.stub(authServiceMod, 'default').returns({
-    authenticate: sinon.stub().returns(Promise.resolve(staff)),
-    authenticateHeaders: sinon.stub().returns(Promise.resolve(staff))
-  });
+  authServiceStubs = [
+    sinon.stub(authService, 'authenticate').returns(Promise.resolve(staff)),
+    sinon.stub(authService, 'authenticateHeaders').returns(Promise.resolve(staff))
+  ];
 }
 
 export function clearCurrentUser() {
-  if (authServiceStub) {
-    authServiceStub.restore();
-    authServiceStub = null;
+  if (authServiceStubs) {
+    authServiceStubs.forEach(s => s.restore());
+    authServiceStubs = null;
   }
 }

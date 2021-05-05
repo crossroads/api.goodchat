@@ -1,18 +1,18 @@
-import Router                                                      from '@koa/router'
-import logger                                                      from '../../../lib/utils/logger'
-import { setupWebhooks }                                           from './setup'
-import { each }                                                    from '../../../lib/utils/async'
-import { IntegrationsApi }                                         from 'sunshine-conversations-client'
-import { GoodChatAuthMode, GoodChatConfig, GoodChatPermissions }   from '../../../lib/typings/goodchat'
-import { WebhookEventBase, WebhookPayload }                        from '../../../lib/typings/webhook_types'
-import authenticate                                                from '../../middlewares/authenticate'
-import { KoaHelpers }                                              from '../../utils/http'
-import compose                                                     from 'koa-compose'
+import Router                                     from '@koa/router'
+import logger                                     from '../../../lib/utils/logger'
+import { setupWebhooks }                          from './setup'
+import { each }                                   from '../../../lib/utils/async'
+import { IntegrationsApi }                        from 'sunshine-conversations-client'
+import { GoodChatAuthMode, GoodChatPermissions }  from '../../../lib/typings/goodchat'
+import { WebhookEventBase, WebhookPayload }       from '../../../lib/typings/webhook_types'
+import authenticate                               from '../../middlewares/authenticate'
+import { KoaHelpers }                             from '../../utils/http'
+import compose                                    from 'koa-compose'
+import config                                     from '../../config'
 
 const { info } = logger('webhooks');
 
 interface WebhooksParams {
-  config:   GoodChatConfig,
   callback: (event: WebhookEventBase) => unknown
 }
 
@@ -23,14 +23,14 @@ interface WebhooksParams {
  * @param {GoodChatConfig} config
  */
 export default function(params: WebhooksParams) {
-  const { config, callback }    = params;
-  const router                  = new Router({ prefix: '/webhooks' });
-  const integrationApi          = new IntegrationsApi();
+  const { callback }    = params;
+  const router          = new Router({ prefix: '/webhooks' });
+  const integrationApi  = new IntegrationsApi();
 
   info('mouting webhook api');
 
   const authenticator = config.auth.mode === GoodChatAuthMode.NONE ?
-    KoaHelpers.noop : authenticate(config, [GoodChatPermissions.ADMIN]);
+    KoaHelpers.noop : authenticate([GoodChatPermissions.ADMIN]);
 
   /**
    *

@@ -49,13 +49,12 @@ export const goodchat = async () : Promise<[GoodchatApp, ApolloServer]> => {
   app.use(i18n());
   app.use(bodyParser());
   app.use(hooks({
-    config:   config,
     callback: (ev) => {
       webhookJob.queue.add(ev.type, ev, { delay: config.jobs.delay });
     }
   }));
 
-  const gqlServer = await graphql(config);
+  const gqlServer = await graphql();
 
   app.use(gqlServer.getMiddleware());
 
