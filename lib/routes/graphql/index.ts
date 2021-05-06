@@ -4,7 +4,7 @@ import { makeExecutableSchema }                          from "graphql-tools"
 import { promises as fs }                                from 'fs'
 import { GoodchatError }                                 from '../../utils/errors'
 import * as scalars                                      from 'graphql-scalars'
-import authService                                       from '../../services/auth_service'
+import authService                                       from '../../services/authentication'
 import { Staff }                                         from '@prisma/client'
 import resolvers                                         from './resolvers'
 import logger                                            from '../../utils/logger'

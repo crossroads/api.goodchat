@@ -2,7 +2,7 @@ import { AuthPayload, GoodChatPermissions }  from '../../../lib/typings/goodchat
 import { reloadConfig, useConfig }           from '../../../lib/config'
 import { GoodchatError }                     from '../../../lib/utils/errors'
 import * as factories                        from '../../factories'
-import authService                           from '../../../lib/services/auth_service'
+import authService                           from '../../../lib/services/authentication'
 import { expect }                            from 'chai'
 import nock                                  from 'nock'
 import db                                    from '../../../lib/db'

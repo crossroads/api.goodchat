@@ -1,4 +1,4 @@
-import authService                               from '../services/auth_service'
+import authService                               from '../services/authentication'
 import Koa                                       from 'koa'
 import _                                         from 'lodash'
 import { readBearer }                            from '../utils/http'

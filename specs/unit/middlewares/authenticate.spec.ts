@@ -9,7 +9,7 @@ import { GoodChatAuthMode, GoodChatPermissions }  from '../../../lib/typings/goo
 import { GoodchatError }                          from '../../../lib/utils/errors'
 import { Staff }                                  from '@prisma/client'
 import { reloadConfig, useConfig }                from '../../../lib/config'
-import authService                                from '../../../lib/services/auth_service'
+import authService                                from '../../../lib/services/authentication'
 import {
   createBlankServer,
   TestAgent

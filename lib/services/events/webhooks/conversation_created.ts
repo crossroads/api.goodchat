@@ -12,7 +12,7 @@
  * Copyright (c) 2021 Crossroads Foundation
  */
 
-import { upsertConversation }                                           from "../../conversation_service";
+import { upsertConversation }                                           from "../../sunshine";
 import { registerWebhookHandler }                                       from '..'
 import { ConversationCreatedEvent, WebhookEventBase, WebhookEventType } from "../../../typings/webhook_types";
 import logger                                                           from '../../../utils/logger'
@@ -20,7 +20,7 @@ import { ConversationType }                                             from "@p
 import {
   initializeCustomer,
   sunshineUserToCustomer
-} from "../../customer_service";
+} from "../../sunshine";
 
 const { info } = logger('events');
 
