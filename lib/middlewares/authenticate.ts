@@ -1,4 +1,4 @@
-import authService                               from '../services/auth_service'
+import authService                               from '../services/authentication'
 import Koa                                       from 'koa'
 import _                                         from 'lodash'
 import { readBearer }                            from '../utils/http'
@@ -23,15 +23,13 @@ import {
  * @export
  * @param {GoodChatConfig} config
  */
-export default (config: GoodChatConfig, permissions : Listable<GoodChatPermissions> = []) : KoaChatMiddleware => {
-  const { authenticate } = authService(config);
-
+export default (permissions : Listable<GoodChatPermissions> = []) : KoaChatMiddleware => {
   const middleware : KoaChatMiddleware = async (ctx: KoaChatContext, next: Koa.Next) => {
     const token = readBearer(ctx);
 
     if (!token) throwUnauthenticated();
 
-    const staff = await authenticate(token);
+    const staff = await authService.authenticate(token);
 
     const allowed = _.chain([permissions])
       .flatten()

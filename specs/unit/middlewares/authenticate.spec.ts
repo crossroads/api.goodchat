@@ -8,12 +8,13 @@ import { BLANK_CONFIG }                           from '../../samples/config'
 import { GoodChatAuthMode, GoodChatPermissions }  from '../../../lib/typings/goodchat'
 import { GoodchatError }                          from '../../../lib/utils/errors'
 import { Staff }                                  from '@prisma/client'
+import { reloadConfig, useConfig }                from '../../../lib/config'
+import authService                                from '../../../lib/services/authentication'
 import {
   createBlankServer,
   TestAgent
 } from '../../spec_helpers/agent'
 
-const authServiceMod = require('../../../lib/services/auth_service');
 
 const config = {
   ...BLANK_CONFIG,
@@ -27,20 +28,17 @@ describe('Middlewares/authenticate', () => {
   let agent           : TestAgent
   let ctx             : Koa.Context
   let authMethodStub  : SinonStub
-  let serviceStub     : SinonStub
   let staff           : Staff
 
   beforeEach(async () => {
+    useConfig(config);
     staff = await factories.staffFactory.build({
       permissions: [GoodChatPermissions.CHAT_CUSTOMER]
     });
-    authMethodStub = sinon.stub();
-    serviceStub = sinon.stub(authServiceMod, 'default').returns({
-      authenticate: authMethodStub
-    });
+    authMethodStub = sinon.stub(authService, 'authenticate');
 
     [, agent] = createBlankServer([
-      authenticate(config, [GoodChatPermissions.CHAT_CUSTOMER]),
+      authenticate([GoodChatPermissions.CHAT_CUSTOMER]),
       (_ctx : Koa.Context) => {
         ctx = _ctx;
         ctx.status = 200;
@@ -49,16 +47,12 @@ describe('Middlewares/authenticate', () => {
   })
 
   afterEach(() => {
-    serviceStub.restore();
+    reloadConfig();
+    authMethodStub.restore();
   })
 
   it('returns 401 if no bearer token is present', async () => {
     await agent.get('/').expect(401)
-  })
-
-  it('initializes the auth service with the config passed as argument', () => {
-    sinon.assert.calledOnce(serviceStub)
-    sinon.assert.calledWithExactly(serviceStub, config)
   })
 
   it('calls the authentication service if a token is present', async () => {
@@ -67,7 +61,7 @@ describe('Middlewares/authenticate', () => {
     await agent
       .get('/')
       .set('Authorization', 'Bearer sometoken')
-    
+
     expect(authMethodStub.callCount).to.eq(1)
   })
 
@@ -80,7 +74,7 @@ describe('Middlewares/authenticate', () => {
       .get('/')
       .set('Authorization', 'Bearer sometoken')
       .expect(401)
-    
+
     expect(authMethodStub.callCount).to.eq(1)
   })
 
@@ -94,7 +88,7 @@ describe('Middlewares/authenticate', () => {
       .get('/')
       .set('Authorization', 'Bearer sometoken')
       .expect(403)
-    
+
     expect(authMethodStub.callCount).to.eq(1)
   })
 
@@ -105,7 +99,7 @@ describe('Middlewares/authenticate', () => {
       .get('/')
       .set('Authorization', 'Bearer sometoken')
       .expect(200)
-    
+
     expect(authMethodStub.callCount).to.eq(1)
     expect(ctx.state.staff).to.eq(staff)
   })

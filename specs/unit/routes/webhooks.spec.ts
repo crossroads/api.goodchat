@@ -1,22 +1,23 @@
+import { createBlankServer, TestAgent }   from '../../spec_helpers/agent'
+import { reloadConfig, useConfig }        from '../../../lib/config'
+import sinon, { SinonStub }               from 'sinon'
+import { IntegrationsApi }                from 'sunshine-conversations-client'
+import { GoodchatError }                  from '../../../lib/utils/errors'
+import { BLANK_CONFIG }                   from '../../samples/config'
 import { expect }                         from 'chai'
 import webhooks                           from '../../../lib/routes/webhooks'
 import rescue                             from '../../../lib/middlewares/rescue'
 import _                                  from 'lodash'
-import sinon, { SinonStub }               from 'sinon'
-import { createBlankServer, TestAgent }   from '../../spec_helpers/agent'
-import { BLANK_CONFIG }                   from '../../samples/config'
-import { IntegrationsApi }                from 'sunshine-conversations-client'
-import { GoodchatError }                  from '../../../lib/utils/errors'
 
 type AnyFunc = (...args: any[]) => any
 
-describe('Middlewares/webhooks', () => {
+describe('Routes/webhooks', () => {
   const CUSTOM_INTEGRATION_NAME = '[test] GoodChat Webhooks'
 
   // ---- Helpers
 
   const newServer = async (cb : AnyFunc = _.noop) => {
-    return createBlankServer([ rescue(), await webhooks({ config: BLANK_CONFIG, callback: cb }) ])
+    return createBlankServer([ rescue(), await webhooks({ callback: cb }) ])
   };
 
   // ---- Vars
@@ -32,6 +33,14 @@ describe('Middlewares/webhooks', () => {
   }];
 
   // ---- Hooks
+
+  before(() => {
+    useConfig(BLANK_CONFIG);
+  })
+
+  after(() => {
+    reloadConfig();
+  })
 
   beforeEach(() => {
     listIntegrations      = sinon.stub(IntegrationsApi.prototype, 'listIntegrations')

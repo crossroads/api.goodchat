@@ -29,8 +29,12 @@ const loadConfig = () : GoodChatConfig => {
 
 const config = loadConfig();
 
-export const reload = () => {
+export const reloadConfig = () => {
   Object.assign(config, loadConfig())
+}
+
+export const useConfig = (cfg: Partial<GoodChatConfig>) => {
+  Object.assign(config, cfg);
 }
 
 export default config;

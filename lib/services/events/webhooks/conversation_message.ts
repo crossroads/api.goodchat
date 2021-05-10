@@ -12,10 +12,10 @@
  * Copyright (c) 2021 Crossroads Foundation
  */
 
-import { initializeCustomer, sunshineUserToCustomer }   from '../../customer_service';
+import { initializeCustomer, sunshineUserToCustomer }   from '../../sunshine';
 import { SunshineAuthor, SunshineAuthorUser }           from '../../../typings/sunshine'
 import { registerWebhookHandler }                       from '..'
-import { upsertConversation }                           from '../../conversation_service'
+import { upsertConversation }                           from '../../sunshine'
 import { AuthorType, ConversationType }                 from "@prisma/client"
 import  db                                              from "../../../db"
 import {

@@ -1,10 +1,11 @@
+import { AuthPayload, GoodChatPermissions }  from '../../../lib/typings/goodchat'
+import { reloadConfig, useConfig }           from '../../../lib/config'
 import { GoodchatError }                     from '../../../lib/utils/errors'
-import authService                           from '../../../lib/services/auth_service'
 import * as factories                        from '../../factories'
+import authService                           from '../../../lib/services/authentication'
 import { expect }                            from 'chai'
 import nock                                  from 'nock'
 import db                                    from '../../../lib/db'
-import { AuthPayload, GoodChatPermissions }  from '../../../lib/typings/goodchat'
 import {
   NO_AUTH_CONFIG,
   WEBHOOK_AUTH_CONFIG,
@@ -20,7 +21,13 @@ describe('Services/auth', () => {
   })
 
   describe('Webhook authentication', () => {
-    const subject = authService(WEBHOOK_AUTH_CONFIG)
+    before(() => {
+      useConfig(WEBHOOK_AUTH_CONFIG)
+    })
+
+    after(() => {
+      reloadConfig()
+    })
 
     context('if the auth server returns a 200', () => {
 
@@ -32,7 +39,7 @@ describe('Services/auth', () => {
         })
 
         it('throws an unprocessable 422 error', async () => {
-          const e = await expect(subject.authenticate("sometoken")).to.be.rejectedWith(GoodchatError)
+          const e = await expect(authService.authenticate("sometoken")).to.be.rejectedWith(GoodchatError)
           expect(apiCall.isDone()).to.be.true
           expect(e.serialize()).to.deep.eq({
             "error": "Unprocessable Entity",
@@ -55,13 +62,13 @@ describe('Services/auth', () => {
 
         it('creates a staff member', async () => {
           expect(await db.staff.count()).to.eq(0)
-          await subject.authenticate("sometoken");
+          await authService.authenticate("sometoken");
           expect(await db.staff.count()).to.eq(1)
           expect(apiCall.isDone()).to.be.true
         })
 
         it('sets the externalId of the staff record', async () => {
-          await subject.authenticate("sometoken")
+          await authService.authenticate("sometoken")
 
           expect(await db.staff.count()).to.eq(1)
 
@@ -72,7 +79,7 @@ describe('Services/auth', () => {
         })
 
         it('sets the display name of the staff record', async () => {
-          await subject.authenticate("sometoken")
+          await authService.authenticate("sometoken")
 
           const staff = await db.staff.findFirst({ where: { externalId: String(payload.userId) }});
 
@@ -81,7 +88,7 @@ describe('Services/auth', () => {
         })
 
         it('sets staff member\'s permissions', async () => {
-          await subject.authenticate("sometoken")
+          await authService.authenticate("sometoken")
 
           const staff = await db.staff.findFirst({ where: { externalId: String(payload.userId) }});
 
@@ -104,13 +111,13 @@ describe('Services/auth', () => {
 
           it('updates the displayName', async () => {
             expect((await getStaff()).displayName).to.eq('Stephen')
-            await subject.authenticate("sometoken")
+            await authService.authenticate("sometoken")
             expect((await getStaff()).displayName).to.eq('Steve')
           })
 
           it('updates the permissions', async () => {
             expect((await getStaff()).permissions).to.deep.eq([])
-            await subject.authenticate("sometoken")
+            await authService.authenticate("sometoken")
             expect((await getStaff()).permissions).to.deep.eq([GoodChatPermissions.CHAT_CUSTOMER])
           })
         })
@@ -124,7 +131,7 @@ describe('Services/auth', () => {
       })
 
       it('throws a forbidden error', async () => {
-        const e = await expect(subject.authenticate("sometoken")).to.be.rejectedWith(GoodchatError)
+        const e = await expect(authService.authenticate("sometoken")).to.be.rejectedWith(GoodchatError)
         expect(e.status).to.eq(403)
         expect(apiCall.isDone()).to.be.true
       })
@@ -136,17 +143,19 @@ describe('Services/auth', () => {
       })
 
       it('throws a GoodChatError', async () => {
-        await expect(subject.authenticate("sometoken")).to.be.rejectedWith(GoodchatError, 'boom!')
+        await expect(authService.authenticate("sometoken")).to.be.rejectedWith(GoodchatError, 'boom!')
         expect(apiCall.isDone()).to.be.true
       })
     })
   })
 
   describe('No auth mode', () => {
-    const subject = authService(NO_AUTH_CONFIG)
+    before(() => useConfig(NO_AUTH_CONFIG))
+
+    after(() => reloadConfig())
 
     it('authenticate throws a disabled error', async () => {
-      await expect(subject.authenticate("sometoken")).to.be.rejectedWith(GoodchatError, 'errors.authentication.disabled')
+      await expect(authService.authenticate("sometoken")).to.be.rejectedWith(GoodchatError, 'errors.authentication.disabled')
     })
   })
 });
