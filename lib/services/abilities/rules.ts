@@ -13,8 +13,8 @@ type Rules = Record<string, any>
  */
 export function getConversationRules(staff: Staff) : Rules {
 
-  function onlyIf<T>(perms: GoodChatPermissions[], val: T) : T | undefined {
-    return _.find(perms, (p) => _.includes(staff.permissions, p)) ? val : void 0;
+  function onlyIf<T>(cond: boolean, val: T) : T | undefined {
+    return cond ? val : void 0;
   }
 
   const rules = {
@@ -34,10 +34,7 @@ export function getConversationRules(staff: Staff) : Rules {
         customerId: null
       },
       // User can talk to public customers chats with the correct permissions
-      onlyIf([
-        GoodChatPermissions.CHAT_CUSTOMER,
-        GoodChatPermissions.ADMIN
-      ], {
+      onlyIf(canViewCustomers(staff), {
         type: ConversationType.CUSTOMER,
         customerId: {
           not: null
@@ -57,16 +54,26 @@ export function getConversationRules(staff: Staff) : Rules {
  * @returns {ConversationType[]}
  */
 export function allowedConversationTypes(staff: Staff) : ConversationType[] {
-  const has = (perm: GoodChatPermissions) => _.includes(staff.permissions, perm);
-
   const types : ConversationType[] = [
     ConversationType.PUBLIC,
     ConversationType.PRIVATE
   ];
 
-  if (has(GoodChatPermissions.CHAT_CUSTOMER) || has(GoodChatPermissions.ADMIN)) {
+  if (canViewCustomers(staff)) {
     types.push(ConversationType.CUSTOMER);
   }
 
   return types;
+}
+
+/**
+ * Returns true if a staff member has access to customers
+ *
+ * @export
+ * @param {Staff} staff
+ * @returns {boolean}
+ */
+export function canViewCustomers(staff: Staff) : boolean {
+  const has = (perm: GoodChatPermissions) => _.includes(staff.permissions, perm);
+  return has(GoodChatPermissions.CHAT_CUSTOMER) || has(GoodChatPermissions.ADMIN);
 }
