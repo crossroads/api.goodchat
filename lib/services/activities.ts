@@ -1,9 +1,9 @@
 import { AuthorType, Conversation, ReadReceipt, Staff }  from "@prisma/client"
-import { throwForbidden }                                from "../../utils/errors"
+import { throwForbidden }                                from "../utils/errors"
 import { ActivitiesApi }                                 from "sunshine-conversations-client"
 import { abilities }                                     from "./abilities"
-import config                                            from "../../config"
-import db                                                from "../../db"
+import config                                            from "../config"
+import db                                                from "../db"
 
 export function activities(staff: Staff) {
 

@@ -1,10 +1,10 @@
-import { MessageEvent, pubsub, PubSubAction, PubSubEvent }     from "../../services/events"
-import { Conversation, ConversationType, Customer, Message }   from "@prisma/client"
-import { CollectionArgs, ConversationsArgs, MessageArgs }      from "../../services/abilities"
-import { GraphQLContext, RootParent }                          from "."
-import { IResolvers, withFilter }                              from "apollo-server-koa"
-import db                                                      from "../../db"
-import _                                                       from 'lodash'
+import { MessageEvent, pubsub, PubSubAction, PubSubEvent }      from "../../services/events"
+import { Conversation, ConversationType, Customer, Message }    from "@prisma/client"
+import { CollectionArgs, ConversationsArgs, MessagesArgs }      from "../../services/abilities"
+import { GraphQLContext, RootParent }                           from "."
+import { IResolvers, withFilter }                               from "apollo-server-koa"
+import db                                                       from "../../db"
+import _                                                        from 'lodash'
 
 // ---------------------------
 // Types
@@ -121,7 +121,7 @@ const resolvers : IResolvers = {
 
   Conversation: {
     /* get messages of a conversation */
-    messages(parent : Conversation, args: MessageArgs, ctx: GraphQLContext) {
+    messages(parent : Conversation, args: MessagesArgs, ctx: GraphQLContext) {
       return ctx.abilities.getMessages({
         ...args,
         conversationId: parent.id

@@ -1,4 +1,5 @@
-import { abilities, Abilities, activities, Activities }  from '../../services/abilities'
+import { abilities, Abilities }                          from '../../services/abilities'
+import { activities, Activities }                        from '../../services/activities'
 import { ApolloError, ApolloServer, gql }                from 'apollo-server-koa'
 import { makeExecutableSchema }                          from "graphql-tools"
 import { promises as fs }                                from 'fs'

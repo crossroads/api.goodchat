@@ -1,13 +1,13 @@
-import { activities }                                                   from '../../../../lib/services/abilities'
-import * as factories                                                   from '../../../factories'
+import { activities }                                                   from '../../../lib/services/activities'
+import * as factories                                                   from '../../factories'
 import { expect }                                                       from 'chai'
 import _                                                                from 'lodash'
 import { AuthorType, Conversation, ConversationType, Message, Staff }   from '@prisma/client'
-import { GoodChatPermissions }                                          from '../../../../lib/typings/goodchat'
-import { ActivitiesApi, MessagesApi }                                   from 'sunshine-conversations-client'
+import { GoodChatPermissions }                                          from '../../../lib/typings/goodchat'
+import { ActivitiesApi }                                                from 'sunshine-conversations-client'
 import sinon                                                            from 'sinon'
-import config                                                           from '../../../../lib/config'
-import db                                                               from '../../../../lib/db'
+import config                                                           from '../../../lib/config'
+import db                                                               from '../../../lib/db'
 
 describe('Services/abilities/activities', () => {
   let user : Staff
