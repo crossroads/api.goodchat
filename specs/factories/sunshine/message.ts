@@ -14,9 +14,9 @@ type SunshineMessageFactoryParams = {
 
 /**
  * Creates a fake SunshineMessage record
- * 
+ *
  * User and content types can be specified as transient params
- * 
+ *
  * @type {Factory<SunshineMessage, SunshineMessageFactoryParams>}
  * @exports
  */

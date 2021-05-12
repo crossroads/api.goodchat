@@ -1,6 +1,5 @@
 import { ConversationType, Staff }                           from "@prisma/client"
 import _                                                     from "lodash"
-import { MessagesApi }                                       from "sunshine-conversations-client"
 import db                                                    from "../../db"
 import { throwForbidden }                                    from "../../utils/errors"
 import { CollectionArgs, normalizePages }                    from "./helpers"
@@ -18,7 +17,6 @@ export type ConversationsArgs = CollectionArgs & {
 
 export function conversationAbilities(staff: Staff) {
 
-  const sunshineMessages = new MessagesApi();
   const clean  = <T extends Record<any, any>>(obj: T) => _.pickBy(obj, _.identity);
 
   // --- CONVERSATIONS

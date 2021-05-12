@@ -7,7 +7,7 @@ import {
 
 /**
  * Creates a fake SunshineSource record
- * 
+ *
  * @type {Factory<SunshineSource>}
  * @exports
  */

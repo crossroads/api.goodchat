@@ -14,24 +14,30 @@ GoodChat API is a standalone [node.js](https://nodejs.org) web service allowing 
     - [Features](#features)
 - [Documentation](#documentation)
 - [Prerequisites](#prerequisites)
+  - [System requirements](#system-requirements)
   - [Dependencies](#dependencies)
   - [Sunshine Conversations](#sunshine-conversations)
     - [Credentials](#credentials)
     - [Terminology](#terminology)
     - [Guides](#guides)
-    - [Steps](#steps)
+      - [Steps](#steps)
+    - [Steps](#steps-1)
 - [Running the server](#running-the-server)
   - [Manually](#manually)
-  - [On top of an existing Koa app](#on-top-of-an-existing-koa-app)
   - [Using the ready-made CLI script](#using-the-ready-made-cli-script)
   - [Running in development mode (with autoreload)](#running-in-development-mode-with-autoreload)
     - [Ngrok](#ngrok)
 - [CLI Configuration](#cli-configuration)
   - [Environment variables](#environment-variables)
+- [GraphQL](#graphql)
+  - [Using the playground](#using-the-playground)
 - [Testing](#testing)
+- [Authentication Modes](#authentication-modes)
+  - [Webhook](#webhook)
 - [Database](#database)
   - [Migrations](#migrations)
-- [License](#license)
+  - [Diagram](#diagram)
+- [Overall Architecture](#overall-architecture)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -49,10 +55,10 @@ That said, GoodChat was designed as a generic and reusable product and therefore
 
 - [x] Integration with Sunshine Conversations
 - [x] Webhooks support
-- [ ] Live subscriptions support (notifications, new messages)
-- [ ] Configurable Push Notification support
-- [ ] REST/GQL Chat API
+- [x] GraphQL Server
+- [x] GraphQL Subscriptions
 - [x] Configurable authentication methods (allowing easy integration with existing systems)
+- [ ] Configurable Push Notification support
 
 <img src="./design/goodchat_integration.png" alt="drawing" width="700"/>
 
@@ -179,12 +185,22 @@ When running the server in a development environment (NODE_ENV=development), the
 
 When running the server from an NPM script, the server can be configured using the following environment variables
 
-* `NODE_ENV`  - defines the environment it's running on. Options:
-	* `production`
-	* `staging`
-  * `development` (default)
-* `NO_AUTH` - if set to "true" or "yes", will no support any form of authentication (good for testing)
+| Variable                   | Default | Description   |
+| -------------------------- | ------- | ------------- |
+| NODE_ENV | `<required>` | The environment to run the server in |
+| SMOOCH_APP_ID | `<required>` | Sunshine conversations app id (see [guide](#guides)) |
+| SMOOCH_API_KEY_ID | `<required>` | Sunshine conversations api key (see [guide](#guides)) |
+| SMOOCH_API_KEY_SECRET | `<required>` | Sunshine conversations api secret [guide](#guides) |
+| GOODCHAT_HOST | `<required>` | The hostname of the server (can be omitted in [dev mode](#ngrok)) |
+| GOODCHAT_AUTH_URL | `<required>` | The authentication server's endpoint |
+| REDIS_URL  | `<required>` | Redis connection string |
+| DB_NAME  | `<required>` | Postgres database name |
+| DB_HOST  | `"localhost"` | Postgres host |
+| DB_PORT  | `5432` | Postgres port |
+| PORT     | 8000 | The server port |
+| GOODCHAT_APP_NAME | `"GoodChat"` | The name of the app |
 
+**NOTE**: Some of the _required_ fields are pre-populated for the development environments
 ## GraphQL
 
 ### Using the playground
@@ -220,6 +236,13 @@ Run the specs using the following command:
 $> npm run test
 ```
 
+## Authentication Modes
+
+### Webhook
+
+<img src="./design/webhook_auth.png" alt="drawing" width="900"/>
+
+
 ## Database
 
 ### Migrations
@@ -232,20 +255,13 @@ A set of npm scripts are available for the common actions:
 - `db:migrate:dev` Applies migrations to the dev environment
 - `db:migrate:prod` Applies migrations on production (to be used in CD)
 
-## Authentication Modes
-
-### None
-
-This mode is present for development/testing purposes
-
-### Webhook
-
-<img src="./design/webhook_auth.png" alt="drawing" width="900"/>
-
 ### Diagram
 
 <img src="./design/dbdiagram.png" alt="drawing" width="900"/>
 
+## Overall Architecture
+
+<img src="./design/architecture.png" alt="drawing" width="900"/>
 ## License
 
 Copyright © 2020 by [Crossroads Foundation Ltd](https://www.crossroads.org.hk)

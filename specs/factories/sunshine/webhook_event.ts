@@ -1,12 +1,13 @@
-import { Factory }                            from 'fishery'
-import faker                                  from 'faker'
-import _                                      from 'lodash'
-import * as factories                         from '../index'
+import { Factory }                                                       from 'fishery'
+import faker                                                             from 'faker'
+import _                                                                 from 'lodash'
+import * as factories                                                    from '../index'
 import { SunshineContentType, SunshineConversationShort, SunshineUser }  from '../../../lib/typings/sunshine'
 import {
   WebhookEventType,
   ConversationCreatedEvent,
   ConversationMessageEvent,
+  ConversationActivityEvent,
   WebhookEvent
 } from '../../../lib/typings/webhook_types'
 
@@ -17,7 +18,7 @@ interface BaseWebhookEventFactoryParams {
 
 /**
  * Creates a fake WebhookEvent record for the "conversation:create" type
- * 
+ *
  * @type {Factory<ConversationCreatedEvent>}
  * @exports
  */
@@ -45,7 +46,7 @@ interface ConversationMessageEventFactoryParams extends BaseWebhookEventFactoryP
 
 /**
  * Creates a fake WebhookEvent record for the "conversation:message" type
- * 
+ *
  * @type {Factory<ConversationMessageEvent>}
  * @exports
  */
@@ -70,6 +71,40 @@ export const sunshineNewMessageEventFactory = Factory.define<ConversationMessage
   }
 });
 
+
+// -------------- Conversation Read Event -------------- //
+
+/**
+ * Creates a fake WebhookEvent record for the "conversation:read" type
+ *
+ * @type {Factory<ConversationActivityEvent>}
+ * @exports
+ */
+export const sunshineConversationReadEventFactory = Factory.define<ConversationActivityEvent, BaseWebhookEventFactoryParams>((opts) => {
+  const user = opts.transientParams.user || factories.sunshineUserFactory.build();
+  const conversation = opts.transientParams.conversation || factories.sunshineConversationShortFactory.build();
+
+  return {
+    id: faker.random.uuid(),
+    createdAt: faker.date.recent().toISOString(),
+    type: WebhookEventType.CONVERSATION_READ,
+    payload: {
+      conversation: conversation,
+      activity: {
+        type: "conversation:read",
+        source: factories.sunshineSourceFactory.build(),
+        author: {
+          avatarUrl: user.profile.avatarUrl,
+          displayName: user.profile.givenName,
+          userId: user.id,
+          type: "user",
+          user: user
+        }
+      }
+    }
+  }
+});
+
 // -------------- Generic Event -------------- //
 
 interface DynamicWebhookEventFactoryParams extends BaseWebhookEventFactoryParams {
@@ -78,7 +113,7 @@ interface DynamicWebhookEventFactoryParams extends BaseWebhookEventFactoryParams
 
 /**
  * Creates a fake WebhookEvent based on the type passed as transient params
- * 
+ *
  * @type {Factory<ConversationMessageEvent>}
  * @exports
  */
@@ -91,8 +126,9 @@ export const sunshineWebhookEventFactory = Factory.define<WebhookEvent, DynamicW
   const factory = ({
     [WebhookEventType.CONVERSATION_CREATE]: sunshineNewConversationEventFactory,
     [WebhookEventType.CONVERSATION_MESSAGE]: sunshineNewMessageEventFactory,
+    [WebhookEventType.CONVERSATION_READ]: sunshineConversationReadEventFactory,
   })[type as string]
-  
+
   if (!factory) throw `Type ${type} not supported by Factory, add above this line.`
 
   return factory.build({}, { transient: { user }})

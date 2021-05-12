@@ -45,7 +45,7 @@ const pubsub = new RedisPubSub({
 // --------------------------------
 
 export enum PubSubEvent {
-  MESSAGE = 'message',
+  MESSAGE = 'message'
 }
 
 export enum PubSubAction {
@@ -57,7 +57,6 @@ export enum PubSubAction {
 export interface PubSubSubscription {
   action:   PubSubAction
 }
-
 export interface MessageEvent extends PubSubSubscription {
   message:  Message
 }

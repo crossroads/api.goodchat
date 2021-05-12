@@ -10,7 +10,7 @@ import {
 
 /**
  * Creates a fake SunshineTextContent record
- * 
+ *
  * @type {Factory<SunshineTextContent>}
  * @exports
  */
@@ -23,7 +23,7 @@ export const sunshineTextContentFactory = Factory.define<SunshineTextContent>(()
 
 /**
  * Creates a fake SunshineImageContent record
- * 
+ *
  * @type {Factory<SunshineImageContent>}
  * @exports
  */
@@ -39,7 +39,7 @@ export const sunshineImageContentFactory = Factory.define<SunshineImageContent>(
 
 /**
  * Creates a fake SunshineContent record based on the type passed in transient params
- * 
+ *
  * @type {Factory<SunshineContent>}
  * @exports
  */
