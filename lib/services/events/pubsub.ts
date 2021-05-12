@@ -45,8 +45,7 @@ const pubsub = new RedisPubSub({
 // --------------------------------
 
 export enum PubSubEvent {
-  MESSAGE       = 'message',
-  READ_RECEIPT  = 'read_receipt'
+  MESSAGE = 'message'
 }
 
 export enum PubSubAction {
