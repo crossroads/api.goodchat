@@ -8,7 +8,7 @@ import {
 
 /**
  * Creates a fake SunshineUserProfile record
- * 
+ *
  * @type {Factory<SunshineUserProfile>}
  * @exports
  */
@@ -28,7 +28,7 @@ export const sunshineProfileFactory = Factory.define<SunshineUserProfile>(() => 
 
 /**
  * Creates a fake SunshineUser record
- * 
+ *
  * @type {Factory<SunshineUser>}
  * @exports
  */

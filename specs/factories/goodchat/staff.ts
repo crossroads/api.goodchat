@@ -7,7 +7,7 @@ import { Staff }        from '@prisma/client'
 
 /**
  * Creates a fake Staff record
- * 
+ *
  * @type {Factory<Staff>}
  * @exports
  */

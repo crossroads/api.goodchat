@@ -69,7 +69,7 @@ const EVENT_PER_MODEL = {
 
     Create a PubSubEvent and add a mapping here in order to support live updates for a new model
   */
-  'Message':      PubSubEvent.MESSAGE
+  'Message': PubSubEvent.MESSAGE
 }
 
 type EventModelMap = typeof EVENT_PER_MODEL
