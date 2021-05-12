@@ -1,4 +1,4 @@
-import { AuthorType, ConversationType, Customer, Message, Staff }   from "@prisma/client"
+import { AuthorType, ConversationType, Message, Staff }             from "@prisma/client"
 import _                                                            from "lodash"
 import { MessagesApi }                                              from "sunshine-conversations-client"
 import config                                                       from "../../config"

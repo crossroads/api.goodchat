@@ -8,7 +8,7 @@ import {
 
 /**
  * Creates a fake SunshineConversationShort record
- * 
+ *
  * @type {Factory<SunshineConversationShort>}
  * @exports
  */
@@ -21,7 +21,7 @@ export const sunshineConversationShortFactory = Factory.define<SunshineConversat
 
 /**
  * Creates a fake SunshineConversation record
- * 
+ *
  * @type {Factory<SunshineConversation>}
  * @exports
  */

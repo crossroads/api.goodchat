@@ -7,7 +7,6 @@ import compose                                   from 'koa-compose'
 import rescue                                    from './rescue'
 import { Listable }                              from '../typings/lang'
 import {
-  GoodChatConfig,
   KoaChatMiddleware,
   KoaChatContext,
   GoodChatPermissions
