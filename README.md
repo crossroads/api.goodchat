@@ -4,6 +4,7 @@
 [![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
 
 [![codecov](https://codecov.io/gh/crossroads/api.goodchat/branch/main/graph/badge.svg?token=16160ETKGA)](https://codecov.io/gh/crossroads/api.goodchat)
+[![CI Tests](https://github.com/crossroads/api.goodchat/actions/workflows/ci-tests.yml/badge.svg?branch=main)](https://github.com/crossroads/api.goodchat/actions/workflows/ci-tests.yml)
 
 GoodChat API is a standalone [node.js](https://nodejs.org) web service allowing easy integration with [smooch.io](https://smooch.io)
 
