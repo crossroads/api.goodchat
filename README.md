@@ -137,19 +137,11 @@ Running GoodChat requires the following Sunshine Conversation credentials:
 You may create an instance of GoodChat, and start it manually as shown below
 
 ```typescript
-import goodchat, { GoodChatAuthMode } from '@goodcity/api.goodchat'
+import goodchat from '@goodcity/api.goodchat'
 
-const [app] = await goodchat({
-  smoochAppId:            'sample_app_id',
-  smoochApiKeyId:         'sample_api_key_id',
-  smoochApiKeySecret:     'sample_api_key_secret',
-  goodchatHost:           'localhost:8000',
-  auth: {
-    mode: GoodChatAuthMode.NONE
-  }
-})
+const [koa, apollo] = await goodchat()
 
-app.listen(8000, () => {
+koa.listen(8000, () => {
   console.info('Goodchat is running');
 })
 ```
