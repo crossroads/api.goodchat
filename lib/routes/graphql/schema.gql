@@ -5,6 +5,7 @@ type Query {
 
 type Subscription {
   messageEvent(conversationId: Int, actions: [SubscriptionAction]): MessageEvent!
+  readReceiptEvent(conversationId: Int!): ReadReceiptEvent!
 }
 
 type Mutation {
@@ -53,12 +54,12 @@ type Conversation {
   customerId: Int
   customer: Customer
   source: String!
-  readByCustomer: Boolean!
   type: ConversationType!
   metadata: JSON!
   createdAt: DateTime!
   updatedAt: DateTime!
   messages(limit: Int, offset: Int): [Message!]!
+  readReceipts: [ReadReceipt!]!
   staffs: [Staff!]!
 }
 
@@ -77,6 +78,11 @@ type Message {
 type MessageEvent {
   action: SubscriptionAction!
   message: Message!
+}
+
+type ReadReceiptEvent {
+  action: SubscriptionAction!
+  readReceipt: ReadReceipt!
 }
 
 type Customer {

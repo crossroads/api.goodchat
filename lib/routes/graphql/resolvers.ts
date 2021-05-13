@@ -1,10 +1,10 @@
-import { MessageEvent, pubsub, PubSubAction, PubSubEvent }      from "../../services/events"
-import { Conversation, ConversationType, Customer, Message }    from "@prisma/client"
-import { CollectionArgs, ConversationsArgs, MessagesArgs }      from "../../services/abilities"
-import { GraphQLContext, RootParent }                           from "."
-import { IResolvers, withFilter }                               from "apollo-server-koa"
-import db                                                       from "../../db"
-import _                                                        from 'lodash'
+import { MessageEvent, pubsub, PubSubAction, PubSubEvent, ReadReceiptEvent }      from "../../services/events"
+import { Conversation, ConversationType, Customer, Message }                      from "@prisma/client"
+import { CollectionArgs, ConversationsArgs, MessagesArgs }                        from "../../services/abilities"
+import { GraphQLContext, RootParent }                                             from "."
+import { IResolvers, withFilter }                                                 from "apollo-server-koa"
+import db                                                                         from "../../db"
+import _                                                                          from 'lodash'
 
 // ---------------------------
 // Types
@@ -15,12 +15,15 @@ export interface RecordArgs extends BaseArgs {
   id: number
 }
 
-export type MessageSubscriptionArgs = {
-  conversationId?: number,
+export interface ConversationSelectArgs {
+  conversationId: number
+}
+
+export interface MessageSubscriptionArgs extends Partial<ConversationSelectArgs> {
   actions?: PubSubAction[]
 }
 
-export type SendMessageArgs = {
+export interface SendMessageArgs {
   conversationId: number
   text: string
 }
@@ -74,13 +77,9 @@ const resolvers : IResolvers = {
     messageEvent: {
       resolve: _.identity,
       subscribe: withFilter(
-        //
-        // PubSub event to listen to
-        //
+        // --- PubSub event to listen to
         () => pubsub.asyncIterator(PubSubEvent.MESSAGE),
-        //
-        // Predicate method to decide whether we should notify a user of this event
-        //
+        // --- Predicate method to decide whether we should notify a user of this event
         async (payload: MessageEvent, args: MessageSubscriptionArgs, context: GraphQLContext) => {
           if (args.conversationId && payload.message.conversationId !== args.conversationId) {
             return false; // The user is not interested in this record
@@ -93,6 +92,27 @@ const resolvers : IResolvers = {
           // Check if the user is allowed to view record
           return Boolean(
             await context.abilities.getConversationById(payload.message.conversationId)
+          )
+        }
+      )
+    },
+
+    readReceiptEvent: {
+      resolve: _.identity,
+      subscribe: withFilter(
+        // --- PubSub event to listen to
+        () => pubsub.asyncIterator(PubSubEvent.READ_RECEIPT),
+        // --- Predicate method to decide whether we should notify a user of this event
+        async (payload: ReadReceiptEvent, args: ConversationSelectArgs, context: GraphQLContext) => {
+          const receipt = payload.readReceipt;
+
+          if (receipt.conversationId !== args.conversationId) {
+            return false; // The user is not interested in this record
+          }
+
+          // Check if the user is allowed to view record
+          return Boolean(
+            await context.abilities.getConversationById(payload.readReceipt.conversationId)
           )
         }
       )
@@ -153,6 +173,14 @@ const resolvers : IResolvers = {
       })
 
       return _.map(records, 'staff');
+    },
+
+    readReceipts(parent: Conversation) {
+      return db.readReceipt.findMany({
+        where: {
+          conversationId: parent.id
+        }
+      });
     }
   },
 
