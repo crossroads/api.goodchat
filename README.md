@@ -251,6 +251,18 @@ A set of npm scripts are available for the common actions:
 
 <img src="./design/dbdiagram.png" alt="drawing" width="900"/>
 
+#### How to update the database diagram
+
+Step 1: Update the `design/schema.dbml` file
+
+```
+npm run prisma:generate
+```
+
+Step 2: Copy the DBML to [dbdiagram](https://dbdiagram.io/d)
+
+Step 3: Export into a PNG file and replace the `design/dbdiagram.png` file
+
 ## Overall Architecture
 
 <img src="./design/architecture.png" alt="drawing" width="900"/>

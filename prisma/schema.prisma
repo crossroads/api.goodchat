@@ -10,6 +10,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+  output = "../design"
+  outputName = "schema.dbml"
+}
+
 model Staff {
   id                  Int      @default(autoincrement()) @id
   createdAt           DateTime @default(now())

@@ -97,6 +97,7 @@
     "ngrok": "^3.3.0",
     "nock": "^13.0.11",
     "nyc": "^15.1.0",
+    "prisma-dbml-generator": "^0.5.0",
     "sinon": "^9.2.1",
     "sinon-chai": "^3.5.0",
     "supertest": "^5.0.0",
