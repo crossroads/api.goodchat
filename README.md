@@ -266,6 +266,7 @@ Step 3: Export into a PNG file and replace the `design/dbdiagram.png` file
 ## Overall Architecture
 
 <img src="./design/architecture.png" alt="drawing" width="900"/>
+
 ## License
 
 Copyright © 2020 by [Crossroads Foundation Ltd](https://www.crossroads.org.hk)
