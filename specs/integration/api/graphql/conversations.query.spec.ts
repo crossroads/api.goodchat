@@ -154,6 +154,38 @@ describe('GraphQL Conversations Query', () => {
       expect(data.conversations[0].customer.conversations[0].id).to.eq(conversation.id)
     })
 
+    it('supports reading the read receipts of a conversation', async () => {
+      const { id } = await factories.readReceiptFactory.create({
+        conversationId: conversation.id,
+        userId: customer.id,
+        userType: AuthorType.CUSTOMER,
+        lastReadMessageId: message.id
+      })
+
+      const { data } : any = await gqlAgent.query({
+        query: gql`
+          query getConversations {
+            conversations {
+              id
+              readReceipts {
+                id
+                lastReadMessageId
+                userType
+                userId
+              }
+            }
+          }
+        `
+      })
+
+      expect(data.conversations).to.be.of.length(1)
+      expect(data.conversations[0].id).to.eq(conversation.id)
+      expect(data.conversations[0].readReceipts).to.have.lengthOf(1)
+      expect(data.conversations[0].readReceipts[0].id).to.eq(id)
+      expect(data.conversations[0].readReceipts[0].userId).to.eq(customer.id)
+      expect(data.conversations[0].readReceipts[0].userType).to.eq(AuthorType.CUSTOMER)
+    })
+
     it('returns the messages ordered by most recent first by default', async () => {
       const now = new Date();
 

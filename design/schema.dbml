@@ -1,0 +1,110 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table Staff {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  externalId String [unique, not null]
+  displayName String [not null]
+  metadata Json [not null]
+  permissions String [not null]
+  staffConversations StaffConversations [not null]
+}
+
+Table Customer {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  externalId String
+  sunshineUserId String [unique, not null]
+  displayName String [not null]
+  email String
+  avatarUrl String
+  locale String [not null, default: 'en']
+  metadata Json [not null]
+  conversations Conversation [not null]
+}
+
+Table StaffConversations {
+  staff Staff [not null]
+  staffId Int [not null]
+  conversation Conversation [not null]
+  conversationId Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+
+  indexes {
+    (staffId, conversationId) [pk]
+  }
+}
+
+Table Conversation {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  sunshineConversationId String [unique]
+  customerId Int
+  customer Customer
+  source String [not null]
+  type ConversationType [not null]
+  metadata Json [not null]
+  readReceipts ReadReceipt [not null]
+  messages Message [not null]
+  staffConversations StaffConversations [not null]
+}
+
+Table ReadReceipt {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  conversationId Int [not null]
+  conversation Conversation [not null]
+  lastReadMessageId Int [not null]
+  lastReadMessage Message [not null]
+  userId Int [not null]
+  userType AuthorType [not null]
+
+  indexes {
+    (userId, userType, conversationId) [unique]
+  }
+}
+
+Table Message {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  conversationId Int [not null]
+  conversation Conversation [not null]
+  sunshineMessageId String [unique]
+  authorType AuthorType [not null]
+  authorId Int [not null]
+  content Json [not null]
+  metadata Json [not null]
+  readReceipts ReadReceipt [not null]
+}
+
+Enum ConversationType {
+  PRIVATE
+  PUBLIC
+  CUSTOMER
+}
+
+Enum AuthorType {
+  STAFF
+  CUSTOMER
+  SYSTEM
+}
+
+Ref: StaffConversations.staffId > Staff.id
+
+Ref: StaffConversations.conversationId > Conversation.id
+
+Ref: Conversation.customerId > Customer.id
+
+Ref: ReadReceipt.conversationId > Conversation.id
+
+Ref: ReadReceipt.lastReadMessageId > Message.id
+
+Ref: Message.conversationId > Conversation.id

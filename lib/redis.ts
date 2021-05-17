@@ -2,7 +2,7 @@ import config  from "./config"
 import logger  from "./utils/logger"
 import Redis   from 'ioredis'
 
-const { error } = logger('queue');
+const { error } = logger('redis');
 
 const connections : Redis.Redis[] = [];
 

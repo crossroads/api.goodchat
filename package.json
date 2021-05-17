@@ -1,6 +1,6 @@
 {
   "name": "api.goodchat",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "omnichannel chat solution built for structured integrations with transactional systems",
   "main": "dist/bin/serve.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "copy:assets": "rsync -rR lib/routes/graphql/schema.gql ./locales ./tsconfig.json ./dist",
     "clean": "rm -rf dist",
     "document": "typedoc --includeVersion",
-    "doctoc": "doctoc README.md",
+    "doctoc": "npx doctoc README.md",
     "postinstall": "npm run prisma:generate",
     "prisma:generate": "npx prisma generate",
     "db:migrate:new": "NODE_ENV=development kankyo -f exec -- prisma migrate dev --create-only --preview-feature",
@@ -89,7 +89,6 @@
     "chai-as-promised": "^7.1.1",
     "codecov": "^3.8.1",
     "cross-fetch": "^3.1.4",
-    "doctoc": "^2.0.0",
     "eslint": "^7.21.0",
     "faker": "^5.4.0",
     "find-port": "^2.0.1",
@@ -98,6 +97,7 @@
     "ngrok": "^3.3.0",
     "nock": "^13.0.11",
     "nyc": "^15.1.0",
+    "prisma-dbml-generator": "^0.5.0",
     "sinon": "^9.2.1",
     "sinon-chai": "^3.5.0",
     "supertest": "^5.0.0",

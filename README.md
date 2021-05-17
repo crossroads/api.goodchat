@@ -4,6 +4,7 @@
 [![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
 
 [![codecov](https://codecov.io/gh/crossroads/api.goodchat/branch/main/graph/badge.svg?token=16160ETKGA)](https://codecov.io/gh/crossroads/api.goodchat)
+[![CI Tests](https://github.com/crossroads/api.goodchat/actions/workflows/ci-tests.yml/badge.svg?branch=main)](https://github.com/crossroads/api.goodchat/actions/workflows/ci-tests.yml)
 
 GoodChat API is a standalone [node.js](https://nodejs.org) web service allowing easy integration with [smooch.io](https://smooch.io)
 
@@ -137,19 +138,11 @@ Running GoodChat requires the following Sunshine Conversation credentials:
 You may create an instance of GoodChat, and start it manually as shown below
 
 ```typescript
-import goodchat, { GoodChatAuthMode } from '@goodcity/api.goodchat'
+import goodchat from '@goodcity/api.goodchat'
 
-const [app] = await goodchat({
-  smoochAppId:            'sample_app_id',
-  smoochApiKeyId:         'sample_api_key_id',
-  smoochApiKeySecret:     'sample_api_key_secret',
-  goodchatHost:           'localhost:8000',
-  auth: {
-    mode: GoodChatAuthMode.NONE
-  }
-})
+const [koa, apollo] = await goodchat()
 
-app.listen(8000, () => {
+koa.listen(8000, () => {
   console.info('Goodchat is running');
 })
 ```
@@ -259,9 +252,22 @@ A set of npm scripts are available for the common actions:
 
 <img src="./design/dbdiagram.png" alt="drawing" width="900"/>
 
+#### How to update the database diagram
+
+Step 1: Update the `design/schema.dbml` file
+
+```
+npm run prisma:generate
+```
+
+Step 2: Copy the DBML to [dbdiagram](https://dbdiagram.io/d)
+
+Step 3: Export into a PNG file and replace the `design/dbdiagram.png` file
+
 ## Overall Architecture
 
 <img src="./design/architecture.png" alt="drawing" width="900"/>
+
 ## License
 
 Copyright © 2020 by [Crossroads Foundation Ltd](https://www.crossroads.org.hk)

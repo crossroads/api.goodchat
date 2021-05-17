@@ -10,7 +10,7 @@ import db                                        from "../../lib/db"
 
 const USER_EXTERNAL_ID = '747';
 
-describe('E2E/Subscriptions', () => {
+describe('E2E/Subscriptions/Messages', () => {
   let serverInfo : e2e.TestServerInfo
   let gqlClient : e2e.TestApolloClient
   let customerConversation : Conversation

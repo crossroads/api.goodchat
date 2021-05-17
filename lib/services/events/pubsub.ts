@@ -1,21 +1,17 @@
-import db                  from '../../db'
-import _                   from 'lodash'
-import { Message, Prisma } from '@prisma/client'
-import { RedisPubSub }     from 'graphql-redis-subscriptions'
-import Redis               from 'ioredis'
-import config              from '../../config'
-import logger              from '../../utils/logger'
-import { waitForEvent }    from '../../utils/async'
+import db                               from '../../db'
+import _                                from 'lodash'
+import { Message, Prisma, ReadReceipt } from '@prisma/client'
+import { RedisPubSub }                  from 'graphql-redis-subscriptions'
+import * as redis                       from '../../redis'
+import logger                           from '../../utils/logger'
+import { waitForEvent }                 from '../../utils/async'
 
 const SECOND = 1000;
 
-const { error, info, panic } = logger('pubsub');
+const { info, panic } = logger('pubsub');
 
-const publisher = new Redis(config.redis.url);
-const subscriber = new Redis(config.redis.url);
-
-publisher.on('error', error)
-subscriber.on('error', error)
+const publisher = redis.createConnection();
+const subscriber = redis.createConnection();
 
 //
 // We expect a connection event within the first 15 seconds.
@@ -45,7 +41,8 @@ const pubsub = new RedisPubSub({
 // --------------------------------
 
 export enum PubSubEvent {
-  MESSAGE = 'message'
+  MESSAGE       = 'message',
+  READ_RECEIPT  = 'read_receipt'
 }
 
 export enum PubSubAction {
@@ -54,12 +51,10 @@ export enum PubSubAction {
   DELETE = 'delete'
 }
 
-export interface PubSubSubscription {
-  action:   PubSubAction
-}
-export interface MessageEvent extends PubSubSubscription {
-  message:  Message
-}
+export type RecordAction<N extends string, T> = { action: PubSubAction } & Record<N, T>
+
+export type MessageEvent      = RecordAction<"message", Message>
+export type ReadReceiptEvent  = RecordAction<"readReceipt", ReadReceipt>
 
 const UNSUPPORTED = 'unsupported';
 
@@ -69,7 +64,8 @@ const EVENT_PER_MODEL = {
 
     Create a PubSubEvent and add a mapping here in order to support live updates for a new model
   */
-  'Message': PubSubEvent.MESSAGE
+  'Message': PubSubEvent.MESSAGE,
+  'ReadReceipt': PubSubEvent.READ_RECEIPT
 }
 
 type EventModelMap = typeof EVENT_PER_MODEL
@@ -93,7 +89,7 @@ function isFreshRecord(obj?: any) : boolean {
   return (
     _.isDate(createdAt) &&
     _.isDate(updatedAt) &&
-    createdAt.getTime() === updatedAt.getTime()
+    Math.abs(createdAt.getTime() - updatedAt.getTime()) <= 5
   )
 }
 
@@ -165,7 +161,7 @@ async function reloadRecords(collection: string, records: any[]) : Promise<any[]
 // Logic
 // --------------------------------
 
-// @TODO: Run publishes in a job (bull/kue?)
+// @TODO: Run publishes in a job
 
 db.$use(async (params : Prisma.MiddlewareParams, next) => {
   const { model } = params;
@@ -175,7 +171,7 @@ db.$use(async (params : Prisma.MiddlewareParams, next) => {
     return next(params);
   }
 
-  const collectionName = _.toLower(params.model)
+  const collectionName = _.lowerFirst(params.model)
 
   if (isManyAction(params)) {
     // Case: An batch event

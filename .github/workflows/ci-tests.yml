@@ -1,10 +1,9 @@
-name: Feature branch tests
+name: CI Tests
 
 on:
   push:
     branches:
-      - '**'        # matches every branch
-      - '!main'     # excludes main (will be tested during the staging deployment)
+      - '**' # matches every branch
   workflow_dispatch:
 
 jobs:
