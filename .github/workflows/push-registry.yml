@@ -69,7 +69,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v3
       with:
-        images: goodchat/goodchat # Docker image to use as base name for tags
+        images: goodregistry/goodchat # Docker image to use as base name for tags
         tags: | # generate Docker tags based on the following events/attributes
           type=schedule
           type=ref,event=branch
