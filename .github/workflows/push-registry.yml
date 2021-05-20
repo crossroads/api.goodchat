@@ -59,10 +59,10 @@ jobs:
         npm run db:migrate:test
         npm run test:coverage
 
-    # - name: CODECOV
-    #   run: npx codecov --token="${{secrets.CODECOV_TOKEN}}"
-    #   env:
-    #     npm_config_yes: true
+    - name: CODECOV
+      run: npx codecov --token="${{secrets.CODECOV_TOKEN}}"
+      env:
+        npm_config_yes: true
 
     - name: Build project
       run: npm run build
