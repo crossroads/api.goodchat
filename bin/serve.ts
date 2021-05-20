@@ -3,13 +3,15 @@
 // --> dotenv preload <--
 require('kankyo').inject({ verbose: true }); // eslint-disable-line
 
-import goodchat             from '..'
-import http                 from 'http'
-import logger               from '../lib/utils/logger'
-import config               from '../lib/config'
-import { promisify }        from 'util'
-import { read }             from '../lib/utils/env'
-import { setupWebhooks }    from '../lib/routes/webhooks/setup';
+import goodchat                               from '..'
+import http                                   from 'http'
+import logger                                 from '../lib/utils/logger'
+import config                                 from '../lib/config'
+import { promisify }                          from 'util'
+import { read }                               from '../lib/utils/env'
+import { clearIntegration, setupWebhooks }    from '../lib/routes/webhooks/setup'
+import { gracefulExit }                       from '../lib/utils/process'
+import splash                                 from './splash'
 
 const port  = read.number('PORT', 8000);
 const env   = read('NODE_ENV', 'development')
@@ -33,17 +35,12 @@ async function resolveDevHost() : Promise<string> {
 }
 
 // -------------------------
-// Slightly less dramatic exit
-// -------------------------
-
-process.on('uncaughtException', panic);
-process.on('SIGTERM', panic);
-
-// -------------------------
 // Startup
 // -------------------------
 
 (async function() {
+  splash();
+
   try {
     info(`${env} environment detected`);
 
@@ -66,6 +63,7 @@ process.on('SIGTERM', panic);
 
     if (dev) {
       setupWebhooks(config)
+      gracefulExit(() => clearIntegration(config))
     }
 
   } catch (e) {

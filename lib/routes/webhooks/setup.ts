@@ -40,15 +40,15 @@ export async function getCustomIntegration(appId : string) : Promise<Integration
  * Deletes the custom integration of the running server
  *
  * @export
- * @param {string} appId
+ * @param {GoodChatConfig} config
  */
-export async function clearIntegration(appId : string) {
+export async function clearIntegration(config : GoodChatConfig) {
   const api       = new IntegrationsApi();
-  const existing  = await getCustomIntegration(appId)
+  const existing  = await getCustomIntegration(config.smoochAppId)
 
   if (existing) {
     info(`deleting previous integration record`)
-    await api.deleteIntegration(appId, existing.id)
+    await api.deleteIntegration(config.smoochAppId, existing.id)
   }
 }
 
@@ -74,7 +74,7 @@ export async function setupWebhooks(config: GoodChatConfig) : Promise<Integratio
   const api         = new IntegrationsApi();
   const endpoint    = webhookTarget(config);
 
-  await clearIntegration(config.smoochAppId);
+  await clearIntegration(config);
 
   info(`creating custom integration "${INTEGRATION_NAME}"`);
 

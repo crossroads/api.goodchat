@@ -1,14 +1,14 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - goodchat-api-staging
+name: Build docker image and push to registry
 
 on:
   push:
     branches:
       - main
+      - live
       - gh-workflow-*
-  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -46,10 +46,7 @@ jobs:
     - name: Set up Node.js version
       uses: actions/setup-node@v1
       with:
-        node-version: '14.x'
-
-    - name: Use NPM 7
-      run: npm install --global npm@7
+        node-version: '15.x'
 
     - name: Run Specs
       env:
@@ -60,18 +57,39 @@ jobs:
         npm run db:migrate:test
         npm run test:coverage
 
-    - name: CODECOV
-      run: npx codecov --token="${{secrets.CODECOV_TOKEN}}"
-      env:
-        npm_config_yes: true
+    # - name: CODECOV
+    #   run: npx codecov --token="${{secrets.CODECOV_TOKEN}}"
+    #   env:
+    #     npm_config_yes: true
 
     - name: Build project
       run: npm run build
 
-    - name: 'Deploy to Azure Web App'
-      uses: azure/webapps-deploy@v2
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v3
       with:
-        app-name: 'goodchat-api-staging'
-        slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_6632a23b6f7e4fa0ace2de7a58ea4d47 }}
-        package: .
+        images: goodchat/goodchat # Docker image to use as base name for tags
+        tags: | # generate Docker tags based on the following events/attributes
+          type=schedule
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+          type=sha
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        registry: goodregistry.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
