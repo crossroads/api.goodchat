@@ -1,0 +1,8 @@
+design
+.vscode
+coverage
+docs
+specs
+.github
+.nyc_output
+node_modules

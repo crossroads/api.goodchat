@@ -1,6 +1,7 @@
-import config  from "./config"
-import logger  from "./utils/logger"
-import Redis   from 'ioredis'
+import config           from "./config"
+import logger           from "./utils/logger"
+import Redis            from 'ioredis'
+import { gracefulExit } from "./utils/process";
 
 const { error } = logger('redis');
 
@@ -19,4 +20,6 @@ export function createConnection() : Redis.Redis {
 export function closeAllConnections() {
   connections.forEach(c => c.disconnect())
 }
+
+gracefulExit(closeAllConnections);
 
