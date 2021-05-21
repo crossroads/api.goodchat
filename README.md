@@ -27,7 +27,12 @@ GoodChat API is a standalone [node.js](https://nodejs.org) web service allowing 
   - [Manually](#manually)
   - [Using the ready-made CLI script](#using-the-ready-made-cli-script)
   - [Running in development mode (with autoreload)](#running-in-development-mode-with-autoreload)
-    - [Ngrok](#ngrok)
+  - [Running with docker](#running-with-docker)
+    - [Building the docker image](#building-the-docker-image)
+    - [Running the container](#running-the-container)
+    - [Automatic db migrations](#automatic-db-migrations)
+  - [Docker Registry](#docker-registry)
+  - [Ngrok](#ngrok)
 - [CLI Configuration](#cli-configuration)
   - [Environment variables](#environment-variables)
 - [GraphQL](#graphql)
@@ -38,7 +43,9 @@ GoodChat API is a standalone [node.js](https://nodejs.org) web service allowing 
 - [Database](#database)
   - [Migrations](#migrations)
   - [Diagram](#diagram)
+    - [How to update the database diagram](#how-to-update-the-database-diagram)
 - [Overall Architecture](#overall-architecture)
+- [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -133,6 +140,7 @@ Running GoodChat requires the following Sunshine Conversation credentials:
 </details>
 
 ## Running the server
+
 ### Manually
 
 You may create an instance of GoodChat, and start it manually as shown below
@@ -168,7 +176,61 @@ $> npm run start
 $> npm run dev
 ```
 
-#### Ngrok
+### Running with docker
+
+#### Building the docker image
+
+```bash
+docker build . -t goodchat/goodchat
+```
+
+#### Running the container
+
+```bash
+docker run -p 8000:8000 -t \
+  -e NODE_ENV=<env> \
+  -e SMOOCH_APP_ID=<appId> \
+  -e SMOOCH_API_KEY_ID=<apiKey> \
+  -e SMOOCH_API_KEY_SECRET=<apiSecret> \
+  -e DB_HOST=<dbHost> \
+  -e DB_NAME=<dbName> \
+  -e DB_CREDENTIALS=<dbUsername:dbPassword> \
+  -e ENABLE_MIGRATIONS=<true|false> \
+  -e REDIS_URL=<redisUrl> \
+  goodchat/goodchat
+```
+
+e.g Running in development mode on a Mac with a local postgres and redis
+
+```bash
+docker run -p 8000:8000 --rm -t \
+  -e NODE_ENV=development \
+  -e SMOOCH_APP_ID=<appId> \
+  -e SMOOCH_API_KEY_ID=<apiKey> \
+  -e SMOOCH_API_KEY_SECRET=<apiSecret> \
+  -e DB_HOST=host.docker.internal \
+  -e ENABLE_MIGRATIONS=true \
+  -e REDIS_URL="redis://host.docker.internal:6379" \
+  goodchat/goodchat
+```
+
+#### Automatic db migrations
+
+Setting the `ENABLE_MIGRATIONS` environment variable to `true`, will in turn cause the docker container to trigger a database migration on boot.
+
+### Docker Registry
+
+Github Actions will automatically push new builds to our registry according to the following rules:
+
+* For the `main` branch
+  * push a `latest` tag to the registry
+  * push a `main` tag to the registry
+* For the `live` branch
+  * push a `live` tag to the registry
+* For new tags
+  * push a `v<tag>` tag to the registry
+
+### Ngrok
 
 When running the server in a development environment (NODE_ENV=development), the startup script will initiate an [ngrok](https://www.npmjs.com/package/ngrok) tunnel in order to have callable webhooks.
 
