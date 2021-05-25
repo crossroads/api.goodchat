@@ -13,3 +13,7 @@ export type Json = Prisma.InputJsonValue
 export type JsonObject = Prisma.InputJsonObject
 
 export type AnyFunc = (...args: any[]) => any
+
+export type Awaitable<T> = T | Promise<T>
+
+export type Awaited<T> = T extends Promise<infer R> ? R : T

@@ -1,6 +1,12 @@
 type Query {
   conversations(limit: Int, offset: Int, type: ConversationType): [Conversation!]!
   conversation(id: Int!): Conversation
+  customers(
+    limit: Int,
+    offset: Int,
+    externalId: [String!],
+    id: [Int!]
+  ): [Customer!]!
 }
 
 type Subscription {
@@ -87,6 +93,7 @@ type ReadReceiptEvent {
 
 type Customer {
   id: Int!
+  externalId: String
   createdAt: DateTime!
   displayName: String!
   email: String
@@ -106,5 +113,3 @@ type Staff {
   permissions: [String!]!,
   conversations: [Conversation!]!
 }
-
-

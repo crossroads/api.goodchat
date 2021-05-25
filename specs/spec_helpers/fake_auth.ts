@@ -1,6 +1,6 @@
-import authService  from '../../lib/services/authentication'
-import { Staff }    from "@prisma/client";
-import sinon        from 'sinon'
+import authService       from '../../lib/services/authentication'
+import { Staff }         from "@prisma/client";
+import sinon             from 'sinon'
 
 let authServiceStubs : sinon.SinonStub[]
 

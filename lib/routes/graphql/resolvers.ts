@@ -1,6 +1,6 @@
 import { MessageEvent, pubsub, PubSubAction, PubSubEvent, ReadReceiptEvent }      from "../../services/events"
 import { Conversation, ConversationType, Customer, Message }                      from "@prisma/client"
-import { CollectionArgs, ConversationsArgs, MessagesArgs }                        from "../../services/abilities"
+import { CollectionArgs, ConversationsArgs, CustomersArgs, MessagesArgs }         from "../../services/abilities"
 import { GraphQLContext, RootParent }                                             from "."
 import { IResolvers, withFilter }                                                 from "apollo-server-koa"
 import db                                                                         from "../../db"
@@ -44,6 +44,10 @@ const resolvers : IResolvers = {
 
     conversation(parent: RootParent, args : RecordArgs, ctx : GraphQLContext) {
       return ctx.abilities.getConversationById(args.id);
+    },
+
+    customers(parent: RootParent, args : CustomersArgs, ctx : GraphQLContext) {
+      return ctx.abilities.getCustomers(args)
     }
   },
 
