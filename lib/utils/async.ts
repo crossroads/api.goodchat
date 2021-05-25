@@ -1,4 +1,5 @@
-import EventEmitter from "events";
+import EventEmitter           from "events";
+import { Awaitable, Awaited } from "../typings/lang";
 
 type Collection<T> = Array<T> | { [key:string]: T } | { [key:number]: T }
 
@@ -18,6 +19,26 @@ export async function each<T>(collection : Collection<T>, fn: (arg: T, key: stri
     await fn(v,k)
   }
   return collection
+}
+
+/**
+ * A map function which supports asynchronous Iteratee methods
+ *
+ * @export
+ * @template T
+ * @template TResult
+ * @param {Collection<T>} collection
+ * @param {(it: T) => Promise<TResult>} fn
+ * @returns {Promise<TResult[]>}
+ */
+ export async function map<T, TResult>(collection : Collection<T>, fn: (it: T, k: string) => Awaitable<TResult>) : Promise<Awaited<TResult[]>> {
+  const entries = Object.entries(collection);
+
+  const results = [];
+  for (const [k,v] of entries) {
+    results.push(await fn(v, k));
+  }
+  return results
 }
 
 /**
