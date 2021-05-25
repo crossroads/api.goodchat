@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  goodchat:
+    image: goodregistry.azurecr.io/goodchat/goodchat:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - GOODCHAT_AUTH_URL=https://my-json-server.typicode.com/crossroads/goodchat-mock-auth-server/authenticate
+      - GOODCHAT_AUTH_METHOD=GET
+      - DB_HOST=postgres_goodchat
+      - DB_CREDENTIALS=postgres:postgres
+      - DB_NAME=goodchat_database
+      - ENABLE_MIGRATIONS=true
+      - REDIS_URL=redis://redis_goodchat:6379
+      - NODE_ENV=development
+      - SMOOCH_APP_ID
+      - SMOOCH_API_KEY_ID
+      - SMOOCH_API_KEY_SECRET
+
+  postgres_goodchat:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=goodchat_database
+    volumes:
+      - goodchat_database_data:/var/lib/postgresql/data
+
+  redis_goodchat:
+    image: "redis:alpine"
+
+volumes:
+  goodchat_database_data:
+    driver: local
