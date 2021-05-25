@@ -1,12 +1,13 @@
 import { throwDisabled, throwUnprocessable, unsafe }  from "../utils/errors"
 import { GoodChatAuthMode, AuthPayload }              from "../typings/goodchat"
 import { MiniSchema, minischema }                     from "../utils/assertions"
+import axios, { Method }                              from "axios"
 import { parseBearer }                                from "../utils/http"
 import { Staff }                                      from "@prisma/client"
 import config                                         from "../config"
-import axios                                          from "axios"
 import db                                             from "../db"
 import _                                              from "lodash"
+import { read }                                       from "../utils/env"
 
 const schema : MiniSchema<AuthPayload> = minischema({
   "displayName" :   ["string"],
@@ -39,7 +40,7 @@ const authenticate = unsafe(async (token: string) : Promise<Staff> => {
         - a display name
     */
     const { url } = config.auth;
-    const method  = 'POST';
+    const method  = read('GOODCHAT_AUTH_METHOD', 'POST') as Method
     const headers = { 'Authorization': `Bearer ${token}` };
 
     const res     = await axios({ method, url, headers })
