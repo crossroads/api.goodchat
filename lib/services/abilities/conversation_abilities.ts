@@ -6,10 +6,10 @@ import { CollectionArgs, normalizePages }                    from "./helpers"
 import { allowedConversationTypes, getConversationRules }    from "./rules"
 
 export type ConversationsArgs = CollectionArgs & {
-  type?: ConversationType
   customerId?: number
-  id?: number
   member?: boolean
+  type?: ConversationType
+  id?: number
 }
 
 // ---------------------------
@@ -18,7 +18,9 @@ export type ConversationsArgs = CollectionArgs & {
 
 export function conversationAbilities(staff: Staff) {
 
-  const clean  = <T extends Record<any, any>>(obj: T) => _.pickBy(obj, _.identity);
+  const clean  = <T extends Record<any, any>>(obj: T) => _.pickBy(obj, (it) => (
+    it !== undefined && it !== null
+  ))
 
   // --- CONVERSATIONS
 
