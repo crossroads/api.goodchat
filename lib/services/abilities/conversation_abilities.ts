@@ -9,6 +9,7 @@ export type ConversationsArgs = CollectionArgs & {
   type?: ConversationType
   customerId?: number
   id?: number
+  member?: boolean
 }
 
 // ---------------------------
@@ -26,12 +27,18 @@ export function conversationAbilities(staff: Staff) {
   const getConversations = async (args: ConversationsArgs) => {
     const { offset, limit } = normalizePages(args);
 
+    const memberFilter = args.member ? {
+      // If member is `true`, we only return conversations the current staff is a member of
+      staffConversations: { some: { staffId: staff.id } }
+    } : {};
+
     return db.conversation.findMany({
       skip: offset,
       take: limit,
       where: clean({
         ...getConversationRules(staff),
-        ..._.pick(args, ['type', 'id', 'customerId'])
+        ..._.pick(args, ['type', 'id', 'customerId']),
+        ...(memberFilter)
       }),
       orderBy: [
         { updatedAt: 'desc' },

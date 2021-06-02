@@ -1,4 +1,5 @@
 type Query {
+  goodchatProfile: Staff!
   conversations(limit: Int, offset: Int, type: ConversationType): [Conversation!]!
   conversation(id: Int!): Conversation
   customers(

@@ -133,6 +133,35 @@ describe('Services/Abilities/Conversation', () => {
         expect(chats[0]).to.deep.eq(myPrivateChat)
       })
     })
+
+    describe('Filtering on user\'s active conversations with member:true', () => {
+
+      it('returns only the conversation I am a member of', async () => {
+        const myPrivateChat = await factories.conversationFactory.create(
+          { type: ConversationType.PRIVATE },
+          { transient: { members: [admin] } }
+        )
+
+        const myPublicChat = await factories.conversationFactory.create(
+          { type: ConversationType.PUBLIC },
+          { transient: { members: [admin] } }
+        )
+
+        const myCustomerChat = await factories.conversationFactory.create(
+          { type: ConversationType.PUBLIC },
+          { transient: { members: [admin] } }
+        )
+
+        const chats = await abilities(admin).getConversations({ member: true });
+        const chatIds = _.uniq(_.map(chats, 'id'));
+
+        expect(await db.conversation.count()).to.eq(15)
+        expect(chatIds.length).to.eq(3);
+        expect(chatIds).to.include(myPublicChat.id);
+        expect(chatIds).to.include(myPrivateChat.id);
+        expect(chatIds).to.include(myCustomerChat.id);
+      })
+    })
   })
   describe("#getConversationById", () => {
 

@@ -1,5 +1,5 @@
 import { MessageEvent, pubsub, PubSubAction, PubSubEvent, ReadReceiptEvent }      from "../../services/events"
-import { Conversation, ConversationType, Customer, Message }                      from "@prisma/client"
+import { Conversation, ConversationType, Customer, Message, Staff }               from "@prisma/client"
 import { CollectionArgs, ConversationsArgs, CustomersArgs, MessagesArgs }         from "../../services/abilities"
 import { GraphQLContext, RootParent }                                             from "."
 import { IResolvers, withFilter }                                                 from "apollo-server-koa"
@@ -48,6 +48,10 @@ const resolvers : IResolvers = {
 
     customers(parent: RootParent, args : CustomersArgs, ctx : GraphQLContext) {
       return ctx.abilities.getCustomers(args)
+    },
+
+    goodchatProfile(parent: RootParent, args: BaseArgs, ctx : GraphQLContext) {
+      return ctx.staff;
     }
   },
 
@@ -185,6 +189,13 @@ const resolvers : IResolvers = {
           conversationId: parent.id
         }
       });
+    }
+  },
+
+  Staff: {
+    /* get conversations of a staff member */
+    conversations(parent: Staff, args: CollectionArgs, ctx: GraphQLContext) {
+      return ctx.abilities.getConversations({ ...args, member: true })
     }
   },
 
