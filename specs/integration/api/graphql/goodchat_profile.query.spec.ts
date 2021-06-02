@@ -45,6 +45,7 @@ describe('GraphQL GoodchatProfile Query', () => {
         query getUserProfile {
           goodchatProfile {
             id
+            externalId
             createdAt
             updatedAt
             externalId
@@ -58,6 +59,7 @@ describe('GraphQL GoodchatProfile Query', () => {
     expect(errors).to.be.undefined
     expect(data.goodchatProfile).to.exist
     expect(data.goodchatProfile.id).to.eq(user.id)
+    expect(data.goodchatProfile.externalId).to.eq(user.externalId)
     expect(data.goodchatProfile.createdAt).to.eq(user.createdAt)
     expect(data.goodchatProfile.updatedAt).to.eq(user.updatedAt)
     expect(data.goodchatProfile.displayName).to.eq(user.displayName)
