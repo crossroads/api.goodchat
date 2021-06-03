@@ -195,7 +195,7 @@ const resolvers : IResolvers = {
   Staff: {
     /* get conversations of a staff member */
     conversations(parent: Staff, args: CollectionArgs, ctx: GraphQLContext) {
-      return ctx.abilities.getConversations({ ...args, member: true })
+      return ctx.abilities.getConversations({ ...args, staffId: parent.id })
     }
   },
 

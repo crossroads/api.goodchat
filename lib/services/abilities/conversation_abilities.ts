@@ -7,7 +7,7 @@ import { allowedConversationTypes, getConversationRules }    from "./rules"
 
 export type ConversationsArgs = CollectionArgs & {
   customerId?: number
-  member?: boolean
+  staffId?: number
   type?: ConversationType
   id?: number
 }
@@ -29,9 +29,8 @@ export function conversationAbilities(staff: Staff) {
   const getConversations = async (args: ConversationsArgs) => {
     const { offset, limit } = normalizePages(args);
 
-    const memberFilter = args.member ? {
-      // If member is `true`, we only return conversations the current staff is a member of
-      staffConversations: { some: { staffId: staff.id } }
+    const memberFilter = args.staffId ? {
+      staffConversations: { some: { staffId: args.staffId } }
     } : {};
 
     return db.conversation.findMany({
