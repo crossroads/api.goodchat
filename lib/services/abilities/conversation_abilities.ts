@@ -6,8 +6,9 @@ import { CollectionArgs, normalizePages }                    from "./helpers"
 import { allowedConversationTypes, getConversationRules }    from "./rules"
 
 export type ConversationsArgs = CollectionArgs & {
-  type?: ConversationType
   customerId?: number
+  staffId?: number
+  type?: ConversationType
   id?: number
 }
 
@@ -17,7 +18,9 @@ export type ConversationsArgs = CollectionArgs & {
 
 export function conversationAbilities(staff: Staff) {
 
-  const clean  = <T extends Record<any, any>>(obj: T) => _.pickBy(obj, _.identity);
+  const clean  = <T extends Record<any, any>>(obj: T) => _.pickBy(obj, (it) => (
+    it !== undefined && it !== null
+  ))
 
   // --- CONVERSATIONS
 
@@ -26,12 +29,17 @@ export function conversationAbilities(staff: Staff) {
   const getConversations = async (args: ConversationsArgs) => {
     const { offset, limit } = normalizePages(args);
 
+    const memberFilter = args.staffId ? {
+      staffConversations: { some: { staffId: args.staffId } }
+    } : {};
+
     return db.conversation.findMany({
       skip: offset,
       take: limit,
       where: clean({
         ...getConversationRules(staff),
-        ..._.pick(args, ['type', 'id', 'customerId'])
+        ..._.pick(args, ['type', 'id', 'customerId']),
+        ...(memberFilter)
       }),
       orderBy: [
         { updatedAt: 'desc' },

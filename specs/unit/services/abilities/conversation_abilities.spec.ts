@@ -133,6 +133,34 @@ describe('Services/Abilities/Conversation', () => {
         expect(chats[0]).to.deep.eq(myPrivateChat)
       })
     })
+
+    describe('Filtering on staff\'s active conversations with staffId', () => {
+      it('returns only the conversation of a staff member that I am also allowed to view', async () => {
+        const myPrivateChat = await factories.conversationFactory.create(
+          { type: ConversationType.PRIVATE },
+          { transient: { members: [admin, baseStaff] } }
+        )
+
+        const myPublicChat = await factories.conversationFactory.create(
+          { type: ConversationType.PUBLIC },
+          { transient: { members: [admin, baseStaff] } }
+        )
+
+        const otherPrivateChat = await factories.conversationFactory.create(
+          { type: ConversationType.PRIVATE },
+          { transient: { members: [baseStaff] } }
+        )
+
+        const chats = await abilities(admin).getConversations({ staffId: baseStaff.id });
+        const chatIds = _.uniq(_.map(chats, 'id'));
+
+        expect(await db.conversation.count()).to.eq(15)
+        expect(chatIds.length).to.eq(2);
+        expect(chatIds).to.include(myPublicChat.id);
+        expect(chatIds).to.include(myPrivateChat.id);
+        expect(chatIds).not.to.include(otherPrivateChat.id);
+      })
+    })
   })
   describe("#getConversationById", () => {
 
