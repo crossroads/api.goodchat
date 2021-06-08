@@ -6,7 +6,7 @@ import db, { Unsaved }                                              from "../../
 import { MessageContent }                                           from "../../typings/goodchat"
 import { throwForbidden }                                           from "../../utils/errors"
 import { conversationAbilities }                                    from "./conversation_abilities"
-import { CollectionArgs, cursorFilter, normalizePages }                           from "./helpers"
+import { CollectionArgs, cursorFilter, normalizePages }             from "./helpers"
 import { getConversationRules }                                     from "./rules"
 
 export type MessagesArgs = CollectionArgs & {
