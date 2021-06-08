@@ -6,7 +6,7 @@ import { Conversation, ConversationType, Message, Staff }  from '@prisma/client'
 import { GoodChatPermissions }                             from '../../../../lib/typings/goodchat'
 import { GoodchatError }                                   from '../../../../lib/utils/errors'
 import { MessagesApi }                                     from 'sunshine-conversations-client'
-import { each }                                            from '../../../../lib/utils/async'
+import { map }                                             from '../../../../lib/utils/async'
 import config                                              from '../../../../lib/config'
 import sinon                                               from 'sinon'
 import db                                                  from '../../../../lib/db'
@@ -159,29 +159,23 @@ describe('Services/Abilities/Messages', () => {
 
     describe('Paginating messages with limit and after', () => {
       let orderedMessages : Message[]
+      let chat : Conversation
 
       beforeEach(async () => {
-        await each(_.range(10), async (i) => {
+        chat =  await factories.conversationFactory.create({ type: ConversationType.PUBLIC })
+
+        orderedMessages = await map(_.range(10), (i) => {
           timekeeper.travel(new Date(Date.now() - i * 60000))
 
-          await factories.messageFactory.create({
-            conversationId: publicChat.id
+          return factories.messageFactory.create({
+            conversationId: chat.id
           })
         });
-
-        orderedMessages = await db.message.findMany({
-          where: {
-            conversationId: publicChat.id
-          },
-          orderBy: [
-            { createdAt: 'desc' }
-          ]
-        })
       })
 
       it('returns the first page of the specified limit size', async () => {
         const firstPage = await abilities(admin).getMessages({
-          conversationId: publicChat.id,
+          conversationId: chat.id,
           limit: 4
         })
 
@@ -193,7 +187,7 @@ describe('Services/Abilities/Messages', () => {
 
       it('returns the second page using an after cursor', async () => {
         const secondPage = await abilities(admin).getMessages({
-          conversationId: publicChat.id,
+          conversationId: chat.id,
           limit: 4,
           after: orderedMessages[3].id
         })
