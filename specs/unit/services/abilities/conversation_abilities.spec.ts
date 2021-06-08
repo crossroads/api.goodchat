@@ -1,11 +1,13 @@
-import { abilities }                                       from '../../../../lib/services/abilities'
-import * as factories                                      from '../../../factories'
-import { expect }                                          from 'chai'
-import _                                                   from 'lodash'
-import { Conversation, ConversationType, Staff }           from '@prisma/client'
-import { GoodChatPermissions }                             from '../../../../lib/typings/goodchat'
-import { GoodchatError }                                   from '../../../../lib/utils/errors'
-import db                                                  from '../../../../lib/db'
+import { abilities }                                        from '../../../../lib/services/abilities'
+import * as factories                                       from '../../../factories'
+import { expect }                                           from 'chai'
+import _                                                    from 'lodash'
+import { Conversation, ConversationType, Customer, Staff }  from '@prisma/client'
+import { GoodChatPermissions }                              from '../../../../lib/typings/goodchat'
+import { GoodchatError }                                    from '../../../../lib/utils/errors'
+import db                                                   from '../../../../lib/db'
+import { map }                                              from '../../../../lib/utils/async'
+import timekeeper                                           from 'timekeeper'
 
 const membersOf = async (conversationId: number) : Promise<number[]> => {
   const records = await db.staffConversations.findMany({
@@ -131,6 +133,54 @@ describe('Services/Abilities/Conversation', () => {
         const chats = await abilities(baseStaff).getConversations({ type: ConversationType.PRIVATE });
         expect(chats.length).to.eq(1);
         expect(chats[0]).to.deep.eq(myPrivateChat)
+      })
+    })
+
+    describe('Paginating with limit and after', () => {
+      let orderedConversations : Conversation[]
+      let customer : Customer
+
+      beforeEach(async () => {
+        customer = await factories.customerFactory.create();
+
+        orderedConversations = await map(_.range(10), (i) => {
+          timekeeper.travel(new Date(Date.now() - i * 60000))
+          return factories.conversationFactory.create({
+            type: ConversationType.CUSTOMER,
+            customerId: customer.id
+          })
+        });
+      })
+
+      afterEach(() => {
+        timekeeper.reset();
+      })
+
+      it('returns the first page of the specified limit size', async () => {
+        const secondPage = await abilities(admin).getConversations({
+          type: ConversationType.CUSTOMER,
+          customerId: customer.id,
+          limit: 4
+        })
+
+        expect(secondPage).to.have.lengthOf(4);
+        expect(secondPage).to.deep.eq(
+          orderedConversations.slice(0, 4)
+        )
+      })
+
+      it('returns the second page using an after cursor', async () => {
+        const firstPage = await abilities(admin).getConversations({
+          type: ConversationType.CUSTOMER,
+          customerId: customer.id,
+          limit: 4,
+          after: orderedConversations[3].id
+        })
+
+        expect(firstPage).to.have.lengthOf(4);
+        expect(firstPage).to.deep.eq(
+          orderedConversations.slice(4, 8)
+        )
       })
     })
 

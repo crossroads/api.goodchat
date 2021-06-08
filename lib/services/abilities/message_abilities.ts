@@ -6,7 +6,7 @@ import db, { Unsaved }                                              from "../../
 import { MessageContent }                                           from "../../typings/goodchat"
 import { throwForbidden }                                           from "../../utils/errors"
 import { conversationAbilities }                                    from "./conversation_abilities"
-import { CollectionArgs, normalizePages }                           from "./helpers"
+import { CollectionArgs, cursorFilter, normalizePages }                           from "./helpers"
 import { getConversationRules }                                     from "./rules"
 
 export type MessagesArgs = CollectionArgs & {
@@ -25,24 +25,33 @@ export type MessagesArgs = CollectionArgs & {
 export function messageAbilities(staff: Staff) {
 
   const sunshineMessages = new MessagesApi();
-  const clean  = <T extends Record<any, any>>(obj: T) => _.pickBy(obj, _.identity);
   const conversations = conversationAbilities(staff);
 
   /* Listing messages that I have access to */
 
   const getMessages = async (args: MessagesArgs) => {
-    const { offset, limit } = normalizePages(args);
+    const { after, limit } = normalizePages(args);
+
+    const order = args.order || 'desc';
+
+    const idFilter = args.id ? { id: args.id } : {}
+
+    const conversationFilter = args.conversationId ? {
+      conversationId: args.conversationId
+    } : {}
 
     return db.message.findMany({
-      skip: offset,
       take: limit,
-      where: clean({
-        conversation: getConversationRules(staff), // Prevent the user from reading messages from non-entitled conversations
-        id: args.id,
-        conversationId: args.conversationId
-      }),
+      where: {
+        AND: [
+          { conversation: getConversationRules(staff) },
+          idFilter,
+          conversationFilter,
+          await cursorFilter(after, 'message', 'createdAt', order),
+        ]
+      },
       orderBy: [
-        { createdAt: args.order || 'desc' }
+        { createdAt: order }
       ]
     })
   }
@@ -50,7 +59,7 @@ export function messageAbilities(staff: Staff) {
   /* Getting 1 message by ID, or null if not accessible */
 
   const getMessageById = async (id: number) => {
-    return (await getMessages({ id, offset: 0, limit: 1 }))[0] || null;
+    return (await getMessages({ id, limit: 1 }))[0] || null;
   }
 
   /* Sending message to a conversation (if entitled to) */

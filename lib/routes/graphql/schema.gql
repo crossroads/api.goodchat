@@ -1,10 +1,10 @@
 type Query {
   goodchatProfile: Staff!
-  conversations(limit: Int, offset: Int, type: ConversationType): [Conversation!]!
+  conversations(limit: Int, after: Int, type: ConversationType): [Conversation!]!
   conversation(id: Int!): Conversation
   customers(
     limit: Int,
-    offset: Int,
+    after: Int,
     externalId: [String!],
     id: [Int!]
   ): [Customer!]!
@@ -65,7 +65,7 @@ type Conversation {
   metadata: JSON!
   createdAt: DateTime!
   updatedAt: DateTime!
-  messages(limit: Int, offset: Int): [Message!]!
+  messages(limit: Int, after: Int): [Message!]!
   readReceipts: [ReadReceipt!]!
   staffs: [Staff!]!
 }

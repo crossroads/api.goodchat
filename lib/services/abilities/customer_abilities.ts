@@ -2,7 +2,7 @@ import { Customer, Staff }                   from "@prisma/client"
 import _                                     from "lodash"
 import db                                    from "../../db"
 import { AnyFunc }                           from "../../typings/lang"
-import { CollectionArgs, normalizePages }    from "./helpers"
+import { CollectionArgs, cursorFilter, normalizePages }    from "./helpers"
 import { canViewCustomers }                  from "./rules"
 
 export type CustomersArgs = CollectionArgs & {
@@ -21,24 +21,31 @@ export function customerAbilities(staff: Staff) {
   )
 
   const getCustomers = async (args: CustomersArgs = {}) => {
-    const { offset, limit } = normalizePages(args);
+    const { after, limit } = normalizePages(args);
 
     if (!canViewCustomers(staff)) {
       return [] as Customer[]
     }
 
     return db.customer.findMany({
-      skip: offset,
       take: limit,
       where: {
-        id: option(args.id, (id) => ({ in: _.flatten([id]) })),
-        externalId: option(args.externalId, (eid) => ({ in: _.flatten([eid]) }))
-      }
+        AND: [
+          {
+            id: option(args.id, (id) => ({ in: _.flatten([id]) })),
+            externalId: option(args.externalId, (eid) => ({ in: _.flatten([eid]) }))
+          },
+          await cursorFilter(after, 'customer', 'id', 'asc')
+        ]
+      },
+      orderBy: [
+        { id: 'asc' }
+      ]
     })
   }
 
   const getCustomerById = async (id: number) => {
-    return (await getCustomers({ id, offset: 0, limit: 1 }))[0] || null;
+    return (await getCustomers({ id, limit: 1 }))[0] || null;
   }
 
   return {

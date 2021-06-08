@@ -52,11 +52,11 @@ describe('GraphQL Customers Query', () => {
       )
     })
 
-    it('returns the second page using an offset', async () => {
+    it('returns the second page using the after cursor', async () => {
       const { data, errors } : any = await gqlAgent.query({
         query: gql`
           query getCustomers {
-            customers(limit: 4, offset: 4) {
+            customers(limit: 4, after: ${customers[3].id}) {
               id
               email
             }

@@ -1,9 +1,9 @@
-import { ConversationType, Staff }                           from "@prisma/client"
-import _                                                     from "lodash"
-import db                                                    from "../../db"
-import { throwForbidden }                                    from "../../utils/errors"
-import { CollectionArgs, normalizePages }                    from "./helpers"
 import { allowedConversationTypes, getConversationRules }    from "./rules"
+import { CollectionArgs, normalizePages, cursorFilter }      from "./helpers"
+import { ConversationType, Staff }                           from "@prisma/client"
+import { throwForbidden }                                    from "../../utils/errors"
+import db                                                    from "../../db"
+import _                                                     from "lodash"
 
 export type ConversationsArgs = CollectionArgs & {
   customerId?: number
@@ -18,29 +18,29 @@ export type ConversationsArgs = CollectionArgs & {
 
 export function conversationAbilities(staff: Staff) {
 
-  const clean  = <T extends Record<any, any>>(obj: T) => _.pickBy(obj, (it) => (
-    it !== undefined && it !== null
-  ))
-
   // --- CONVERSATIONS
 
   /* Listing conversations I'm entitled to see */
 
   const getConversations = async (args: ConversationsArgs) => {
-    const { offset, limit } = normalizePages(args);
+    const { after, limit } = normalizePages(args);
 
     const memberFilter = args.staffId ? {
       staffConversations: { some: { staffId: args.staffId } }
     } : {};
 
+    const fieldsFilter = _.pick(args, ['type', 'id', 'customerId']);
+
     return db.conversation.findMany({
-      skip: offset,
       take: limit,
-      where: clean({
-        ...getConversationRules(staff),
-        ..._.pick(args, ['type', 'id', 'customerId']),
-        ...(memberFilter)
-      }),
+      where: {
+        AND: [
+          getConversationRules(staff),
+          await cursorFilter(after, 'conversation', 'updatedAt', 'desc'),
+          memberFilter,
+          fieldsFilter
+        ]
+      },
       orderBy: [
         { updatedAt: 'desc' },
         { id: 'desc' }
@@ -51,7 +51,7 @@ export function conversationAbilities(staff: Staff) {
   /* Fetching a single conversation, if I'm entitled to see it */
 
   const getConversationById = async (id: number) => {
-    return (await getConversations({ id, offset: 0, limit: 1 }))[0] || null;
+    return (await getConversations({ id, limit: 1 }))[0] || null;
   }
 
   /* Adding a staff member to a conversation that I have access to */

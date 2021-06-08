@@ -3,6 +3,7 @@ import { Customer, Staff }       from '@prisma/client'
 import * as factories            from '../../../factories'
 import { abilities }             from '../../../../lib/services/abilities'
 import { expect }                from 'chai'
+import db                        from '../../../../lib/db'
 import _                         from 'lodash'
 
 describe('Services/Abilities/Customer', () => {
@@ -23,7 +24,7 @@ describe('Services/Abilities/Customer', () => {
     )
   });
 
-  describe("#getCustomer", () => {
+  describe("#getCustomers", () => {
     _.each({
       "admin": () => admin,
       "staff with customer permission": () => customerStaff
@@ -59,6 +60,41 @@ describe('Services/Abilities/Customer', () => {
       it('doesnt return any customer', async () => {
         const result = await abilities(baseStaff).getCustomers();
         expect(result.length).to.eq(0);
+      })
+    })
+
+    describe('Paginating customers with limit and after', () => {
+      let orderedCustomers : Customer[]
+
+      beforeEach(async () => {
+        await factories.customerFactory.createList(10);
+
+        orderedCustomers = await db.customer.findMany({
+          orderBy: [
+            { id: 'asc' }
+          ]
+        })
+      })
+
+      it('returns the first page of the specified limit size', async () => {
+        const firstPage = await abilities(admin).getCustomers({ limit: 4 })
+
+        expect(firstPage).to.have.lengthOf(4);
+        expect(firstPage).to.deep.eq(
+          orderedCustomers.slice(0, 4)
+        )
+      })
+
+      it('returns the second page using an after cursor', async () => {
+        const secondPage = await abilities(admin).getCustomers({
+          limit: 4,
+          after: orderedCustomers[3].id
+        })
+
+        expect(secondPage).to.have.lengthOf(4);
+        expect(secondPage).to.deep.eq(
+          orderedCustomers.slice(4, 8)
+        )
       })
     })
   })
