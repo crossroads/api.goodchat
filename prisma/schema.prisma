@@ -77,6 +77,8 @@ model Conversation {
   @@index([customerId])
   @@index([source])
   @@index([type])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model ReadReceipt {
@@ -115,4 +117,6 @@ model Message {
   readReceipts              ReadReceipt[]
 
   @@index([conversationId])
+  @@index([createdAt])
+  @@index([updatedAt])
 }

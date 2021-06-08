@@ -6,9 +6,11 @@ import { Conversation, ConversationType, Message, Staff }  from '@prisma/client'
 import { GoodChatPermissions }                             from '../../../../lib/typings/goodchat'
 import { GoodchatError }                                   from '../../../../lib/utils/errors'
 import { MessagesApi }                                     from 'sunshine-conversations-client'
+import { map }                                             from '../../../../lib/utils/async'
+import config                                              from '../../../../lib/config'
 import sinon                                               from 'sinon'
 import db                                                  from '../../../../lib/db'
-import config                                              from '../../../../lib/config'
+import timekeeper                                          from 'timekeeper'
 
 const membersOf = async (conversationId: number) : Promise<number[]> => {
   const records = await db.staffConversations.findMany({
@@ -44,6 +46,10 @@ describe('Services/Abilities/Messages', () => {
     privateChatMessages = await factories.messageFactory.createList(2, { conversationId: privateChat.id })
     publicChatMessages = await factories.messageFactory.createList(2, { conversationId: publicChat.id })
   });
+
+  afterEach(() => {
+    timekeeper.reset();
+  })
 
   describe("#getMessages", () => {
 
@@ -148,6 +154,48 @@ describe('Services/Abilities/Messages', () => {
         expect(
           _.map(messages, 'id')
         ).to.have.deep.members(_.map(myMessages, 'id'));
+      })
+    })
+
+    describe('Paginating messages with limit and after', () => {
+      let orderedMessages : Message[]
+      let chat : Conversation
+
+      beforeEach(async () => {
+        chat =  await factories.conversationFactory.create({ type: ConversationType.PUBLIC })
+
+        orderedMessages = await map(_.range(10), (i) => {
+          timekeeper.travel(new Date(Date.now() - i * 60000))
+
+          return factories.messageFactory.create({
+            conversationId: chat.id
+          })
+        });
+      })
+
+      it('returns the first page of the specified limit size', async () => {
+        const firstPage = await abilities(admin).getMessages({
+          conversationId: chat.id,
+          limit: 4
+        })
+
+        expect(firstPage).to.have.lengthOf(4);
+        expect(firstPage).to.deep.eq(
+          orderedMessages.slice(0, 4)
+        )
+      })
+
+      it('returns the second page using an after cursor', async () => {
+        const secondPage = await abilities(admin).getMessages({
+          conversationId: chat.id,
+          limit: 4,
+          after: orderedMessages[3].id
+        })
+
+        expect(secondPage).to.have.lengthOf(4);
+        expect(secondPage).to.deep.eq(
+          orderedMessages.slice(4, 8)
+        )
       })
     })
   })

@@ -66,6 +66,133 @@ describe('GraphQL Conversations Query', () => {
     })
   })
 
+  describe('Pagination', () => {
+    let user : Staff
+    let conversations : Conversation[]
+
+    beforeEach(async () => {
+      user = await factories.staffFactory.create({ permissions: [GoodChatPermissions.ADMIN] })
+
+      conversations = await Promise.all(
+        _.range(10).map(i => (
+          factories.conversationFactory.create({
+            type: ConversationType.PUBLIC,
+            updatedAt: new Date(Date.now() - i * 60000)
+          })
+        ))
+      )
+
+      setCurrentUser(user)
+    })
+
+    it('return the first page of conversations', async () => {
+      const { data, errors } : any = await gqlAgent.query({
+        query: gql`
+          query getConversations {
+            conversations(limit: 4) {
+              id
+            }
+          }
+        `
+      })
+
+      expect(errors).to.be.undefined
+      expect(data.conversations).to.be.of.length(4)
+      expect(
+        _.map(data.conversations, 'id')
+      ).to.deep.eq(
+        _.map(conversations.slice(0, 4), 'id')
+      )
+    })
+
+    it('return the second page of conversations using an after cursor', async () => {
+      const { data, errors } : any = await gqlAgent.query({
+        query: gql`
+          query getConversations {
+            conversations(limit: 4, after: ${conversations[3].id}) {
+              id
+            }
+          }
+        `
+      })
+
+      expect(errors).to.be.undefined
+      expect(data.conversations).to.be.of.length(4)
+      expect(
+        _.map(data.conversations, 'id')
+      ).to.deep.eq(
+        _.map(conversations.slice(4, 8), 'id')
+      )
+    })
+
+    describe('Paginating nested messages', () => {
+      let conversation : Conversation
+      let messages : Message[]
+
+      beforeEach(async () => {
+        conversation = conversations[0];
+        messages = await Promise.all(
+          _.range(10).map(i => (
+            factories.messageFactory.create({
+              conversationId: conversation.id,
+              createdAt: new Date(Date.now() - i * 60000)
+            })
+          ))
+        )
+      })
+
+      it('return the first page of messages', async () => {
+        const { data, errors } : any = await gqlAgent.query({
+          query: gql`
+            query getConversations {
+              conversation(id: ${conversation.id}) {
+                id
+                messages(limit: 4) {
+                  id
+                  content
+                }
+              }
+            }
+          `
+        })
+
+        expect(errors).to.be.undefined
+        expect(data.conversation).to.exist
+        expect(data.conversation.messages).to.have.lengthOf(4);
+        expect(
+          _.map(data.conversation.messages, 'id')
+        ).to.deep.eq(
+          _.map(messages.slice(0, 4), 'id')
+        )
+      })
+
+      it('returns the second page of messages using an after cursor', async () => {
+        const { data, errors } : any = await gqlAgent.query({
+          query: gql`
+            query getConversations {
+              conversation(id: ${conversation.id}) {
+                id
+                messages(limit: 4, after: ${messages[3].id}) {
+                  id
+                  content
+                }
+              }
+            }
+          `
+        })
+
+        expect(errors).to.be.undefined
+        expect(data.conversation).to.exist
+        expect(data.conversation.messages).to.have.lengthOf(4);
+        expect(
+          _.map(data.conversation.messages, 'id')
+        ).to.deep.eq(
+          _.map(messages.slice(4, 8), 'id')
+        )
+      })
+    })
+  })
+
   describe('Nested relationships', () => {
     let user                : Staff
     let conversation        : Conversation
