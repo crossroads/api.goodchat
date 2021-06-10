@@ -4,7 +4,7 @@ import { MessagesApi }                                              from "sunshi
 import config                                                       from "../../config"
 import db, { Unsaved }                                              from "../../db"
 import { MessageContent }                                           from "../../typings/goodchat"
-import { Json } from "../../typings/lang"
+import { Json }                                                     from "../../typings/lang"
 import { throwForbidden }                                           from "../../utils/errors"
 import { conversationAbilities }                                    from "./conversation_abilities"
 import { CollectionArgs, cursorFilter, normalizePages }             from "./helpers"
