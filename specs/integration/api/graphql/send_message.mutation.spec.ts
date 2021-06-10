@@ -329,4 +329,74 @@ describe('GraphQL SendMessage mutations', () => {
       });
     })
   });
+
+  describe('Options', () => {
+    beforeEach(async () => {
+      setCurrentUser(admin)
+    })
+
+    it('can set the timestamp of the message as DateTime', async () => {
+      const timestamp = new Date(Date.now() - 60000);
+
+      const { errors, data } : any = await gqlAgent.mutate({
+        variables: { timestamp },
+        mutation: gql`
+          mutation SendMessage($timestamp: DateTime) {
+            sendMessage(
+              conversationId: ${publicConversation.id},
+              text: "Hi Steve",
+              timestamp: $timestamp
+            ) {
+              createdAt
+              updatedAt
+              content
+              conversationId
+            }
+          }
+        `
+      })
+
+      expect(errors).to.be.undefined
+      expect(await db.message.count()).to.equal(1)
+      expect(data).to.deep.equal({
+        sendMessage: {
+          createdAt: timestamp,
+          updatedAt: timestamp,
+          conversationId: publicConversation.id,
+          content: { text: 'Hi Steve', type: 'text' }
+        }
+      })
+    })
+
+    it('can set the metadata of the message', async () => {
+      const metadata = { some: { meta: 'data '} };
+
+      const { errors, data } : any = await gqlAgent.mutate({
+        variables: { metadata },
+        mutation: gql`
+          mutation SendMessage($metadata: JSON) {
+            sendMessage(
+              conversationId: ${publicConversation.id},
+              text: "Hi Steve",
+              metadata: $metadata
+            ) {
+              metadata
+              content
+              conversationId
+            }
+          }
+        `
+      })
+
+      expect(errors).to.be.undefined
+      expect(await db.message.count()).to.equal(1)
+      expect(data).to.deep.equal({
+        sendMessage: {
+          metadata: metadata,
+          conversationId: publicConversation.id,
+          content: { text: 'Hi Steve', type: 'text' }
+        }
+      })
+    })
+  });
 });

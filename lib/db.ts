@@ -1,7 +1,11 @@
 import { PrismaClient } from "@prisma/client"
 import { gracefulExit } from "./utils/process";
 
-export type Unsaved<T> = Omit<T, "id" | "createdAt" | "updatedAt">
+export type Unsaved<T> = Omit<T, "id" | "createdAt" | "updatedAt"> & {
+  // make timestamps optional
+  createdAt?: Date
+  updatedAt?: Date
+}
 
 export type CollectionName = Exclude<keyof PrismaClient,`$${string}`>
 
