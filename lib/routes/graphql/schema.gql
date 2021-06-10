@@ -26,7 +26,12 @@ type Mutation {
   #   - sendLink
   #   - sendXXX
 
-  sendMessage(conversationId: Int!, text: String!) : Message!
+  sendMessage(
+    conversationId: Int!,
+    text: String!,
+    timestamp: DateTime,
+    metadata: JSON
+  ) : Message!
   startTyping(conversationId: Int!) : Conversation!
   stopTyping(conversationId: Int!) : Conversation!
   markAsRead(conversationId: Int!) : ReadReceipt!

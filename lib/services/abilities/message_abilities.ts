@@ -4,6 +4,7 @@ import { MessagesApi }                                              from "sunshi
 import config                                                       from "../../config"
 import db, { Unsaved }                                              from "../../db"
 import { MessageContent }                                           from "../../typings/goodchat"
+import { Json }                                                     from "../../typings/lang"
 import { throwForbidden }                                           from "../../utils/errors"
 import { conversationAbilities }                                    from "./conversation_abilities"
 import { CollectionArgs, cursorFilter, normalizePages }             from "./helpers"
@@ -13,6 +14,11 @@ export type MessagesArgs = CollectionArgs & {
   conversationId?: number
   id?: number
   order?: 'asc' | 'desc'
+}
+
+export type SendMessageOptions = {
+  metadata?: Json,
+  timestamp?: Date | number
 }
 
 /**
@@ -26,6 +32,17 @@ export function messageAbilities(staff: Staff) {
 
   const sunshineMessages = new MessagesApi();
   const conversations = conversationAbilities(staff);
+
+  const assertTimestamp = (timestamp: number | Date) => {
+    const now = Date.now();
+    const time = new Date(timestamp).getTime();
+    const oneHourAgo = now - 60 * 60 * 1000;
+    const inTenMinutes = now + 10 * 60 * 1000;
+
+    if (time < oneHourAgo || time > inTenMinutes) {
+      throwForbidden("errors.invalid_timestamp");
+    }
+  }
 
   /* Listing messages that I have access to */
 
@@ -64,7 +81,7 @@ export function messageAbilities(staff: Staff) {
 
   /* Sending message to a conversation (if entitled to) */
 
-  const sendMessage = async (conversationId: number, content: MessageContent) => {
+  const sendMessage = async (conversationId: number, content: MessageContent, opts? : SendMessageOptions) => {
     const conversation = await conversations.getConversationById(conversationId);
 
     if (conversation === null) throwForbidden();
@@ -75,8 +92,15 @@ export function messageAbilities(staff: Staff) {
       sunshineMessageId: null,
       authorType: AuthorType.STAFF,
       authorId: staff.id,
-      metadata: {}
+      metadata: opts?.metadata || {}
     };
+
+    if (opts?.timestamp) {
+      const date = new Date(opts.timestamp);
+      assertTimestamp(date);
+      unsaveMessage.createdAt = date;
+      unsaveMessage.updatedAt = date;
+    }
 
     await conversations.joinConversation(conversationId)
 
@@ -117,11 +141,11 @@ export function messageAbilities(staff: Staff) {
     });
   }
 
-  const sendTextMessage = (conversationId: number, text: string) => {
+  const sendTextMessage = (conversationId: number, text: string, opts?: SendMessageOptions) => {
     return sendMessage(conversationId, {
       type: 'text',
       text: text
-    })
+    }, opts)
   }
 
   return {

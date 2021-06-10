@@ -5,6 +5,7 @@ import { GraphQLContext, RootParent }                                           
 import { IResolvers, withFilter }                                                 from "apollo-server-koa"
 import db                                                                         from "../../db"
 import _                                                                          from 'lodash'
+import { Json }                                                                   from "../../typings/lang"
 
 // ---------------------------
 // Types
@@ -26,6 +27,8 @@ export interface MessageSubscriptionArgs extends Partial<ConversationSelectArgs>
 export interface SendMessageArgs {
   conversationId: number
   text: string
+  metadata?: Json
+  timestamp?: Date
 }
 
 // ---------------------------
@@ -61,7 +64,10 @@ const resolvers : IResolvers = {
 
   Mutation: {
     sendMessage: async (parent: RootParent, args: SendMessageArgs, ctx : GraphQLContext) => {
-      return ctx.abilities.sendTextMessage(args.conversationId, args.text);
+      return ctx.abilities.sendTextMessage(args.conversationId, args.text, {
+        metadata: args.metadata,
+        timestamp: args.timestamp
+      });
     },
 
     startTyping: async (parent: RootParent, args: { conversationId: number }, ctx : GraphQLContext) => {

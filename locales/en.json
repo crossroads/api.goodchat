@@ -8,6 +8,7 @@
     "not_found": "Resource not found",
     "disabled": "Disabled feature",
     "unprocessable": "Unprocessable Entity",
+    "invalid_timestamp": "Invalid timestamp",
     "pagination": {
       "invalid_cursor": "Invalid cursor"
     },

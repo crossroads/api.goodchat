@@ -1,16 +1,16 @@
-import { abilities }                                       from '../../../../lib/services/abilities'
-import * as factories                                      from '../../../factories'
-import { expect }                                          from 'chai'
-import _                                                   from 'lodash'
 import { Conversation, ConversationType, Message, Staff }  from '@prisma/client'
 import { GoodChatPermissions }                             from '../../../../lib/typings/goodchat'
 import { GoodchatError }                                   from '../../../../lib/utils/errors'
 import { MessagesApi }                                     from 'sunshine-conversations-client'
+import * as factories                                      from '../../../factories'
+import { abilities }                                       from '../../../../lib/services/abilities'
+import timekeeper                                          from 'timekeeper'
 import { map }                                             from '../../../../lib/utils/async'
 import config                                              from '../../../../lib/config'
 import sinon                                               from 'sinon'
 import db                                                  from '../../../../lib/db'
-import timekeeper                                          from 'timekeeper'
+import { expect }                                          from 'chai'
+import _                                                   from 'lodash'
 
 const membersOf = async (conversationId: number) : Promise<number[]> => {
   const records = await db.staffConversations.findMany({
@@ -364,6 +364,101 @@ describe('Services/Abilities/Messages', () => {
         expect(message).not.to.be.null
         expect(message.conversationId).to.deep.eq(customerChat.id);
         expect(await membersOf(customerChat.id)).to.include(admin.id)
+      })
+    })
+
+    describe('Setting message metadata', () => {
+      it('sets the metadata field of the created record', async () => {
+        const message = await abilities(admin).sendMessage(publicChat.id, {
+          type: 'text',
+          text: 'Hi'
+        }, {
+          metadata: { some: 'data' }
+        });
+
+        expect(message).not.to.be.null
+        expect(message.conversationId).to.deep.eq(publicChat.id);
+        expect(message.metadata).to.deep.eq({ some: 'data' });
+      })
+    })
+
+    describe('Setting the user timestamp', () => {
+      const second = (n = 1) => n * 1000;
+      const minute = (n = 1) => n * second(60);
+      const travel = (ms : number) => Date.now() + ms
+
+      it('sets the createdAt field to the specified timestamp', async () => {
+        const timestamp = travel(minute(-3));
+
+        const message = await abilities(admin).sendMessage(publicChat.id, {
+          type: 'text',
+          text: 'Hi'
+        }, {
+          timestamp: timestamp
+        });
+
+        expect(message).not.to.be.null
+        expect(message.conversationId).to.deep.eq(publicChat.id);
+        expect(message.createdAt.getTime()).to.eq(timestamp);
+        expect(message.updatedAt.getTime()).to.eq(timestamp);
+      })
+
+      it('allows setting a timestamp up to an hour ago', async () => {
+        const timestamp = travel(minute(-59));
+
+        const message = await abilities(admin).sendMessage(publicChat.id, {
+          type: 'text',
+          text: 'Hi'
+        }, {
+          timestamp: timestamp
+        });
+
+        expect(message).not.to.be.null
+        expect(message.conversationId).to.deep.eq(publicChat.id);
+        expect(message.createdAt.getTime()).to.eq(timestamp);
+        expect(message.updatedAt.getTime()).to.eq(timestamp);
+      })
+
+      it('allows setting a timestamp up to 10 minutes from now', async () => {
+        const timestamp = travel(minute(9));
+
+        const message = await abilities(admin).sendMessage(publicChat.id, {
+          type: 'text',
+          text: 'Hi'
+        }, {
+          timestamp: timestamp
+        });
+
+        expect(message).not.to.be.null
+        expect(message.conversationId).to.deep.eq(publicChat.id);
+        expect(message.createdAt.getTime()).to.eq(timestamp);
+        expect(message.updatedAt.getTime()).to.eq(timestamp);
+      })
+
+      it('fails to set a timestamp older than an hour ago', async () => {
+        const timestamp = travel(minute(-61));
+
+        await expect(
+          abilities(admin).sendMessage(publicChat.id, {
+            type: 'text',
+            text: 'Hi'
+          }, {
+            timestamp: timestamp
+          })
+        ).to.be.rejectedWith(GoodchatError, 'errors.invalid_timestamp')
+      })
+
+      it('fails to set a timestamp beyong 10 minutes from now', async () => {
+        const timestamp = travel(minute(11))
+
+        await expect(
+          abilities(admin).sendMessage(publicChat.id, {
+            type: 'text',
+            text: 'Hi'
+          }, {
+            timestamp: timestamp
+          })
+        ).to.be.rejectedWith(GoodchatError, 'errors.invalid_timestamp')
       })
     })
 
