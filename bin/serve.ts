@@ -62,7 +62,7 @@ async function resolveDevHost() : Promise<string> {
     info(`goodchat port: ${port}`);
 
     if (dev) {
-      setupWebhooks(config)
+      await setupWebhooks(config)
       gracefulExit(() => clearIntegration(config))
     }
 

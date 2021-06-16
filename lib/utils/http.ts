@@ -54,7 +54,7 @@ export function prefixProtocol(endpoint : string, protocol = 'https') : string {
  * @param {Koa.Context|Headers} ctx
  */
 export function readBearer(ctx: Koa.Context) : string | null {
-  return parseBearer(ctx.request.headers.authorization);
+  return parseBearer(ctx.request.headers.authorization || "");
 }
 
 export function parseBearer(header: string) : string | null {

@@ -34,7 +34,7 @@ export const sunshineProfileFactory = Factory.define<SunshineUserProfile>(() => 
  */
 export const sunshineUserFactory = Factory.define<SunshineUser>(() => {
   return {
-    id: faker.random.uuid(),
+    id: faker.datatype.uuid(),
     externalId: null,
     signedUpAt: faker.date.past().toISOString(),
     profile: sunshineProfileFactory.build(),

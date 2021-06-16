@@ -33,7 +33,7 @@ export const sunshineMessageFactory = Factory.define<SunshineMessage, SunshineMe
   });
 
   return  {
-    id: faker.random.uuid(),
+    id: faker.datatype.uuid(),
     received: faker.date.recent().toISOString(),
     author: {
       avatarUrl: user.profile.avatarUrl,
@@ -44,8 +44,8 @@ export const sunshineMessageFactory = Factory.define<SunshineMessage, SunshineMe
     },
     content: factories.sunshineContentFactory.build({}, { transient: { contentType } }),
     source: {
-      integrationId: faker.random.uuid(),
-      originalMessageId: faker.random.uuid(),
+      integrationId: faker.datatype.uuid(),
+      originalMessageId: faker.datatype.uuid(),
       originalMessageTimestamp: faker.date.recent().toISOString(),
       type: "whatsapp"
     }

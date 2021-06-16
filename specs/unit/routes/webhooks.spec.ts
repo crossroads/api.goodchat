@@ -156,6 +156,13 @@ describe('Routes/webhooks', () => {
           .post('/webhooks/trigger')
           .set('Accept', 'application/json')
           .send({
+            app: {
+              id: "app"
+            },
+            webhook: {
+              id:       "123",
+              version:  "1"
+            },
             events: [{}]
           })
           .expect(200);
@@ -175,6 +182,13 @@ describe('Routes/webhooks', () => {
           .post('/webhooks/trigger')
           .set('Accept', 'application/json')
           .send({
+            app: {
+              id: "app"
+            },
+            webhook: {
+              id:       "123",
+              version:  "1"
+            },
             events: [ev1, ev2, ev3]
           })
           .expect(200);
@@ -192,7 +206,16 @@ describe('Routes/webhooks', () => {
         await agent
           .post('/webhooks/trigger')
           .set('Accept', 'application/json')
-          .send({ events: [{}] })
+          .send({
+            app: {
+              id: "app"
+            },
+            webhook: {
+              id:       "123",
+              version:  "1"
+            },
+            events: [{}]
+          })
           .expect({
             error: 'bad',
             status: 422,

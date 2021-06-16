@@ -83,6 +83,8 @@ Table Message {
   content Json [not null]
   metadata Json [not null]
   readReceipts ReadReceipt [not null]
+  customerDeliveryStatus DeliveryStatus [not null, default: 'UNSENT']
+  customerDeliveryError String
 }
 
 Enum ConversationType {
@@ -95,6 +97,13 @@ Enum AuthorType {
   STAFF
   CUSTOMER
   SYSTEM
+}
+
+Enum DeliveryStatus {
+  UNSENT
+  SENT
+  DELIVERED
+  FAILED
 }
 
 Ref: StaffConversations.staffId > Staff.id

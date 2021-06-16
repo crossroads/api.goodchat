@@ -9,12 +9,19 @@ import authenticate                               from '../../middlewares/authen
 import { KoaHelpers }                             from '../../utils/http'
 import compose                                    from 'koa-compose'
 import config                                     from '../../config'
+import { minischema, MiniSchema }                 from '../../utils/assertions'
 
 const { info } = logger('webhooks');
 
 interface WebhooksParams {
   callback: (event: WebhookEventBase) => unknown
 }
+
+const webhookPayloadSchema : MiniSchema<WebhookPayload> = minischema({
+  "app": ["object"],
+  "webhook": ["object"],
+  "events": ["array"]
+})
 
 /**
  * Creates all the necessary webhooks required by Smooch
@@ -47,7 +54,9 @@ export default function(params: WebhooksParams) {
   });
 
   router.post('/trigger', async (ctx) => {
-    const payload = ctx.request.body as WebhookPayload
+    const payload = ctx.request.body;
+
+    webhookPayloadSchema.validate(payload)
 
     await each(payload.events, callback);
 
