@@ -5,14 +5,16 @@ import { each }                                            from "../utils/async"
 
 const CONCURRENCY = 30;
 
-type GoodChatJob = {
+export type GoodChatJob<In, Out, Types extends string> = {
   name: string,
   scheduler: QueueScheduler,
-  queue: Queue,
+  queue: Queue<In, Out, Types>,
   worker: Worker
 }
 
-const allJobs : Record<string, GoodChatJob> = {};
+export type AnyGoodChatJob = GoodChatJob<any, any, any>
+
+const allJobs : Record<string, AnyGoodChatJob> = {};
 
 /**
  * Creates a Queue alongisde its worker and scheduler
@@ -38,7 +40,7 @@ export function createJob<In, Out, Types extends string>(name: string, processor
     concurrency: CONCURRENCY
   })
 
-  const res : GoodChatJob = { name, scheduler, queue, worker };
+  const res : GoodChatJob<In, Out, Types> = { name, scheduler, queue, worker };
 
   allJobs[name] = res;
 
@@ -61,7 +63,7 @@ export function getAllJobs() {
  * @export
  * @param {AnyFunc} [customeRoutine=_.noop]
  */
-export async function shutdown(customeRoutine : (job: GoodChatJob) => any = _.noop) {
+export async function shutdown(customeRoutine : (job: AnyGoodChatJob) => any = _.noop) {
   const jobs = _.values(allJobs);
 
   await each(jobs, async job => {

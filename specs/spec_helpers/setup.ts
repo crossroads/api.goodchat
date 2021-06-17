@@ -33,6 +33,15 @@ async function resetDatabase() {
   await each(TABLES_NAMES, (name : string) => db.$executeRaw(`TRUNCATE "${capitalize(name)}" CASCADE`))
 }
 
+async function cleanJob(job: jobs.AnyGoodChatJob) {
+  await job.queue.clean(0, Infinity, "completed")
+  await job.queue.clean(0, Infinity, "wait")
+  await job.queue.clean(0, Infinity, "active")
+  await job.queue.clean(0, Infinity, "paused")
+  await job.queue.clean(0, Infinity, "delayed")
+  await job.queue.clean(0, Infinity, "failed")
+}
+
 before(async () => {
   console.info('Connecting to the database')
 
@@ -50,7 +59,7 @@ before(async () => {
 beforeEach(async () => {
   await resetDatabase();
   await Promise.all(
-    jobs.getAllJobs().map(job => job.queue.obliterate())
+    jobs.getAllJobs().map(cleanJob)
   )
 })
 
@@ -61,6 +70,6 @@ afterEach(() => {
 after(async () => {
   await db.$disconnect();
   await pubsub.disconnect();
-  await jobs.shutdown(job => job.queue.obliterate());
+  await jobs.shutdown(cleanJob);
   await redisConnections.closeAllConnections();
 })

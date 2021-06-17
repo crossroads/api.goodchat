@@ -8,6 +8,7 @@ import {
   ConversationCreatedEvent,
   ConversationMessageEvent,
   ConversationActivityEvent,
+  MessageDeliveryEvent,
   WebhookEvent
 } from '../../../lib/typings/webhook_types'
 
@@ -26,7 +27,7 @@ export const sunshineNewConversationEventFactory = Factory.define<ConversationCr
   const conversation = opts.transientParams.conversation || factories.sunshineConversationShortFactory.build();
 
   return {
-    id: faker.random.uuid(),
+    id: faker.datatype.uuid(),
     createdAt: faker.date.recent().toISOString(),
     type: WebhookEventType.CONVERSATION_CREATE,
     payload: {
@@ -55,7 +56,7 @@ export const sunshineNewMessageEventFactory = Factory.define<ConversationMessage
   const conversation = opts.transientParams.conversation || factories.sunshineConversationShortFactory.build();
 
   return {
-    id: faker.random.uuid(),
+    id: faker.datatype.uuid(),
     createdAt: faker.date.recent().toISOString(),
     type: WebhookEventType.CONVERSATION_MESSAGE,
     payload: {
@@ -85,7 +86,7 @@ export const sunshineConversationReadEventFactory = Factory.define<ConversationA
   const conversation = opts.transientParams.conversation || factories.sunshineConversationShortFactory.build();
 
   return {
-    id: faker.random.uuid(),
+    id: faker.datatype.uuid(),
     createdAt: faker.date.recent().toISOString(),
     type: WebhookEventType.CONVERSATION_READ,
     payload: {
@@ -101,6 +102,44 @@ export const sunshineConversationReadEventFactory = Factory.define<ConversationA
           user: user
         }
       }
+    }
+  }
+});
+
+// -------------- Delivery Success Event -------------- //
+
+/**
+ * Creates a fake WebhookEvent record for the types:
+ *  - "conversation:message:delivery:channel"
+ *  - "conversation:message:delivery:failure"
+ *
+ * @type {Factory<ConversationActivityEvent>}
+ * @exports
+ */
+export const sunshineMessageDeliveryEventFactory = Factory.define<MessageDeliveryEvent, BaseWebhookEventFactoryParams>((opts) => {
+  const user = opts.transientParams.user || factories.sunshineUserFactory.build();
+  const conversation = opts.transientParams.conversation || factories.sunshineConversationShortFactory.build();
+
+  opts.afterBuild((data) => {
+    if (data.type === WebhookEventType.DELIVERY_FAILURE) {
+      data.payload.error = {
+        code: "bad_request",
+        underlyingError: {
+          message: "This message is being sent outside the allowed window",
+          type: "OAuthException",
+          code: 10
+        }
+      }
+    }
+  })
+
+  return {
+    id: faker.datatype.uuid(),
+    createdAt: faker.date.recent().toISOString(),
+    type: WebhookEventType.DELIVERY_CHANNEL,
+    payload: {
+      conversation: conversation,
+      message: factories.sunshineMessageFactory.build({}, { transient: { user } })
     }
   }
 });
@@ -127,6 +166,7 @@ export const sunshineWebhookEventFactory = Factory.define<WebhookEvent, DynamicW
     [WebhookEventType.CONVERSATION_CREATE]: sunshineNewConversationEventFactory,
     [WebhookEventType.CONVERSATION_MESSAGE]: sunshineNewMessageEventFactory,
     [WebhookEventType.CONVERSATION_READ]: sunshineConversationReadEventFactory,
+    [WebhookEventType.DELIVERY_CHANNEL]: sunshineMessageDeliveryEventFactory,
   })[type as string]
 
   if (!factory) throw `Type ${type} not supported by Factory, add above this line.`

@@ -1,8 +1,8 @@
-import { Factory }                    from 'fishery'
-import _                              from 'lodash'
-import db                             from '../../../lib/db'
-import { AuthorType, Message }        from '@prisma/client'
-import { conversationFactory }        from './conversation'
+import { Factory }                                from 'fishery'
+import _                                          from 'lodash'
+import db                                         from '../../../lib/db'
+import { AuthorType, DeliveryStatus, Message }    from '@prisma/client'
+import { conversationFactory }                    from './conversation'
 
 /**
  * Creates a fake Message record
@@ -31,6 +31,8 @@ export const messageFactory = Factory.define<Message>(({ sequence, onCreate }) =
     authorType: AuthorType.SYSTEM,
     authorId: 0,
     content: {"text":"hello", "type":"text" },
-    metadata: {}
+    metadata: {},
+    customerDeliveryError: null,
+    customerDeliveryStatus: DeliveryStatus.UNSENT
   }
 });

@@ -49,6 +49,13 @@ enum SubscriptionAction {
   DELETE
 }
 
+enum DeliveryStatus {
+  UNSENT
+  SENT
+  DELIVERED
+  FAILED
+}
+
 type ReadReceipt {
   id: Int!
   userId: Int!
@@ -85,6 +92,8 @@ type Message {
   authorId: Int!
   content: JSON!
   metadata: JSON!
+  customerDeliveryStatus: DeliveryStatus!
+  customerDeliveryError: String
 }
 
 type MessageEvent {

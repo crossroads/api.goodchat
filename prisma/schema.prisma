@@ -103,6 +103,13 @@ enum AuthorType {
   SYSTEM
 }
 
+enum DeliveryStatus {
+  UNSENT
+  SENT
+  DELIVERED
+  FAILED
+}
+
 model Message {
   id                        Int         @default(autoincrement()) @id
   createdAt                 DateTime    @default(now())
@@ -115,6 +122,8 @@ model Message {
   content                   Json
   metadata                  Json
   readReceipts              ReadReceipt[]
+  customerDeliveryStatus    DeliveryStatus @default(UNSENT)
+  customerDeliveryError     String?
 
   @@index([conversationId])
   @@index([createdAt])

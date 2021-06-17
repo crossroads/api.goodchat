@@ -21,7 +21,7 @@ export const customerFactory = Factory.define<Customer>(({ sequence, onCreate })
     createdAt: now,
     updatedAt: now,
     externalId: null,
-    sunshineUserId: faker.random.uuid(),
+    sunshineUserId: faker.datatype.uuid(),
     displayName: faker.name.firstName(),
     email: faker.internet.email(),
     avatarUrl: faker.internet.avatar(),

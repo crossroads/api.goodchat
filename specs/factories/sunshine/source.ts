@@ -14,14 +14,14 @@ import {
 export const sunshineSourceFactory = Factory.define<SunshineSource>(() => {
   return  {
     type: "whatsapp",
-    integrationId: faker.random.uuid(),
-    originalMessageId: faker.random.uuid(),
+    integrationId: faker.datatype.uuid(),
+    originalMessageId: faker.datatype.uuid(),
     originalMessageTimestamp: faker.date.recent().toISOString(),
     client: {
       type: "whatsapp",
       status: "active",
-      integrationId: faker.random.uuid(),
-      externalId: faker.random.uuid(),
+      integrationId: faker.datatype.uuid(),
+      externalId: faker.datatype.uuid(),
       lastSeen:faker.date.recent().toISOString(),
       linkedAt: faker.date.recent().toISOString(),
       displayName: faker.internet.userName(),
@@ -30,12 +30,12 @@ export const sunshineSourceFactory = Factory.define<SunshineSource>(() => {
     },
     device: {
       type: "android",
-      guid: faker.random.uuid(),
-      clientId: faker.random.uuid(),
+      guid: faker.datatype.uuid(),
+      clientId: faker.datatype.uuid(),
       status: "active",
-      integrationId:faker.random.uuid(),
+      integrationId:faker.datatype.uuid(),
       lastSeen: faker.date.recent().toISOString(),
-      pushNotificationToken:faker.random.uuid()
+      pushNotificationToken:faker.datatype.uuid()
     }
   }
 });

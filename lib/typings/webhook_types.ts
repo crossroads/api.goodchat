@@ -56,8 +56,24 @@ export interface ConversationActivityEvent extends WebhookEventBase {
   }
 }
 
+export interface MessageDeliveryEvent extends WebhookEventBase {
+  type:  WebhookEventType.DELIVERY_CHANNEL | WebhookEventType.DELIVERY_FAILURE
+  payload: {
+    conversation: SunshineConversationShort,
+    message: SunshineMessage,
+    error?: {
+      code: string
+      underlyingError: {
+        message: string
+        type: string
+        code: number
+      }
+    }
+  }
+}
+
 export interface ConversationRemoveEvent extends WebhookEventBase {
-  payload: { conversation:   SunshineConversationShort }
+  payload: { conversation: SunshineConversationShort }
 }
 
 export type WebhookEvent = (

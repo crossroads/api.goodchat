@@ -1,4 +1,3 @@
-import { AuthorType, ConversationType, Message, Staff }             from "@prisma/client"
 import _                                                            from "lodash"
 import { MessagesApi }                                              from "sunshine-conversations-client"
 import config                                                       from "../../config"
@@ -9,6 +8,14 @@ import { throwForbidden }                                           from "../../
 import { conversationAbilities }                                    from "./conversation_abilities"
 import { CollectionArgs, cursorFilter, normalizePages }             from "./helpers"
 import { getConversationRules }                                     from "./rules"
+import messageJobs                                                  from "../../jobs/message.job"
+import {
+  AuthorType,
+  ConversationType,
+  DeliveryStatus,
+  Message,
+  Staff
+} from "@prisma/client"
 
 export type MessagesArgs = CollectionArgs & {
   conversationId?: number
@@ -92,7 +99,9 @@ export function messageAbilities(staff: Staff) {
       sunshineMessageId: null,
       authorType: AuthorType.STAFF,
       authorId: staff.id,
-      metadata: opts?.metadata || {}
+      metadata: opts?.metadata || {},
+      customerDeliveryStatus: DeliveryStatus.UNSENT,
+      customerDeliveryError: null
     };
 
     if (opts?.timestamp) {
@@ -104,41 +113,20 @@ export function messageAbilities(staff: Staff) {
 
     await conversations.joinConversation(conversationId)
 
-    if (conversation.type !== ConversationType.CUSTOMER || !config) {
-      return db.message.create({ data: unsaveMessage }); // No Sunshine
-    }
-
-    let sunshineMessageId = null
-
-    if (conversation.sunshineConversationId) {
-      const { messages } = await sunshineMessages.postMessage(
-        config.smoochAppId,
-        conversation.sunshineConversationId,
-        {
-          "author": {
-            "type": "business",
-            "displayName": config.appName
-          },
-          "content": content
-        }
-      );
-
-      sunshineMessageId = messages[0].id;
-    }
-
     //
     // Note:
     // We do an upsert to handle the scenario where a webhook is fired fast enough to
     // generate a race condition
     //
-    return await db.message.upsert({
-      where: { sunshineMessageId },
-      update: {},
-      create: {
-        ...unsaveMessage,
-        sunshineMessageId
-      }
+    const message = await db.message.create({
+      data: unsaveMessage
     });
+
+    if (conversation.type === ConversationType.CUSTOMER) {
+      messageJobs.queue.add("deliver", message);
+    }
+
+    return message;
   }
 
   const sendTextMessage = (conversationId: number, text: string, opts?: SendMessageOptions) => {

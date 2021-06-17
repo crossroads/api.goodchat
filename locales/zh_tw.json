@@ -9,6 +9,7 @@
     "disabled": "Disabled feature",
     "unprocessable": "Unprocessable Entity",
     "invalid_timestamp": "Invalid timestamp",
+    "delivery_failure": "Failed to deliver to customer",
     "pagination": {
       "invalid_cursor": "Invalid cursor"
     },

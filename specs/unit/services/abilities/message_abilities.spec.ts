@@ -1,6 +1,7 @@
 import { Conversation, ConversationType, Message, Staff }  from '@prisma/client'
 import { GoodChatPermissions }                             from '../../../../lib/typings/goodchat'
 import { GoodchatError }                                   from '../../../../lib/utils/errors'
+import messageJob                                          from '../../../../lib/jobs/message.job'
 import { MessagesApi }                                     from 'sunshine-conversations-client'
 import * as factories                                      from '../../../factories'
 import { abilities }                                       from '../../../../lib/services/abilities'
@@ -309,18 +310,39 @@ describe('Services/Abilities/Messages', () => {
       let whatsappConversation : Conversation
       let localConversation : Conversation
 
+      const waitForQueue = async () => {
+        const completionCb = sinon.stub();
+        const failureCb = sinon.stub();
+
+        await new Promise(done => {
+          messageJob.worker.on('completed', () => { completionCb(); done(true) })
+          messageJob.worker.on('failed', () => { failureCb(); done(false) })
+        })
+
+        expect(completionCb.callCount).to.eq(1)
+        expect(failureCb.callCount).to.eq(0)
+      }
+
       beforeEach(async () => {
         whatsappConversation  = await factories.conversationFactory.create({type: ConversationType.CUSTOMER })
         localConversation  = await factories.conversationFactory.create({type: ConversationType.PUBLIC })
       })
 
       context('for a customer conversation', () => {
-        it('pushes the message to sunshine conversation', async () => {
+        it('queues up the message for customer delivery', async () => {
           expect(postMessageStub.callCount).to.eq(0);
+
+          const queueFinished = waitForQueue();
+
           const message = await abilities(admin).sendMessage(whatsappConversation.id, {
             type: 'text',
             text: 'Hi'
           });
+
+          await queueFinished;
+
+          expect(await messageJob.queue.getCompletedCount()).to.eq(1)
+
           expect(postMessageStub.callCount).to.eq(1);
           expect(postMessageStub.getCall(0).args).to.deep.eq([
             config.smoochAppId,
@@ -336,17 +358,25 @@ describe('Services/Abilities/Messages', () => {
               }
             }
           ]);
-          expect(message.sunshineMessageId).to.eq('aSunshineId');
+
+          const updatedMessage = await db.message.findUnique({
+            where: { id: message.id }
+          })
+          expect(updatedMessage.sunshineMessageId).to.eq('aSunshineId');
         })
       })
 
       context('for a local conversation', () => {
         it('does not push the message to sunshine conversation', async () => {
           expect(postMessageStub.callCount).to.eq(0);
+
           await abilities(admin).sendMessage(localConversation.id, {
             type: 'text',
             text: 'Hi'
           });
+
+          expect(await messageJob.queue.count()).to.eq(0)
+
           expect(postMessageStub.callCount).to.eq(0);
         })
       })
@@ -361,7 +391,7 @@ describe('Services/Abilities/Messages', () => {
           text: 'Hi'
         });
 
-        expect(message).not.to.be.null
+        expect(message).to.exist
         expect(message.conversationId).to.deep.eq(customerChat.id);
         expect(await membersOf(customerChat.id)).to.include(admin.id)
       })
@@ -376,7 +406,7 @@ describe('Services/Abilities/Messages', () => {
           metadata: { some: 'data' }
         });
 
-        expect(message).not.to.be.null
+        expect(message).to.exist
         expect(message.conversationId).to.deep.eq(publicChat.id);
         expect(message.metadata).to.deep.eq({ some: 'data' });
       })
@@ -397,7 +427,7 @@ describe('Services/Abilities/Messages', () => {
           timestamp: timestamp
         });
 
-        expect(message).not.to.be.null
+        expect(message).to.exist
         expect(message.conversationId).to.deep.eq(publicChat.id);
         expect(message.createdAt.getTime()).to.eq(timestamp);
         expect(message.updatedAt.getTime()).to.eq(timestamp);
@@ -413,7 +443,7 @@ describe('Services/Abilities/Messages', () => {
           timestamp: timestamp
         });
 
-        expect(message).not.to.be.null
+        expect(message).to.exist
         expect(message.conversationId).to.deep.eq(publicChat.id);
         expect(message.createdAt.getTime()).to.eq(timestamp);
         expect(message.updatedAt.getTime()).to.eq(timestamp);
@@ -429,7 +459,7 @@ describe('Services/Abilities/Messages', () => {
           timestamp: timestamp
         });
 
-        expect(message).not.to.be.null
+        expect(message).to.exist
         expect(message.conversationId).to.deep.eq(publicChat.id);
         expect(message.createdAt.getTime()).to.eq(timestamp);
         expect(message.updatedAt.getTime()).to.eq(timestamp);
@@ -469,7 +499,7 @@ describe('Services/Abilities/Messages', () => {
           text: 'Hi'
         });
 
-        expect(message).not.to.be.null
+        expect(message).to.exist
         expect(message.conversationId).to.deep.eq(customerChat.id);
       })
 
@@ -479,7 +509,7 @@ describe('Services/Abilities/Messages', () => {
           text: 'Hi'
         });
 
-        expect(message).not.to.be.null
+        expect(message).to.exist
         expect(message.conversationId).to.deep.eq(publicChat.id);
       })
 
@@ -503,7 +533,7 @@ describe('Services/Abilities/Messages', () => {
           text: 'Hi'
         });
 
-        expect(message).not.to.be.null
+        expect(message).to.exist
         expect(message.conversationId).to.deep.eq(myPrivateChat.id);
       })
     })
@@ -515,7 +545,7 @@ describe('Services/Abilities/Messages', () => {
           text: 'Hi'
         });
 
-        expect(message).not.to.be.null
+        expect(message).to.exist
         expect(message.conversationId).to.deep.eq(customerChat.id);
       })
 
@@ -525,7 +555,7 @@ describe('Services/Abilities/Messages', () => {
           text: 'Hi'
         });
 
-        expect(message).not.to.be.null
+        expect(message).to.exist
         expect(message.conversationId).to.deep.eq(publicChat.id);
       })
 
@@ -549,7 +579,7 @@ describe('Services/Abilities/Messages', () => {
           text: 'Hi'
         });
 
-        expect(message).not.to.be.null
+        expect(message).to.exist
         expect(message.conversationId).to.deep.eq(myPrivateChat.id);
       })
     })
@@ -570,7 +600,7 @@ describe('Services/Abilities/Messages', () => {
           text: 'Hi'
         });
 
-        expect(message).not.to.be.null
+        expect(message).to.exist
         expect(message.conversationId).to.deep.eq(publicChat.id);
       })
 
@@ -594,7 +624,7 @@ describe('Services/Abilities/Messages', () => {
           text: 'Hi'
         });
 
-        expect(message).not.to.be.null
+        expect(message).to.exist
         expect(message.conversationId).to.deep.eq(myPrivateChat.id);
       })
     })
