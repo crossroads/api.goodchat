@@ -23,7 +23,7 @@ describe('Routes/webhooks', () => {
   // ---- Vars
 
   let listIntegrations  : SinonStub
-  let createIntegration : SinonStub
+  let createIntegrationWithHttpInfo : SinonStub
   let deleteIntegration : SinonStub
 
   let MOCK_INTEGRATIONS = [{
@@ -44,7 +44,7 @@ describe('Routes/webhooks', () => {
 
   beforeEach(() => {
     listIntegrations      = sinon.stub(IntegrationsApi.prototype, 'listIntegrations')
-    createIntegration     = sinon.stub(IntegrationsApi.prototype, 'createIntegration')
+    createIntegrationWithHttpInfo     = sinon.stub(IntegrationsApi.prototype, 'createIntegrationWithHttpInfo')
     deleteIntegration     = sinon.stub(IntegrationsApi.prototype, 'deleteIntegration')
   })
 
@@ -60,7 +60,9 @@ describe('Routes/webhooks', () => {
         beforeEach(async () => {
           agent = (await newServer())[1];
           listIntegrations.returns({ integrations: MOCK_INTEGRATIONS })
-          createIntegration.returns({})
+          createIntegrationWithHttpInfo.returns({ 
+            response: { body: {} }
+          })
           deleteIntegration.returns({})
 
           await agent.post('/webhooks/connect').expect(200);
@@ -71,21 +73,21 @@ describe('Routes/webhooks', () => {
         })
 
         it('creates a custom integration', async () => {
-          expect(createIntegration).to.be.calledWith(
+          expect(createIntegrationWithHttpInfo).to.be.calledWith(
             sinon.match.any,
             sinon.match({ type: 'custom' })
           )
         })
 
         it('creates an integration name based on the environment', () => {
-          expect(createIntegration).to.be.calledWith(
+          expect(createIntegrationWithHttpInfo).to.be.calledWith(
             sinon.match.any,
             sinon.match({ displayName: CUSTOM_INTEGRATION_NAME })
           )
         })
 
         it('creates a webhook pointing to /trigger', () => {
-          expect(createIntegration).to.be.calledWith(
+          expect(createIntegrationWithHttpInfo).to.be.calledWith(
             sinon.match.any,
             sinon.match({
               "webhooks": [
@@ -98,7 +100,7 @@ describe('Routes/webhooks', () => {
         })
 
         it('creates a webhook trigger with includeFullUser set to true', () => {
-          expect(createIntegration).to.be.calledWith(
+          expect(createIntegrationWithHttpInfo).to.be.calledWith(
             sinon.match.any,
             sinon.match({
               "webhooks": [
@@ -124,7 +126,7 @@ describe('Routes/webhooks', () => {
           "conversation:typing"
         ], trigger => {
           it(`connects the webhook to the ${trigger} trigger`, () => {
-            expect(createIntegration).to.be.calledWith(
+            expect(createIntegrationWithHttpInfo).to.be.calledWith(
               sinon.match.any,
               sinon.match({
                 "webhooks": [
@@ -143,12 +145,39 @@ describe('Routes/webhooks', () => {
           "id": id,
           "status": "active",
           "type": "custom",
-          "displayName": CUSTOM_INTEGRATION_NAME
+          "displayName": CUSTOM_INTEGRATION_NAME,
+          "webhooks": [{
+            id: "abcd1234",
+            version: "v2",
+            target: "https://localhost:8000/webhooks/trigger",
+            triggers: [
+              "conversation:create",
+              "conversation:join",
+              "conversation:leave",
+              "conversation:remove",
+              "conversation:message",
+              "conversation:postback",
+              "conversation:read",
+              "conversation:typing",
+              "conversation:message:delivery:channel",
+              "conversation:message:delivery:failure",
+              "conversation:message:delivery:user",
+            ],
+            includeFullSource: true,
+            includeFullUser: true,
+            secret: "xdfxafkldsajfl2safdla",
+          }]
         }];
 
         beforeEach(() => {
           listIntegrations.returns({ integrations: MOCK_INTEGRATIONS("1") })
-          createIntegration.returns({ integrations: MOCK_INTEGRATIONS("2") })
+          createIntegrationWithHttpInfo.returns({ 
+            response: {
+              body: {
+                integrations: MOCK_INTEGRATIONS("2")
+              }
+            }
+           })
           deleteIntegration
             .withArgs('sample_app_id', "1")
             .returns({})
@@ -163,7 +192,7 @@ describe('Routes/webhooks', () => {
 
           expect(deleteIntegration.callCount).to.equal(1)
           expect(listIntegrations.callCount).to.equal(1)
-          expect(createIntegration.callCount).to.equal(1)
+          expect(createIntegrationWithHttpInfo.callCount).to.equal(1)
         });
       });
     })

@@ -78,7 +78,7 @@ export async function setupWebhooks(config: GoodChatConfig) : Promise<Integratio
 
   info(`creating custom integration "${INTEGRATION_NAME}"`);
 
-  const { integration } = await api.createIntegration(config.smoochAppId, {
+  const { response } = await api.createIntegrationWithHttpInfo(config.smoochAppId, {
     "type": "custom",
     "status": "active",
     "displayName": INTEGRATION_NAME,
@@ -89,6 +89,8 @@ export async function setupWebhooks(config: GoodChatConfig) : Promise<Integratio
       "includeFullSource": true
     }]
   });
+
+  const { integration } = response.body
 
   info('webhook registered')
 
