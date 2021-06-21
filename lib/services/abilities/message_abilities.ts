@@ -113,11 +113,6 @@ export function messageAbilities(staff: Staff) {
 
     await conversations.joinConversation(conversationId)
 
-    //
-    // Note:
-    // We do an upsert to handle the scenario where a webhook is fired fast enough to
-    // generate a race condition
-    //
     const message = await db.message.create({
       data: unsaveMessage
     });
