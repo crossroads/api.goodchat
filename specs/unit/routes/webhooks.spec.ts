@@ -56,7 +56,6 @@ describe('Routes/webhooks', () => {
     describe('POST /connect', () => {
       context('if the integration does not already exist', () => {
         let agent : TestAgent
-        let createArgs : any[] = []
 
         beforeEach(async () => {
           agent = (await newServer())[1];
@@ -64,11 +63,7 @@ describe('Routes/webhooks', () => {
           createIntegration.returns({})
           deleteIntegration.returns({})
 
-          createIntegration.callsFake((...all) => createArgs = all);
-
           await agent.post('/webhooks/connect').expect(200);
-
-          expect(createArgs.length).to.eq(2)
         })
 
         it('doesnt delete any existing integrations', async () => {
@@ -76,25 +71,43 @@ describe('Routes/webhooks', () => {
         })
 
         it('creates a custom integration', async () => {
-          const [$, payload] = createArgs;
-          expect(payload["type"]).to.eq('custom');
+          expect(createIntegration).to.be.calledWith(
+            sinon.match.any,
+            sinon.match({ type: 'custom' })
+          )
         })
 
         it('creates an integration name based on the environment', () => {
-          const [$, payload] = createArgs;
-          expect(payload["displayName"]).to.eq(CUSTOM_INTEGRATION_NAME);
+          expect(createIntegration).to.be.calledWith(
+            sinon.match.any,
+            sinon.match({ displayName: CUSTOM_INTEGRATION_NAME })
+          )
         })
 
         it('creates a webhook pointing to /trigger', () => {
-          const [$, payload] = createArgs;
-          expect(payload["webhooks"].length).to.eq(1);
-          expect(payload["webhooks"][0]["target"]).to.eq("https://localhost:8000/webhooks/trigger");
+          expect(createIntegration).to.be.calledWith(
+            sinon.match.any,
+            sinon.match({
+              "webhooks": [
+                sinon.match({
+                  target: 'https://localhost:8000/webhooks/trigger'
+                })
+              ]
+            })
+          )
         })
 
         it('creates a webhook trigger with includeFullUser set to true', () => {
-          const [$, payload] = createArgs;
-          expect(payload["webhooks"].length).to.eq(1);
-          expect(payload["webhooks"][0]["includeFullUser"]).to.eq(true);
+          expect(createIntegration).to.be.calledWith(
+            sinon.match.any,
+            sinon.match({
+              "webhooks": [
+                sinon.match({
+                  includeFullUser: true
+                })
+              ]
+            })
+          )
         })
 
         _.each([
@@ -111,8 +124,16 @@ describe('Routes/webhooks', () => {
           "conversation:typing"
         ], trigger => {
           it(`connects the webhook to the ${trigger} trigger`, () => {
-            const [$, payload] = createArgs;
-            expect(payload["webhooks"][0]["triggers"]).to.include(trigger);
+            expect(createIntegration).to.be.calledWith(
+              sinon.match.any,
+              sinon.match({
+                "webhooks": [
+                  sinon.match({
+                    triggers: sinon.match.array.contains([trigger])
+                  })
+                ]
+              })
+            )
           })
         });
       });
