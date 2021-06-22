@@ -5,6 +5,7 @@ import os                   from 'os'
 import _                    from 'lodash'
 import { GoodChatConfig }   from '../../../lib/typings/goodchat'
 import { WebhookEventType } from '../../../lib/typings/webhook_types'
+import db                   from "../../../lib/db"
 import {
   Integration,
   IntegrationsApi
@@ -49,6 +50,7 @@ export async function clearIntegration(config : GoodChatConfig) {
   if (existing) {
     info(`deleting previous integration record`)
     await api.deleteIntegration(config.smoochAppId, existing.id)
+    await clearWebhookIntegrationSecrets()
   }
 }
 
@@ -61,6 +63,13 @@ export async function clearIntegration(config : GoodChatConfig) {
  */
 export function webhookTarget(config : GoodChatConfig) : string {
   return prefixProtocol(`${config.goodchatHost}/webhooks/trigger`);
+}
+
+/**
+ * Delete all webhookIntegrationSecret records
+ */
+async function clearWebhookIntegrationSecrets() {
+  await db.webHookIntegrationSecret.deleteMany()
 }
 
 /**

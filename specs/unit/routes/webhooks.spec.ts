@@ -154,7 +154,10 @@ describe('Routes/webhooks', () => {
       });
 
       context('if a custom integration already exists', () => {
-        let MOCK_INTEGRATIONS = (id : string) => [{
+        const webhookIntegrationSecret1 = "xyz1234-1"
+        const webhookIntegrationSecret2 = "xyz1234-2"
+
+        let MOCK_INTEGRATIONS = (id : string, webhookIntegrationSecret: string) => [{
           "id": id,
           "status": "active",
           "type": "custom",
@@ -178,35 +181,65 @@ describe('Routes/webhooks', () => {
             ],
             includeFullSource: true,
             includeFullUser: true,
-            secret: "xdfxafkldsajfl2safdla",
+            secret: webhookIntegrationSecret,
           }]
         }];
 
-        beforeEach(() => {
-          listIntegrations.returns({ integrations: MOCK_INTEGRATIONS("1") })
-          createIntegrationWithHttpInfo.returns({ 
-            response: {
-              body: {
-                integrations: MOCK_INTEGRATIONS("2")
+        beforeEach(async () => {
+          const agent = (await newServer())[1];
+          listIntegrations.returns({ integrations: MOCK_INTEGRATIONS("1", webhookIntegrationSecret1) })
+          createIntegrationWithHttpInfo
+            .onFirstCall().returns({ 
+              response: { 
+                body: { 
+                  integration: { 
+                    webhooks: [{ secret: webhookIntegrationSecret1 }]
+                  }
+                }
               }
-            }
-           })
+            })
+            .onSecondCall().returns({ 
+              response: { 
+                body: { 
+                  integration: { 
+                    webhooks: [{ secret: webhookIntegrationSecret2 }]
+                  }
+                }
+              }
+            })
           deleteIntegration
             .withArgs('sample_app_id', "1")
             .returns({})
+
+          await agent.post('/webhooks/connect').expect(200);
         })
 
         it('deletes the existing one', async () => {
-          const [app, agent] = await newServer();
+          const [_, agent] = await newServer();
 
           await agent
             .post('/webhooks/connect')
             .expect(200);
 
-          expect(deleteIntegration.callCount).to.equal(1)
-          expect(listIntegrations.callCount).to.equal(1)
-          expect(createIntegrationWithHttpInfo.callCount).to.equal(1)
+          expect(deleteIntegration.callCount).to.equal(2)
+          expect(listIntegrations.callCount).to.equal(2)
+          expect(createIntegrationWithHttpInfo.callCount).to.equal(2)
         });
+
+        it('replaces the previous webhookIntegrationSecret', async () => {
+          expect((await db.webHookIntegrationSecret.findFirst()).secret).to.eq(webhookIntegrationSecret1)
+          expect(await db.webHookIntegrationSecret.count()).to.eq(1)
+
+          const [_, agent] = await newServer();
+
+          await agent
+            .post('/webhooks/connect')
+            .expect(200);
+
+            expect(await db.webHookIntegrationSecret.count()).to.eq(1)
+            expect((await db.webHookIntegrationSecret.findFirst()).secret).not.to.eq(webhookIntegrationSecret1)
+            expect((await db.webHookIntegrationSecret.findFirst()).secret).to.eq(webhookIntegrationSecret2)
+        })
       });
     })
 
