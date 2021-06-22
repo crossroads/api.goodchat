@@ -129,3 +129,9 @@ model Message {
   @@index([createdAt])
   @@index([updatedAt])
 }
+
+model WebHookIntegrationSecret {
+  id                        Int         @default(autoincrement()) @id
+  createdAt                 DateTime    @default(now())
+  secret                    String      @db.VarChar(255)
+}

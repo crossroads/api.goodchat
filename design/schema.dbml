@@ -87,6 +87,12 @@ Table Message {
   customerDeliveryError String
 }
 
+Table WebHookIntegrationSecret {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  secret String [not null]
+}
+
 Enum ConversationType {
   PRIVATE
   PUBLIC
