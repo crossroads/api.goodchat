@@ -64,6 +64,15 @@ export function webhookTarget(config : GoodChatConfig) : string {
 }
 
 /**
+ * Stores webhookIntegrationSecret in the database
+ */
+async function storeWebhookIntegrationSecret(secret: string) {
+  await db.webHookIntegrationSecret.create({
+    data: { secret }
+  })
+}
+
+/**
  * Recreates a fresh integration for the running server with a registered webhook
  *
  * @export
@@ -91,6 +100,10 @@ export async function setupWebhooks(config: GoodChatConfig) : Promise<Integratio
   });
 
   const { integration } = response.body
+
+  const { secret } = integration.webhooks[0]
+
+  await storeWebhookIntegrationSecret(secret)
 
   info('webhook registered')
 

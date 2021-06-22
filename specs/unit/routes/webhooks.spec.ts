@@ -8,6 +8,7 @@ import { expect }                         from 'chai'
 import webhooks                           from '../../../lib/routes/webhooks'
 import rescue                             from '../../../lib/middlewares/rescue'
 import _                                  from 'lodash'
+import db from "../../../lib/db";
 
 type AnyFunc = (...args: any[]) => any
 
@@ -56,16 +57,28 @@ describe('Routes/webhooks', () => {
     describe('POST /connect', () => {
       context('if the integration does not already exist', () => {
         let agent : TestAgent
+        const webhookIntegrationSecret = 'xyz1234'
 
         beforeEach(async () => {
           agent = (await newServer())[1];
           listIntegrations.returns({ integrations: MOCK_INTEGRATIONS })
           createIntegrationWithHttpInfo.returns({ 
-            response: { body: {} }
+            response: { 
+              body: { 
+                integration: { 
+                  webhooks: [{ secret: webhookIntegrationSecret}]
+                }
+              }
+            }
           })
           deleteIntegration.returns({})
 
           await agent.post('/webhooks/connect').expect(200);
+        })
+
+        it('stores webhook secret', async () => {
+          expect(await db.webHookIntegrationSecret.count()).to.eq(1)
+          expect((await db.webHookIntegrationSecret.findFirst()).secret).to.equal(webhookIntegrationSecret)
         })
 
         it('doesnt delete any existing integrations', async () => {
