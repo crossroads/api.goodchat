@@ -8,7 +8,7 @@ import { expect }                         from 'chai'
 import webhooks                           from '../../../lib/routes/webhooks'
 import rescue                             from '../../../lib/middlewares/rescue'
 import _                                  from 'lodash'
-import db from "../../../lib/db";
+import { getWebhookIntegrationSecret } from '../../../lib/routes/webhooks/setup'
 
 type AnyFunc = (...args: any[]) => any
 
@@ -77,8 +77,7 @@ describe('Routes/webhooks', () => {
         })
 
         it('stores webhook secret', async () => {
-          expect(await db.webHookIntegrationSecret.count()).to.eq(1)
-          expect((await db.webHookIntegrationSecret.findFirst()).secret).to.equal(webhookIntegrationSecret)
+          expect(await getWebhookIntegrationSecret()).to.equal(webhookIntegrationSecret)
         })
 
         it('doesnt delete any existing integrations', async () => {
@@ -227,8 +226,7 @@ describe('Routes/webhooks', () => {
         });
 
         it('replaces the previous webhookIntegrationSecret', async () => {
-          expect((await db.webHookIntegrationSecret.findFirst()).secret).to.eq(webhookIntegrationSecret1)
-          expect(await db.webHookIntegrationSecret.count()).to.eq(1)
+          expect(await getWebhookIntegrationSecret()).to.eq(webhookIntegrationSecret1)
 
           const [_, agent] = await newServer();
 
@@ -236,9 +234,8 @@ describe('Routes/webhooks', () => {
             .post('/webhooks/connect')
             .expect(200);
 
-            expect(await db.webHookIntegrationSecret.count()).to.eq(1)
-            expect((await db.webHookIntegrationSecret.findFirst()).secret).not.to.eq(webhookIntegrationSecret1)
-            expect((await db.webHookIntegrationSecret.findFirst()).secret).to.eq(webhookIntegrationSecret2)
+            expect(await getWebhookIntegrationSecret()).not.to.eq(webhookIntegrationSecret1)
+            expect(await getWebhookIntegrationSecret()).to.eq(webhookIntegrationSecret2)
         })
       });
     })
@@ -287,7 +284,7 @@ describe('Routes/webhooks', () => {
           agent = (await newServer(cb))[1];
 
           await agent.post('/webhooks/connect').expect(200);
-          expect((await db.webHookIntegrationSecret.findFirst()).secret)
+          expect(await getWebhookIntegrationSecret())
             .to.eq(webhookIntegrationSecret)
         })
 

@@ -50,7 +50,7 @@ export async function clearIntegration(config : GoodChatConfig) {
   if (existing) {
     info(`deleting previous integration record`)
     await api.deleteIntegration(config.smoochAppId, existing.id)
-    await clearWebhookIntegrationSecrets()
+    await clearWebhookIntegrationSecret()
   }
 }
 
@@ -66,19 +66,32 @@ export function webhookTarget(config : GoodChatConfig) : string {
 }
 
 /**
- * Delete all webhookIntegrationSecret records
+ * Delete webhookIntegrationSecret if it exists
  */
-async function clearWebhookIntegrationSecrets() {
-  await db.webHookIntegrationSecret.deleteMany()
+async function clearWebhookIntegrationSecret() {
+  await db.integrationKey.deleteMany({ where: { type: 'webhook-secret' } })
 }
 
 /**
  * Stores webhookIntegrationSecret in the database
+ * Replaces existing record secret if already exists
  */
 async function storeWebhookIntegrationSecret(secret: string) {
-  await db.webHookIntegrationSecret.create({
-    data: { secret }
+  await db.integrationKey.upsert({
+    where: { type: 'webhook-secret' },
+    update: { secret },
+    create: { type: 'webhook-secret', secret }
   })
+}
+
+/**
+ * get webhookIntegrationSecret
+ */
+export async function getWebhookIntegrationSecret() {
+  const record = await db.integrationKey.findUnique({
+    where: { type: 'webhook-secret' }
+  })
+  return record?.secret
 }
 
 /**

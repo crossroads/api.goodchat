@@ -1,6 +1,6 @@
 import Router, { Middleware }                                     from '@koa/router'
 import logger                                     from '../../../lib/utils/logger'
-import { setupWebhooks }                          from './setup'
+import { getWebhookIntegrationSecret, setupWebhooks }                          from './setup'
 import { each }                                   from '../../../lib/utils/async'
 import { IntegrationsApi }                        from 'sunshine-conversations-client'
 import { GoodChatAuthMode, GoodChatPermissions }  from '../../../lib/typings/goodchat'
@@ -10,7 +10,6 @@ import { KoaHelpers }                             from '../../utils/http'
 import compose                                    from 'koa-compose'
 import config                                     from '../../config'
 import { minischema, MiniSchema }                 from '../../utils/assertions'
-import db from "../../db";
 
 const { info } = logger('webhooks');
 
@@ -44,7 +43,7 @@ export default function(params: WebhooksParams) {
     const xApiKey = ctx.request.header['x-api-key']
     if(!xApiKey) return ctx.status = 401
 
-    const webhookIntegrationSecret = (await db.webHookIntegrationSecret.findFirst())?.secret
+    const webhookIntegrationSecret = await getWebhookIntegrationSecret()
     if(!webhookIntegrationSecret) return ctx.status = 401
 
     if(xApiKey !== webhookIntegrationSecret) return ctx.status = 401
