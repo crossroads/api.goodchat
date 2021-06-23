@@ -6,6 +6,18 @@ import webhookJob                                      from '../../../lib/jobs/w
 import { expect }                                      from 'chai'
 import db                                              from '../../../lib/db'
 import _                                               from 'lodash'
+import sinon, { SinonStub } from 'sinon'
+import { IntegrationsApi } from 'sunshine-conversations-client'
+import { GoodChatPermissions } from '../../../lib/typings/goodchat'
+import nock from 'nock'
+import { FAKE_AUTH_ENDPOINT, FAKE_AUTH_HOST } from '../../samples/config'
+
+const MOCK_INTEGRATIONS = [{
+  id: 1,
+  type: 'WhatsApp',
+  status: 'active',
+}];
+const webhookIntegrationSecret = 'abcd1234'
 
 describe('Event conversation:read', () => {
   let agent         : TestAgent
@@ -16,8 +28,39 @@ describe('Event conversation:read', () => {
 
   before(async () => { [, agent] = await createGoodchatServer(); })
 
+  beforeEach(async () => {
+    // set up webhooks
+    const listIntegrations: SinonStub                  = sinon.stub(IntegrationsApi.prototype, 'listIntegrations')
+    const createIntegrationWithHttpInfo: SinonStub     = sinon.stub(IntegrationsApi.prototype, 'createIntegrationWithHttpInfo')
+    listIntegrations.returns({ integrations: MOCK_INTEGRATIONS })
+    createIntegrationWithHttpInfo.returns({ 
+      response: { 
+        body: { 
+          integration: { 
+            webhooks: [{ secret: webhookIntegrationSecret}]
+          }
+        }
+      }
+    })
+
+    nock(FAKE_AUTH_HOST)
+      .post(FAKE_AUTH_ENDPOINT)
+      .reply(200, {
+        userId: '123',
+        permissions: [GoodChatPermissions.ADMIN],
+        displayName: 'Jane Doe'
+      })
+    
+    await agent.post('/webhooks/connect')
+      .set('Authorization', 'Bearer xyz')
+      .expect(200);
+  })
+  
+  afterEach(() => sinon.restore())
+
   const trigger = async () => {
     await agent.post('/webhooks/trigger')
+      .set('x-api-key', webhookIntegrationSecret)
       .send(webhookPayload)
       .expect(200)
 

@@ -244,80 +244,125 @@ describe('Routes/webhooks', () => {
     })
 
     describe('POST /trigger', () => {
-      it('fires the configured callback', async () => {
-        let cb = sinon.stub();
-        let [_, agent] = await newServer(cb);
+      context('As an unauthorized webhook caller', () => {
+        it('returns 401 error', async () => {
+          const cb = sinon.stub()
+          const [_, agent] = await newServer(cb);
 
-        await agent
-          .post('/webhooks/trigger')
-          .set('Accept', 'application/json')
-          .send({
-            app: {
-              id: "app"
-            },
-            webhook: {
-              id:       "123",
-              version:  "1"
-            },
-            events: [{}]
-          })
-          .expect(200);
-
-        expect(cb.callCount).to.eq(1)
+          await agent
+            .post('/webhooks/trigger')
+            .set('Accept', 'application/json')
+            .send({
+              app: {
+                id: "app"
+              },
+              webhook: {
+                id:       "123",
+                version:  "1"
+              },
+              events: [{}]
+            })
+            .expect(401)
+        })
       })
 
-      it('fires the configured callback once per event', async () => {
-        let cb = sinon.stub();
-        let [_, agent] = await newServer(cb);
-
-        const ev1 = { id: 1 };
-        const ev2 = { id: 2 };
-        const ev3 = { id: 3 };
-
-        await agent
-          .post('/webhooks/trigger')
-          .set('Accept', 'application/json')
-          .send({
-            app: {
-              id: "app"
-            },
-            webhook: {
-              id:       "123",
-              version:  "1"
-            },
-            events: [ev1, ev2, ev3]
+      context('As an authorized webhook caller', () => {
+        const webhookIntegrationSecret = 'xyz1234'
+        let cb: sinon.SinonStub = null
+        let agent: TestAgent = null
+        
+        beforeEach(async () => {
+          listIntegrations.returns({ integrations: MOCK_INTEGRATIONS })
+          createIntegrationWithHttpInfo.returns({ 
+            response: { 
+              body: { 
+                integration: { 
+                  webhooks: [{ secret: webhookIntegrationSecret }]
+                }
+              }
+            }
           })
-          .expect(200);
 
-        expect(cb.callCount).to.eq(3)
-        expect(cb.withArgs(ev1).callCount).to.eq(1)
-        expect(cb.withArgs(ev2).callCount).to.eq(1)
-        expect(cb.withArgs(ev3).callCount).to.eq(1)
-      })
+          cb = sinon.stub();
+          agent = (await newServer(cb))[1];
 
-      it('propagates callback errors to the response', async () => {
-        let cb = sinon.stub().throws(new GoodchatError('bad', 422, {}, 'SpecialError'))
-        let [_, agent] = await newServer(cb);
+          await agent.post('/webhooks/connect').expect(200);
+          expect((await db.webHookIntegrationSecret.findFirst()).secret)
+            .to.eq(webhookIntegrationSecret)
+        })
 
-        await agent
-          .post('/webhooks/trigger')
-          .set('Accept', 'application/json')
-          .send({
-            app: {
-              id: "app"
-            },
-            webhook: {
-              id:       "123",
-              version:  "1"
-            },
-            events: [{}]
-          })
-          .expect({
-            error: 'bad',
-            status: 422,
-            type: "SpecialError"
-          })
-          .expect(422);
+        it('fires the configured callback', async () => {
+          await agent
+            .post('/webhooks/trigger')
+            .set('Accept', 'application/json')
+            .set('x-api-key', webhookIntegrationSecret)
+            .send({
+              app: {
+                id: "app"
+              },
+              webhook: {
+                id:       "123",
+                version:  "1"
+              },
+              events: [{}]
+            })
+            .expect(200);
+  
+          expect(cb.callCount).to.eq(1)
+        })
+  
+        it('fires the configured callback once per event', async () => {
+          const ev1 = { id: 1 };
+          const ev2 = { id: 2 };
+          const ev3 = { id: 3 };
+  
+          await agent
+            .post('/webhooks/trigger')
+            .set('Accept', 'application/json')
+            .set('x-api-key', webhookIntegrationSecret)
+            .send({
+              app: {
+                id: "app"
+              },
+              webhook: {
+                id:       "123",
+                version:  "1"
+              },
+              events: [ev1, ev2, ev3]
+            })
+            .expect(200);
+  
+          expect(cb.callCount).to.eq(3)
+          expect(cb.withArgs(ev1).callCount).to.eq(1)
+          expect(cb.withArgs(ev2).callCount).to.eq(1)
+          expect(cb.withArgs(ev3).callCount).to.eq(1)
+        })
+  
+        it('propagates callback errors to the response', async () => {
+          const cb = sinon.stub().throws(new GoodchatError('bad', 422, {}, 'SpecialError'))
+          const [_, agent] = await newServer(cb)
+  
+          await agent
+            .post('/webhooks/trigger')
+            .set('Accept', 'application/json')
+            .set('x-api-key', webhookIntegrationSecret)
+            .send({
+              app: {
+                id: "app"
+              },
+              webhook: {
+                id:       "123",
+                version:  "1"
+              },
+              events: [{}]
+            })
+            .expect({
+              error: 'bad',
+              status: 422,
+              type: "SpecialError"
+            })
+            .expect(422);
+        })
       })
     })
 

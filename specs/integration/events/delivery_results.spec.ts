@@ -11,6 +11,11 @@ import {
   DeliveryStatus,
   Message
 } from '@prisma/client'
+import sinon, { SinonStub } from 'sinon'
+import { IntegrationsApi } from 'sunshine-conversations-client'
+import { GoodChatPermissions } from '../../../lib/typings/goodchat'
+import nock from 'nock'
+import { FAKE_AUTH_HOST, FAKE_AUTH_ENDPOINT } from '../../samples/config'
 
 describe('Delivery events', () => {
   let agent         : TestAgent
@@ -19,6 +24,13 @@ describe('Delivery events', () => {
 
   const sunshineconversation  = factories.sunshineConversationFactory.build();
   const sunshineMessage       = factories.sunshineMessageFactory.build({})
+
+  const MOCK_INTEGRATIONS = [{
+    id: 1,
+    type: 'WhatsApp',
+    status: 'active',
+  }];
+  const webhookIntegrationSecret = 'abcd1234'
 
   before(async () => {
     [, agent] = await createGoodchatServer();
@@ -34,7 +46,35 @@ describe('Delivery events', () => {
       sunshineMessageId: sunshineMessage.id,
       customerDeliveryStatus: DeliveryStatus.SENT
     });
+
+    // set up webhooks
+    const listIntegrations: SinonStub                  = sinon.stub(IntegrationsApi.prototype, 'listIntegrations')
+    const createIntegrationWithHttpInfo: SinonStub     = sinon.stub(IntegrationsApi.prototype, 'createIntegrationWithHttpInfo')
+    listIntegrations.returns({ integrations: MOCK_INTEGRATIONS })
+    createIntegrationWithHttpInfo.returns({ 
+      response: { 
+        body: { 
+          integration: { 
+            webhooks: [{ secret: webhookIntegrationSecret}]
+          }
+        }
+      }
+    })
+
+    nock(FAKE_AUTH_HOST)
+      .post(FAKE_AUTH_ENDPOINT)
+      .reply(200, {
+        userId: '123',
+        permissions: [GoodChatPermissions.ADMIN],
+        displayName: 'Jane Doe'
+      })
+    
+    await agent.post('/webhooks/connect')
+      .set('Authorization', 'Bearer xyz')
+      .expect(200);
   })
+
+  afterEach(() => sinon.restore())
 
   const trigger = async (opts: { success: boolean }) => {
     const webhookEvent = factories.sunshineMessageDeliveryEventFactory.build({
@@ -48,6 +88,7 @@ describe('Delivery events', () => {
     const webhookPayload = factories.sunshineWebhookPayloadFactory.build({ events: [webhookEvent] });
 
     await agent.post('/webhooks/trigger')
+      .set('x-api-key', webhookIntegrationSecret)
       .send(webhookPayload)
       .expect(200)
 
