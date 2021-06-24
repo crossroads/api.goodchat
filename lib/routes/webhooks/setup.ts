@@ -79,8 +79,8 @@ async function clearWebhookIntegrationSecret() {
 export async function storeWebhookIntegrationSecret(secret: string) {
   await db.integrationKey.upsert({
     where: { type: 'webhook-secret' },
-    update: { secret },
-    create: { type: 'webhook-secret', secret }
+    update: { value: secret },
+    create: { type: 'webhook-secret', value: secret }
   })
 }
 
@@ -91,7 +91,7 @@ export async function getWebhookIntegrationSecret() {
   const record = await db.integrationKey.findUnique({
     where: { type: 'webhook-secret' }
   })
-  return record?.secret
+  return record?.value
 }
 
 /**

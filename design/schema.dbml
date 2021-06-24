@@ -91,7 +91,7 @@ Table IntegrationKey {
   id Int [pk, increment]
   createdAt DateTime [default: `now()`, not null]
   type String [unique, not null]
-  secret String [not null]
+  value String [not null]
 }
 
 Enum ConversationType {

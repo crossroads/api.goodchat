@@ -3,7 +3,7 @@ CREATE TABLE "IntegrationKey" (
     "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "type" VARCHAR(255) NOT NULL,
-    "secret" VARCHAR(255) NOT NULL,
+    "value" VARCHAR(255) NOT NULL,
 
     PRIMARY KEY ("id")
 );
