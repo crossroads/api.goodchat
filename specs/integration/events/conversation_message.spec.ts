@@ -21,7 +21,7 @@ describe('Event conversation:message', () => {
 
   beforeEach(async () => {
     // setup webhook integration
-    storeWebhookIntegrationSecret(webhookIntegrationSecret)
+    await storeWebhookIntegrationSecret(webhookIntegrationSecret)
   })
 
   const triggerWithPayload = (webhookPayload: WebhookPayload) => async () => {

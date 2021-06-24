@@ -38,7 +38,7 @@ describe('Delivery events', () => {
       customerDeliveryStatus: DeliveryStatus.SENT
     });
 
-    storeWebhookIntegrationSecret(webhookIntegrationSecret)
+    await storeWebhookIntegrationSecret(webhookIntegrationSecret)
   })
 
   const trigger = async (opts: { success: boolean }) => {

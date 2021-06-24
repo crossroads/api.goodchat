@@ -20,7 +20,7 @@ describe('Event conversation:read', () => {
   before(async () => { [, agent] = await createGoodchatServer(); })
 
   beforeEach(async () => {
-    storeWebhookIntegrationSecret(webhookIntegrationSecret)
+    await storeWebhookIntegrationSecret(webhookIntegrationSecret)
   })
   
   const trigger = async () => {

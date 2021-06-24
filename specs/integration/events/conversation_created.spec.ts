@@ -29,7 +29,7 @@ describe('Event conversation:create', () => {
     queueSpy = sinon.spy(webhookJob.queue, 'add')
     
     // setup webhook integration
-    storeWebhookIntegrationSecret(webhookIntegrationSecret)
+    await storeWebhookIntegrationSecret(webhookIntegrationSecret)
   })
 
   afterEach(() => {
