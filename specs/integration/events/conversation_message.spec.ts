@@ -26,9 +26,9 @@ describe('Event conversation:message', () => {
 
   const triggerWithPayload = (webhookPayload: WebhookPayload) => async () => {
     await agent.post('/webhooks/trigger')
-    .set('x-api-key', webhookIntegrationSecret)
-    .send(webhookPayload)
-    .expect(200)
+      .set('x-api-key', webhookIntegrationSecret)
+      .send(webhookPayload)
+      .expect(200)
     
     // Wait for the worker to pickup the job and process it
     await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
@@ -43,9 +43,12 @@ describe('Event conversation:message', () => {
     context('if the conversation doesnt exist locally', () => {
       it('returns a 200', async () => {
         await agent.post('/webhooks/trigger')
-          .send(webhookPayload)
           .set('x-api-key', webhookIntegrationSecret)
+          .send(webhookPayload)
           .expect(200)
+    
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
       })
 
       it('creates a conversation', async () => {
@@ -103,7 +106,13 @@ describe('Event conversation:message', () => {
       })
 
       it('returns a 200', async () => {
-        await trigger()
+        await agent.post('/webhooks/trigger')
+          .set('x-api-key', webhookIntegrationSecret)
+          .send(webhookPayload)
+          .expect(200)
+    
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
       })
 
       it('creates a Message', async () => {
@@ -192,7 +201,13 @@ describe('Event conversation:message', () => {
       })
 
       it('returns a 200', async () => {
-        await trigger()
+        await agent.post('/webhooks/trigger')
+          .set('x-api-key', webhookIntegrationSecret)
+          .send(webhookPayload)
+          .expect(200)
+    
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
       })
 
       it('does not create a new one', async () => {
@@ -247,7 +262,13 @@ describe('Event conversation:message', () => {
 
     context('if the conversation doesnt exist locally', () => {
       it('returns a 200', async () => {
-        await trigger()
+        await agent.post('/webhooks/trigger')
+          .set('x-api-key', webhookIntegrationSecret)
+          .send(webhookPayload)
+          .expect(200)
+    
+        // Wait for the worker to pickup the job and process it
+        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
       })
 
       it('creates a conversation with no customer', async () => {
