@@ -76,7 +76,7 @@ async function clearWebhookIntegrationSecret() {
  * Stores webhookIntegrationSecret in the database
  * Replaces existing record secret if already exists
  */
-async function storeWebhookIntegrationSecret(secret: string) {
+export async function storeWebhookIntegrationSecret(secret: string) {
   await db.integrationKey.upsert({
     where: { type: 'webhook-secret' },
     update: { secret },

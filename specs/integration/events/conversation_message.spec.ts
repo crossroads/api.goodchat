@@ -1,4 +1,4 @@
-import { expect }         from 'chai'
+import { expect }                 from 'chai'
 import _                          from 'lodash'
 import * as factories             from '../../factories'
 import db                         from '../../../lib/db'
@@ -9,19 +9,9 @@ import {
   createGoodchatServer,
   TestAgent
 } from '../../spec_helpers/agent'
-import { GoodChatPermissions } from '../../../lib/typings/goodchat'
-import { SinonStub } from 'sinon'
-import sinon from 'sinon'
-import { IntegrationsApi } from 'sunshine-conversations-client'
-import nock from 'nock'
-import { FAKE_AUTH_HOST, FAKE_AUTH_ENDPOINT } from '../../samples/config'
 import { WebhookPayload } from '../../../lib/typings/webhook_types'
+import { storeWebhookIntegrationSecret } from '../../../lib/routes/webhooks/setup'
 
-const MOCK_INTEGRATIONS = [{
-  id: 1,
-  type: 'WhatsApp',
-  status: 'active',
-}];
 const webhookIntegrationSecret = 'abcd1234'
 
 describe('Event conversation:message', () => {
@@ -30,34 +20,9 @@ describe('Event conversation:message', () => {
   before(async () => { [, agent] = await createGoodchatServer(); })
 
   beforeEach(async () => {
-    // set up webhooks
-    const listIntegrations: SinonStub                  = sinon.stub(IntegrationsApi.prototype, 'listIntegrations')
-    const createIntegrationWithHttpInfo: SinonStub     = sinon.stub(IntegrationsApi.prototype, 'createIntegrationWithHttpInfo')
-    listIntegrations.returns({ integrations: MOCK_INTEGRATIONS })
-    createIntegrationWithHttpInfo.returns({ 
-      response: { 
-        body: { 
-          integration: { 
-            webhooks: [{ secret: webhookIntegrationSecret}]
-          }
-        }
-      }
-    })
-
-    nock(FAKE_AUTH_HOST)
-      .post(FAKE_AUTH_ENDPOINT)
-      .reply(200, {
-        userId: '123',
-        permissions: [GoodChatPermissions.ADMIN],
-        displayName: 'Jane Doe'
-      })
-    
-    await agent.post('/webhooks/connect')
-      .set('Authorization', 'Bearer xyz')
-      .expect(200);
+    // setup webhook integration
+    storeWebhookIntegrationSecret(webhookIntegrationSecret)
   })
-
-  afterEach(() => sinon.restore())
 
   const triggerWithPayload = (webhookPayload: WebhookPayload) => async () => {
     await agent.post('/webhooks/trigger')

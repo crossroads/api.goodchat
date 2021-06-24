@@ -1,28 +1,20 @@
-import { expect, assert }         from 'chai'
-import _                          from 'lodash'
-import sinon, { SinonStub }                      from 'sinon'
-import * as factories             from '../../factories'
-import db                         from '../../../lib/db'
-import { Conversation, Customer } from '@prisma/client'
-import webhookJob                 from '../../../lib/jobs/webhook.job'
-import { waitForEvent }           from '../../../lib/utils/async'
+import { expect, assert }                 from 'chai'
+import _                                  from 'lodash'
+import sinon                              from 'sinon'
+import * as factories                     from '../../factories'
+import db                                 from '../../../lib/db'
+import { Conversation, Customer }         from '@prisma/client'
+import webhookJob                         from '../../../lib/jobs/webhook.job'
+import { waitForEvent }                   from '../../../lib/utils/async'
+import { storeWebhookIntegrationSecret }  from '../../../lib/routes/webhooks/setup'
 import {
   createGoodchatServer,
   TestAgent
 } from '../../spec_helpers/agent'
-import { IntegrationsApi } from 'sunshine-conversations-client'
-import { GoodChatPermissions } from '../../../lib/typings/goodchat'
-import nock from 'nock'
-import { FAKE_AUTH_HOST, FAKE_AUTH_ENDPOINT } from '../../samples/config'
 
 const webhookEvent    = factories.sunshineNewConversationEventFactory.build();
 const webhookPayload  = factories.sunshineWebhookPayloadFactory.build({ events: [webhookEvent] })
 
-const MOCK_INTEGRATIONS = [{
-  id: 1,
-  type: 'WhatsApp',
-  status: 'active',
-}];
 const webhookIntegrationSecret = 'abcd1234'
 
 describe('Event conversation:create', () => {
@@ -35,38 +27,14 @@ describe('Event conversation:create', () => {
   beforeEach(async () => {
     workerSpy = sinon.spy(webhookJob.worker, 'processJob')
     queueSpy = sinon.spy(webhookJob.queue, 'add')
-
-    // set up webhooks
-    const listIntegrations: SinonStub                  = sinon.stub(IntegrationsApi.prototype, 'listIntegrations')
-    const createIntegrationWithHttpInfo: SinonStub     = sinon.stub(IntegrationsApi.prototype, 'createIntegrationWithHttpInfo')
-    listIntegrations.returns({ integrations: MOCK_INTEGRATIONS })
-    createIntegrationWithHttpInfo.returns({ 
-      response: { 
-        body: { 
-          integration: { 
-            webhooks: [{ secret: webhookIntegrationSecret}]
-          }
-        }
-      }
-    })
-
-    nock(FAKE_AUTH_HOST)
-      .post(FAKE_AUTH_ENDPOINT)
-      .reply(200, {
-        userId: '123',
-        permissions: [GoodChatPermissions.ADMIN],
-        displayName: 'Jane Doe'
-      })
     
-    await agent.post('/webhooks/connect')
-      .set('Authorization', 'Bearer xyz')
-      .expect(200);
+    // setup webhook integration
+    storeWebhookIntegrationSecret(webhookIntegrationSecret)
   })
 
   afterEach(() => {
     workerSpy.restore()
     queueSpy.restore()
-    sinon.restore()
   })
 
   const trigger = async () => {
