@@ -8,6 +8,7 @@ import { expect }                         from 'chai'
 import webhooks                           from '../../../lib/routes/webhooks'
 import rescue                             from '../../../lib/middlewares/rescue'
 import _                                  from 'lodash'
+import { getWebhookIntegrationSecret } from '../../../lib/routes/webhooks/setup'
 
 type AnyFunc = (...args: any[]) => any
 
@@ -23,7 +24,7 @@ describe('Routes/webhooks', () => {
   // ---- Vars
 
   let listIntegrations  : SinonStub
-  let createIntegration : SinonStub
+  let createIntegrationWithHttpInfo : SinonStub
   let deleteIntegration : SinonStub
 
   let MOCK_INTEGRATIONS = [{
@@ -44,7 +45,7 @@ describe('Routes/webhooks', () => {
 
   beforeEach(() => {
     listIntegrations      = sinon.stub(IntegrationsApi.prototype, 'listIntegrations')
-    createIntegration     = sinon.stub(IntegrationsApi.prototype, 'createIntegration')
+    createIntegrationWithHttpInfo     = sinon.stub(IntegrationsApi.prototype, 'createIntegrationWithHttpInfo')
     deleteIntegration     = sinon.stub(IntegrationsApi.prototype, 'deleteIntegration')
   })
 
@@ -56,19 +57,27 @@ describe('Routes/webhooks', () => {
     describe('POST /connect', () => {
       context('if the integration does not already exist', () => {
         let agent : TestAgent
-        let createArgs : any[] = []
+        const webhookIntegrationSecret = 'xyz1234'
 
         beforeEach(async () => {
           agent = (await newServer())[1];
           listIntegrations.returns({ integrations: MOCK_INTEGRATIONS })
-          createIntegration.returns({})
+          createIntegrationWithHttpInfo.returns({ 
+            response: { 
+              body: { 
+                integration: { 
+                  webhooks: [{ secret: webhookIntegrationSecret}]
+                }
+              }
+            }
+          })
           deleteIntegration.returns({})
 
-          createIntegration.callsFake((...all) => createArgs = all);
-
           await agent.post('/webhooks/connect').expect(200);
+        })
 
-          expect(createArgs.length).to.eq(2)
+        it('stores webhook secret', async () => {
+          expect(await getWebhookIntegrationSecret()).to.equal(webhookIntegrationSecret)
         })
 
         it('doesnt delete any existing integrations', async () => {
@@ -76,25 +85,43 @@ describe('Routes/webhooks', () => {
         })
 
         it('creates a custom integration', async () => {
-          const [$, payload] = createArgs;
-          expect(payload["type"]).to.eq('custom');
+          expect(createIntegrationWithHttpInfo).to.be.calledWith(
+            sinon.match.any,
+            sinon.match({ type: 'custom' })
+          )
         })
 
         it('creates an integration name based on the environment', () => {
-          const [$, payload] = createArgs;
-          expect(payload["displayName"]).to.eq(CUSTOM_INTEGRATION_NAME);
+          expect(createIntegrationWithHttpInfo).to.be.calledWith(
+            sinon.match.any,
+            sinon.match({ displayName: CUSTOM_INTEGRATION_NAME })
+          )
         })
 
         it('creates a webhook pointing to /trigger', () => {
-          const [$, payload] = createArgs;
-          expect(payload["webhooks"].length).to.eq(1);
-          expect(payload["webhooks"][0]["target"]).to.eq("https://localhost:8000/webhooks/trigger");
+          expect(createIntegrationWithHttpInfo).to.be.calledWith(
+            sinon.match.any,
+            sinon.match({
+              "webhooks": [
+                sinon.match({
+                  target: 'https://localhost:8000/webhooks/trigger'
+                })
+              ]
+            })
+          )
         })
 
         it('creates a webhook trigger with includeFullUser set to true', () => {
-          const [$, payload] = createArgs;
-          expect(payload["webhooks"].length).to.eq(1);
-          expect(payload["webhooks"][0]["includeFullUser"]).to.eq(true);
+          expect(createIntegrationWithHttpInfo).to.be.calledWith(
+            sinon.match.any,
+            sinon.match({
+              "webhooks": [
+                sinon.match({
+                  includeFullUser: true
+                })
+              ]
+            })
+          )
         })
 
         _.each([
@@ -111,117 +138,228 @@ describe('Routes/webhooks', () => {
           "conversation:typing"
         ], trigger => {
           it(`connects the webhook to the ${trigger} trigger`, () => {
-            const [$, payload] = createArgs;
-            expect(payload["webhooks"][0]["triggers"]).to.include(trigger);
+            expect(createIntegrationWithHttpInfo).to.be.calledWith(
+              sinon.match.any,
+              sinon.match({
+                "webhooks": [
+                  sinon.match({
+                    triggers: sinon.match.array.contains([trigger])
+                  })
+                ]
+              })
+            )
           })
         });
       });
 
       context('if a custom integration already exists', () => {
-        let MOCK_INTEGRATIONS = (id : string) => [{
+        const webhookIntegrationSecret1 = "xyz1234-1"
+        const webhookIntegrationSecret2 = "xyz1234-2"
+
+        let MOCK_INTEGRATIONS = (id : string, webhookIntegrationSecret: string) => [{
           "id": id,
           "status": "active",
           "type": "custom",
-          "displayName": CUSTOM_INTEGRATION_NAME
+          "displayName": CUSTOM_INTEGRATION_NAME,
+          "webhooks": [{
+            id: "abcd1234",
+            version: "v2",
+            target: "https://localhost:8000/webhooks/trigger",
+            triggers: [
+              "conversation:create",
+              "conversation:join",
+              "conversation:leave",
+              "conversation:remove",
+              "conversation:message",
+              "conversation:postback",
+              "conversation:read",
+              "conversation:typing",
+              "conversation:message:delivery:channel",
+              "conversation:message:delivery:failure",
+              "conversation:message:delivery:user",
+            ],
+            includeFullSource: true,
+            includeFullUser: true,
+            secret: webhookIntegrationSecret,
+          }]
         }];
 
-        beforeEach(() => {
-          listIntegrations.returns({ integrations: MOCK_INTEGRATIONS("1") })
-          createIntegration.returns({ integrations: MOCK_INTEGRATIONS("2") })
+        beforeEach(async () => {
+          const agent = (await newServer())[1];
+          listIntegrations.returns({ integrations: MOCK_INTEGRATIONS("1", webhookIntegrationSecret1) })
+          createIntegrationWithHttpInfo
+            .onFirstCall().returns({ 
+              response: { 
+                body: { 
+                  integration: { 
+                    webhooks: [{ secret: webhookIntegrationSecret1 }]
+                  }
+                }
+              }
+            })
+            .onSecondCall().returns({ 
+              response: { 
+                body: { 
+                  integration: { 
+                    webhooks: [{ secret: webhookIntegrationSecret2 }]
+                  }
+                }
+              }
+            })
           deleteIntegration
             .withArgs('sample_app_id', "1")
             .returns({})
+
+          await agent.post('/webhooks/connect').expect(200);
         })
 
         it('deletes the existing one', async () => {
-          const [app, agent] = await newServer();
+          const [_, agent] = await newServer();
 
           await agent
             .post('/webhooks/connect')
             .expect(200);
 
-          expect(deleteIntegration.callCount).to.equal(1)
-          expect(listIntegrations.callCount).to.equal(1)
-          expect(createIntegration.callCount).to.equal(1)
+          expect(deleteIntegration.callCount).to.equal(2)
+          expect(listIntegrations.callCount).to.equal(2)
+          expect(createIntegrationWithHttpInfo.callCount).to.equal(2)
         });
+
+        it('replaces the previous webhookIntegrationSecret', async () => {
+          expect(await getWebhookIntegrationSecret()).to.eq(webhookIntegrationSecret1)
+
+          const [_, agent] = await newServer();
+
+          await agent
+            .post('/webhooks/connect')
+            .expect(200);
+
+            expect(await getWebhookIntegrationSecret()).not.to.eq(webhookIntegrationSecret1)
+            expect(await getWebhookIntegrationSecret()).to.eq(webhookIntegrationSecret2)
+        })
       });
     })
 
     describe('POST /trigger', () => {
-      it('fires the configured callback', async () => {
-        let cb = sinon.stub();
-        let [_, agent] = await newServer(cb);
+      context('As an unauthorized webhook caller', () => {
+        it('returns 401 error', async () => {
+          const cb = sinon.stub()
+          const [_, agent] = await newServer(cb);
 
-        await agent
-          .post('/webhooks/trigger')
-          .set('Accept', 'application/json')
-          .send({
-            app: {
-              id: "app"
-            },
-            webhook: {
-              id:       "123",
-              version:  "1"
-            },
-            events: [{}]
-          })
-          .expect(200);
-
-        expect(cb.callCount).to.eq(1)
+          await agent
+            .post('/webhooks/trigger')
+            .set('Accept', 'application/json')
+            .send({
+              app: {
+                id: "app"
+              },
+              webhook: {
+                id:       "123",
+                version:  "1"
+              },
+              events: [{}]
+            })
+            .expect(401)
+        })
       })
 
-      it('fires the configured callback once per event', async () => {
-        let cb = sinon.stub();
-        let [_, agent] = await newServer(cb);
-
-        const ev1 = { id: 1 };
-        const ev2 = { id: 2 };
-        const ev3 = { id: 3 };
-
-        await agent
-          .post('/webhooks/trigger')
-          .set('Accept', 'application/json')
-          .send({
-            app: {
-              id: "app"
-            },
-            webhook: {
-              id:       "123",
-              version:  "1"
-            },
-            events: [ev1, ev2, ev3]
+      context('As an authorized webhook caller', () => {
+        const webhookIntegrationSecret = 'xyz1234'
+        let cb: sinon.SinonStub = null
+        let agent: TestAgent = null
+        
+        beforeEach(async () => {
+          listIntegrations.returns({ integrations: MOCK_INTEGRATIONS })
+          createIntegrationWithHttpInfo.returns({ 
+            response: { 
+              body: { 
+                integration: { 
+                  webhooks: [{ secret: webhookIntegrationSecret }]
+                }
+              }
+            }
           })
-          .expect(200);
 
-        expect(cb.callCount).to.eq(3)
-        expect(cb.withArgs(ev1).callCount).to.eq(1)
-        expect(cb.withArgs(ev2).callCount).to.eq(1)
-        expect(cb.withArgs(ev3).callCount).to.eq(1)
-      })
+          cb = sinon.stub();
+          agent = (await newServer(cb))[1];
 
-      it('propagates callback errors to the response', async () => {
-        let cb = sinon.stub().throws(new GoodchatError('bad', 422, {}, 'SpecialError'))
-        let [_, agent] = await newServer(cb);
+          await agent.post('/webhooks/connect').expect(200);
+          expect(await getWebhookIntegrationSecret())
+            .to.eq(webhookIntegrationSecret)
+        })
 
-        await agent
-          .post('/webhooks/trigger')
-          .set('Accept', 'application/json')
-          .send({
-            app: {
-              id: "app"
-            },
-            webhook: {
-              id:       "123",
-              version:  "1"
-            },
-            events: [{}]
-          })
-          .expect({
-            error: 'bad',
-            status: 422,
-            type: "SpecialError"
-          })
-          .expect(422);
+        it('fires the configured callback', async () => {
+          await agent
+            .post('/webhooks/trigger')
+            .set('Accept', 'application/json')
+            .set('x-api-key', webhookIntegrationSecret)
+            .send({
+              app: {
+                id: "app"
+              },
+              webhook: {
+                id:       "123",
+                version:  "1"
+              },
+              events: [{}]
+            })
+            .expect(200);
+  
+          expect(cb.callCount).to.eq(1)
+        })
+  
+        it('fires the configured callback once per event', async () => {
+          const ev1 = { id: 1 };
+          const ev2 = { id: 2 };
+          const ev3 = { id: 3 };
+  
+          await agent
+            .post('/webhooks/trigger')
+            .set('Accept', 'application/json')
+            .set('x-api-key', webhookIntegrationSecret)
+            .send({
+              app: {
+                id: "app"
+              },
+              webhook: {
+                id:       "123",
+                version:  "1"
+              },
+              events: [ev1, ev2, ev3]
+            })
+            .expect(200);
+  
+          expect(cb.callCount).to.eq(3)
+          expect(cb.withArgs(ev1).callCount).to.eq(1)
+          expect(cb.withArgs(ev2).callCount).to.eq(1)
+          expect(cb.withArgs(ev3).callCount).to.eq(1)
+        })
+  
+        it('propagates callback errors to the response', async () => {
+          const cb = sinon.stub().throws(new GoodchatError('bad', 422, {}, 'SpecialError'))
+          const [_, agent] = await newServer(cb)
+  
+          await agent
+            .post('/webhooks/trigger')
+            .set('Accept', 'application/json')
+            .set('x-api-key', webhookIntegrationSecret)
+            .send({
+              app: {
+                id: "app"
+              },
+              webhook: {
+                id:       "123",
+                version:  "1"
+              },
+              events: [{}]
+            })
+            .expect({
+              error: 'bad',
+              status: 422,
+              type: "SpecialError"
+            })
+            .expect(422);
+        })
       })
     })
 

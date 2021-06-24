@@ -5,6 +5,7 @@ import os                   from 'os'
 import _                    from 'lodash'
 import { GoodChatConfig }   from '../../../lib/typings/goodchat'
 import { WebhookEventType } from '../../../lib/typings/webhook_types'
+import db                   from "../../../lib/db"
 import {
   Integration,
   IntegrationsApi
@@ -49,6 +50,7 @@ export async function clearIntegration(config : GoodChatConfig) {
   if (existing) {
     info(`deleting previous integration record`)
     await api.deleteIntegration(config.smoochAppId, existing.id)
+    await clearWebhookIntegrationSecret()
   }
 }
 
@@ -61,6 +63,35 @@ export async function clearIntegration(config : GoodChatConfig) {
  */
 export function webhookTarget(config : GoodChatConfig) : string {
   return prefixProtocol(`${config.goodchatHost}/webhooks/trigger`);
+}
+
+/**
+ * Delete webhookIntegrationSecret if it exists
+ */
+async function clearWebhookIntegrationSecret() {
+  await db.integrationKey.deleteMany({ where: { type: 'webhook-secret' } })
+}
+
+/**
+ * Stores webhookIntegrationSecret in the database
+ * Replaces existing record secret if already exists
+ */
+export async function storeWebhookIntegrationSecret(secret: string) {
+  await db.integrationKey.upsert({
+    where: { type: 'webhook-secret' },
+    update: { value: secret },
+    create: { type: 'webhook-secret', value: secret }
+  })
+}
+
+/**
+ * get webhookIntegrationSecret
+ */
+export async function getWebhookIntegrationSecret() {
+  const record = await db.integrationKey.findUnique({
+    where: { type: 'webhook-secret' }
+  })
+  return record?.value
 }
 
 /**
@@ -78,7 +109,7 @@ export async function setupWebhooks(config: GoodChatConfig) : Promise<Integratio
 
   info(`creating custom integration "${INTEGRATION_NAME}"`);
 
-  const { integration } = await api.createIntegration(config.smoochAppId, {
+  const { response } = await api.createIntegrationWithHttpInfo(config.smoochAppId, {
     "type": "custom",
     "status": "active",
     "displayName": INTEGRATION_NAME,
@@ -89,6 +120,12 @@ export async function setupWebhooks(config: GoodChatConfig) : Promise<Integratio
       "includeFullSource": true
     }]
   });
+
+  const { integration } = response.body
+
+  const { secret } = integration.webhooks[0]
+
+  await storeWebhookIntegrationSecret(secret)
 
   info('webhook registered')
 

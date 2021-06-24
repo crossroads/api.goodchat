@@ -1,11 +1,12 @@
-import { expect, assert }         from 'chai'
-import _                          from 'lodash'
-import sinon                      from 'sinon'
-import * as factories             from '../../factories'
-import db                         from '../../../lib/db'
-import { Conversation, Customer } from '@prisma/client'
-import webhookJob                 from '../../../lib/jobs/webhook.job'
-import { waitForEvent }           from '../../../lib/utils/async'
+import { expect, assert }                 from 'chai'
+import _                                  from 'lodash'
+import sinon                              from 'sinon'
+import * as factories                     from '../../factories'
+import db                                 from '../../../lib/db'
+import { Conversation, Customer }         from '@prisma/client'
+import webhookJob                         from '../../../lib/jobs/webhook.job'
+import { waitForEvent }                   from '../../../lib/utils/async'
+import { storeWebhookIntegrationSecret }  from '../../../lib/routes/webhooks/setup'
 import {
   createGoodchatServer,
   TestAgent
@@ -13,6 +14,8 @@ import {
 
 const webhookEvent    = factories.sunshineNewConversationEventFactory.build();
 const webhookPayload  = factories.sunshineWebhookPayloadFactory.build({ events: [webhookEvent] })
+
+const webhookIntegrationSecret = 'abcd1234'
 
 describe('Event conversation:create', () => {
   let agent : TestAgent
@@ -24,12 +27,25 @@ describe('Event conversation:create', () => {
   beforeEach(async () => {
     workerSpy = sinon.spy(webhookJob.worker, 'processJob')
     queueSpy = sinon.spy(webhookJob.queue, 'add')
+    
+    // setup webhook integration
+    await storeWebhookIntegrationSecret(webhookIntegrationSecret)
   })
 
   afterEach(() => {
     workerSpy.restore()
     queueSpy.restore()
   })
+
+  const trigger = async () => {
+    await agent.post('/webhooks/trigger')
+      .set('x-api-key', webhookIntegrationSecret)
+      .send(webhookPayload)
+      .expect(200)
+  
+    // Wait for the worker to pickup the job and process it
+    await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+  }
 
   context("if it doesn't exist locally", () => {
 
@@ -41,19 +57,13 @@ describe('Event conversation:create', () => {
     it('queues up a job', async () =>{
       expect(queueSpy.callCount).to.eq(0)
 
-      await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
-
-      // Wait for the worker to pickup the job and process it
-      await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+      await trigger();
 
       expect(queueSpy.callCount).to.eq(1)
     })
 
     it('creates a Conversation record', async () => {
-      await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
-
-      // Wait for the worker to pickup the job and process it
-      await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+      await trigger();
 
       expect(workerSpy.callCount).to.eq(1)
 
@@ -70,10 +80,7 @@ describe('Event conversation:create', () => {
     })
 
     it('creates a Customer record', async () => {
-      await agent.post('/webhooks/trigger').send(webhookPayload).expect(200)
-
-      // Wait for the worker to pickup the job and process it
-      await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+      await trigger();
 
       expect(await db.customer.count()).to.eq(1)
 
@@ -107,34 +114,21 @@ describe('Event conversation:create', () => {
 
     it('returns 200', async () => {
       await agent.post('/webhooks/trigger')
+        .set('x-api-key', webhookIntegrationSecret)
         .send(webhookPayload)
         .expect(200)
-
+  
       // Wait for the worker to pickup the job and process it
       await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
     });
 
     it('doesnt create a new conversation', async () => {
-
-      await agent.post('/webhooks/trigger')
-        .send(webhookPayload)
-        .expect(200)
-
-      // Wait for the worker to pickup the job and process it
-      await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
-
+      await trigger()
       expect(await db.conversation.count()).to.eq(1)
     })
 
     it('doesnt create a new customer', async () => {
-
-      await agent.post('/webhooks/trigger')
-        .send(webhookPayload)
-        .expect(200)
-
-      // Wait for the worker to pickup the job and process it
-      await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
-
+      await trigger()
       expect(await db.customer.count()).to.eq(1)
     })
 
@@ -145,12 +139,7 @@ describe('Event conversation:create', () => {
       expect(recordBefore.displayName).to.eq(customer.displayName)
       expect(recordBefore.email).to.eq(customer.email)
 
-      await agent.post('/webhooks/trigger')
-        .send(webhookPayload)
-        .expect(200)
-
-      // Wait for the worker to pickup the job and process it
-      await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+      await trigger()
 
       expect(await db.customer.count()).to.eq(1)
 
@@ -174,12 +163,7 @@ describe('Event conversation:create', () => {
       })
 
       it('doesnt reset the metadata', async () => {
-        await agent.post('/webhooks/trigger')
-          .send(webhookPayload)
-          .expect(200)
-
-        // Wait for the worker to pickup the job and process it
-        await waitForEvent('completed', webhookJob.worker, { timeout: 500 });
+        await trigger()
 
         const conv = await db.conversation.findFirst();
 

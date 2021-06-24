@@ -6,6 +6,9 @@ import webhookJob                                      from '../../../lib/jobs/w
 import { expect }                                      from 'chai'
 import db                                              from '../../../lib/db'
 import _                                               from 'lodash'
+import { storeWebhookIntegrationSecret }               from '../../../lib/routes/webhooks/setup'
+
+const webhookIntegrationSecret = 'abcd1234'
 
 describe('Event conversation:read', () => {
   let agent         : TestAgent
@@ -16,8 +19,13 @@ describe('Event conversation:read', () => {
 
   before(async () => { [, agent] = await createGoodchatServer(); })
 
+  beforeEach(async () => {
+    await storeWebhookIntegrationSecret(webhookIntegrationSecret)
+  })
+  
   const trigger = async () => {
     await agent.post('/webhooks/trigger')
+      .set('x-api-key', webhookIntegrationSecret)
       .send(webhookPayload)
       .expect(200)
 

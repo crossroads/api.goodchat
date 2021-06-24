@@ -6,6 +6,7 @@ import webhookJob                          from '../../../lib/jobs/webhook.job'
 import { expect }                          from 'chai'
 import db                                  from '../../../lib/db'
 import _                                   from 'lodash'
+import { storeWebhookIntegrationSecret }   from '../../../lib/routes/webhooks/setup'
 import {
   Conversation,
   DeliveryStatus,
@@ -19,6 +20,8 @@ describe('Delivery events', () => {
 
   const sunshineconversation  = factories.sunshineConversationFactory.build();
   const sunshineMessage       = factories.sunshineMessageFactory.build({})
+
+  const webhookIntegrationSecret = 'abcd1234'
 
   before(async () => {
     [, agent] = await createGoodchatServer();
@@ -34,6 +37,8 @@ describe('Delivery events', () => {
       sunshineMessageId: sunshineMessage.id,
       customerDeliveryStatus: DeliveryStatus.SENT
     });
+
+    await storeWebhookIntegrationSecret(webhookIntegrationSecret)
   })
 
   const trigger = async (opts: { success: boolean }) => {
@@ -48,6 +53,7 @@ describe('Delivery events', () => {
     const webhookPayload = factories.sunshineWebhookPayloadFactory.build({ events: [webhookEvent] });
 
     await agent.post('/webhooks/trigger')
+      .set('x-api-key', webhookIntegrationSecret)
       .send(webhookPayload)
       .expect(200)
 
