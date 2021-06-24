@@ -10,6 +10,7 @@ import { KoaHelpers }                             from '../../utils/http'
 import compose                                    from 'koa-compose'
 import config                                     from '../../config'
 import { minischema, MiniSchema }                 from '../../utils/assertions'
+import { throwUnauthenticated } from '../../utils/errors'
 
 const { info } = logger('webhooks');
 
@@ -41,12 +42,12 @@ export default function(params: WebhooksParams) {
 
   const webHookOriginValidator: Middleware = async (ctx, next) => {
     const xApiKey = ctx.request.header['x-api-key']
-    if(!xApiKey) return ctx.status = 401
+    if (!xApiKey) throwUnauthenticated()
 
     const webhookIntegrationSecret = await getWebhookIntegrationSecret()
-    if(!webhookIntegrationSecret) return ctx.status = 401
-
-    if(xApiKey !== webhookIntegrationSecret) return ctx.status = 401
+    if (!webhookIntegrationSecret || xApiKey !== webhookIntegrationSecret) {
+      throwUnauthenticated()
+    }
 
     return next()
   }
