@@ -44,117 +44,140 @@ describe('GraphQL CreateConversation mutation', () => {
         ConversationType.PRIVATE,
         ConversationType.PUBLIC
       ], type => {
-        it(`creates a ${type} chat successfully`, async () => {
-          expect(await db.conversation.count()).to.eq(0)
+        context(`when creating a ${type} chat`, () => {
+          it('creates a chat successfully', async () => {
+            expect(await db.conversation.count()).to.eq(0)
 
-          const { errors, data } : any = await gqlAgent.mutate({
-            mutation: gql`
-              mutation CreateConversation {
-                createConversation(memberIds: [${otherStaff.id}], type: ${type}) {
-                  id
-                  type
-                  customerId
-                }
-              }
-            `
-          })
-
-          expect(errors).to.be.undefined
-          expect(await db.conversation.count()).to.eq(1)
-
-          const { createConversation : output } = data;
-
-          expect(output).to.have.property('id')
-          expect(output).to.have.property('type', type)
-          expect(output).to.have.property('customerId', null)
-        })
-
-        it(`adds the correct members to the new ${type} chat`, async () => {
-          expect(await db.conversation.count()).to.eq(0)
-
-          const memberIds = [otherStaff.id, otherStaff2.id]
-
-          const { errors, data } : any = await gqlAgent.mutate({
-            variables: { memberIds },
-            mutation: gql`
-              mutation CreateConversation($memberIds: [Int!]!) {
-                createConversation(memberIds: $memberIds, type: ${type}) {
-                  id
-                  type
-                  staffs {
+            const { errors, data } : any = await gqlAgent.mutate({
+              mutation: gql`
+                mutation CreateConversation {
+                  createConversation(memberIds: [${otherStaff.id}], type: ${type}) {
                     id
+                    type
+                    customerId
                   }
                 }
-              }
-            `
+              `
+            })
+
+            expect(errors).to.be.undefined
+            expect(await db.conversation.count()).to.eq(1)
+
+            const { createConversation : output } = data;
+
+            expect(output).to.have.property('id')
+            expect(output).to.have.property('type', type)
+            expect(output).to.have.property('customerId', null)
           })
-          expect(errors).to.be.undefined
 
-          const ids = _.map(data.createConversation.staffs, 'id');
+          it('adds the correct members to the new chat', async () => {
+            expect(await db.conversation.count()).to.eq(0)
 
-          expect(ids).to.have.lengthOf(3)
-          expect(ids).to.include(staff.id)
-          expect(ids).to.include(otherStaff.id)
-          expect(ids).to.include(otherStaff2.id)
-        })
+            const memberIds = [otherStaff.id, otherStaff2.id]
 
-        it(`fails to create a ${type} chat with no other members`, async () => {
-          expect(await db.conversation.count()).to.eq(0)
-
-          const { errors } : any = await gqlAgent.mutate({
-            mutation: gql`
-              mutation CreateConversation {
-                createConversation(memberIds: [], type: ${type}) {
-                  id
-                  type
-                  staffs {
+            const { errors, data } : any = await gqlAgent.mutate({
+              variables: { memberIds },
+              mutation: gql`
+                mutation CreateConversation($memberIds: [Int!]!) {
+                  createConversation(memberIds: $memberIds, type: ${type}) {
                     id
+                    type
+                    staffs {
+                      id
+                    }
                   }
                 }
-              }
-            `
+              `
+            })
+            expect(errors).to.be.undefined
+
+            const ids = _.map(data.createConversation.staffs, 'id');
+
+            expect(ids).to.have.lengthOf(3)
+            expect(ids).to.include(staff.id)
+            expect(ids).to.include(otherStaff.id)
+            expect(ids).to.include(otherStaff2.id)
           })
 
-          expect(await db.conversation.count()).to.eq(0)
-          expect(errors).to.exist
+          it('sets the metadata of the new chat', async () => {
+            const memberIds = [otherStaff.id, otherStaff2.id]
+            const metadata = { some: 'data' }
 
-          const { extensions } = errors[0];
-
-          expect(extensions).to.have.property('code', 'BAD_USER_INPUT')
-          expect(extensions.exception).to.deep.equal({
-            error: 'Cannot create an empty conversation',
-            status: 422,
-            type: 'UnprocessableEntityError'
-          })
-        })
-
-        it(`fails to create a ${type} chat setting just myself as the other member`, async () => {
-          expect(await db.conversation.count()).to.eq(0)
-
-          const { errors } : any = await gqlAgent.mutate({
-            mutation: gql`
-              mutation CreateConversation {
-                createConversation(memberIds: [${staff.id}], type: ${type}) {
-                  id
-                  type
-                  staffs {
+            const { errors, data } : any = await gqlAgent.mutate({
+              variables: { memberIds, metadata },
+              mutation: gql`
+                mutation CreateConversation($memberIds: [Int!]!, $metadata: JSON) {
+                  createConversation(memberIds: $memberIds, type: ${type}, metadata: $metadata) {
                     id
+                    type
+                    metadata
                   }
                 }
-              }
-            `
+              `
+            })
+            expect(errors).to.be.undefined
+            expect(data.createConversation.metadata).to.deep.equal(metadata)
+            expect((await db.conversation.findFirst()).metadata).to.deep.equal(metadata)
           })
 
-          expect(await db.conversation.count()).to.eq(0)
-          expect(errors).to.exist
+          it('fails to create a chat with no other members', async () => {
+            expect(await db.conversation.count()).to.eq(0)
 
-          const { extensions } = errors[0];
+            const { errors } : any = await gqlAgent.mutate({
+              mutation: gql`
+                mutation CreateConversation {
+                  createConversation(memberIds: [], type: ${type}) {
+                    id
+                    type
+                    staffs {
+                      id
+                    }
+                  }
+                }
+              `
+            })
 
-          expect(extensions).to.have.property('code', 'BAD_USER_INPUT')
-          expect(extensions.exception).to.deep.equal({
-            error: 'Cannot create an empty conversation',
-            status: 422,
-            type: 'UnprocessableEntityError'
+            expect(await db.conversation.count()).to.eq(0)
+            expect(errors).to.exist
+
+            const { extensions } = errors[0];
+
+            expect(extensions).to.have.property('code', 'BAD_USER_INPUT')
+            expect(extensions.exception).to.deep.equal({
+              error: 'Cannot create an empty conversation',
+              status: 422,
+              type: 'UnprocessableEntityError'
+            })
+          })
+
+          it('fails to create a chat with just myself as the other member', async () => {
+            expect(await db.conversation.count()).to.eq(0)
+
+            const { errors } : any = await gqlAgent.mutate({
+              mutation: gql`
+                mutation CreateConversation {
+                  createConversation(memberIds: [${staff.id}], type: ${type}) {
+                    id
+                    type
+                    staffs {
+                      id
+                    }
+                  }
+                }
+              `
+            })
+
+            expect(await db.conversation.count()).to.eq(0)
+            expect(errors).to.exist
+
+            const { extensions } = errors[0];
+
+            expect(extensions).to.have.property('code', 'BAD_USER_INPUT')
+            expect(extensions.exception).to.deep.equal({
+              error: 'Cannot create an empty conversation',
+              status: 422,
+              type: 'UnprocessableEntityError'
+            })
           })
         })
       });
