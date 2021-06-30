@@ -1,7 +1,8 @@
 import { allowedConversationTypes, getConversationRules }    from "./rules"
 import { CollectionArgs, normalizePages, cursorFilter }      from "./helpers"
+import { throwForbidden, throwUnprocessable }                from "../../utils/errors"
 import { ConversationType, Staff }                           from "@prisma/client"
-import { throwForbidden }                                    from "../../utils/errors"
+import { Json }                                              from "../../typings/lang"
 import db                                                    from "../../db"
 import _                                                     from "lodash"
 
@@ -10,6 +11,12 @@ export type ConversationsArgs = CollectionArgs & {
   staffId?: number
   type?: ConversationType
   id?: number
+}
+
+export type NewConversationProps = {
+  type : ConversationType,
+  memberIds: number[],
+  metadata?: Json
 }
 
 // ---------------------------
@@ -90,11 +97,40 @@ export function conversationAbilities(staff: Staff) {
     return addToConversation(id, staff); // adding myself to a conversation
   }
 
+  /* Creating a new conversation */
+
+  const createConversation = async (props : NewConversationProps) => {
+    if (props.type === ConversationType.CUSTOMER) {
+      throwForbidden("errors.conversation.creation.forbidden_type_customer")
+    }
+
+    const members = _.uniq([staff.id, ...props.memberIds]).map((staffId) => ({ staffId }))
+
+    if (members.length <= 1) {
+      throwUnprocessable("errors.conversation.creation.forbidden_empty_conversation")
+    }
+
+    return db.conversation.create({
+      data: {
+        source: "goodchat",
+        type: props.type,
+        metadata: props.metadata || {},
+        staffConversations: {
+          createMany: {
+            skipDuplicates: true,
+            data: members
+          }
+        }
+      }
+    })
+  }
+
   return {
     getConversations,
     getConversationById,
     joinConversation,
-    addToConversation
+    addToConversation,
+    createConversation
   }
 }
 

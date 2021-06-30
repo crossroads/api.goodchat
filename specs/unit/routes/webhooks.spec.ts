@@ -44,9 +44,9 @@ describe('Routes/webhooks', () => {
   })
 
   beforeEach(() => {
-    listIntegrations      = sinon.stub(IntegrationsApi.prototype, 'listIntegrations')
-    createIntegrationWithHttpInfo     = sinon.stub(IntegrationsApi.prototype, 'createIntegrationWithHttpInfo')
-    deleteIntegration     = sinon.stub(IntegrationsApi.prototype, 'deleteIntegration')
+    listIntegrations = sinon.stub(IntegrationsApi.prototype, 'listIntegrations')
+    createIntegrationWithHttpInfo = sinon.stub(IntegrationsApi.prototype, 'createIntegrationWithHttpInfo')
+    deleteIntegration = sinon.stub(IntegrationsApi.prototype, 'deleteIntegration')
   })
 
   afterEach(() => sinon.restore())
@@ -62,10 +62,10 @@ describe('Routes/webhooks', () => {
         beforeEach(async () => {
           agent = (await newServer())[1];
           listIntegrations.returns({ integrations: MOCK_INTEGRATIONS })
-          createIntegrationWithHttpInfo.returns({ 
-            response: { 
-              body: { 
-                integration: { 
+          createIntegrationWithHttpInfo.returns({
+            response: {
+              body: {
+                integration: {
                   webhooks: [{ secret: webhookIntegrationSecret}]
                 }
               }
@@ -188,19 +188,19 @@ describe('Routes/webhooks', () => {
           const agent = (await newServer())[1];
           listIntegrations.returns({ integrations: MOCK_INTEGRATIONS("1", webhookIntegrationSecret1) })
           createIntegrationWithHttpInfo
-            .onFirstCall().returns({ 
-              response: { 
-                body: { 
-                  integration: { 
+            .onFirstCall().returns({
+              response: {
+                body: {
+                  integration: {
                     webhooks: [{ secret: webhookIntegrationSecret1 }]
                   }
                 }
               }
             })
-            .onSecondCall().returns({ 
-              response: { 
-                body: { 
-                  integration: { 
+            .onSecondCall().returns({
+              response: {
+                body: {
+                  integration: {
                     webhooks: [{ secret: webhookIntegrationSecret2 }]
                   }
                 }
@@ -267,13 +267,13 @@ describe('Routes/webhooks', () => {
         const webhookIntegrationSecret = 'xyz1234'
         let cb: sinon.SinonStub = null
         let agent: TestAgent = null
-        
+
         beforeEach(async () => {
           listIntegrations.returns({ integrations: MOCK_INTEGRATIONS })
-          createIntegrationWithHttpInfo.returns({ 
-            response: { 
-              body: { 
-                integration: { 
+          createIntegrationWithHttpInfo.returns({
+            response: {
+              body: {
+                integration: {
                   webhooks: [{ secret: webhookIntegrationSecret }]
                 }
               }
@@ -304,15 +304,15 @@ describe('Routes/webhooks', () => {
               events: [{}]
             })
             .expect(200);
-  
+
           expect(cb.callCount).to.eq(1)
         })
-  
+
         it('fires the configured callback once per event', async () => {
           const ev1 = { id: 1 };
           const ev2 = { id: 2 };
           const ev3 = { id: 3 };
-  
+
           await agent
             .post('/webhooks/trigger')
             .set('Accept', 'application/json')
@@ -328,17 +328,17 @@ describe('Routes/webhooks', () => {
               events: [ev1, ev2, ev3]
             })
             .expect(200);
-  
+
           expect(cb.callCount).to.eq(3)
           expect(cb.withArgs(ev1).callCount).to.eq(1)
           expect(cb.withArgs(ev2).callCount).to.eq(1)
           expect(cb.withArgs(ev3).callCount).to.eq(1)
         })
-  
+
         it('propagates callback errors to the response', async () => {
           const cb = sinon.stub().throws(new GoodchatError('bad', 422, {}, 'SpecialError'))
           const [_, agent] = await newServer(cb)
-  
+
           await agent
             .post('/webhooks/trigger')
             .set('Accept', 'application/json')

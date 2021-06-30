@@ -20,7 +20,6 @@ type Mutation {
   #   - JoinConversation(conversation)
   #   - AddToConversation(user, conversation)
   #   - LeaveConversation(conversation)
-  #   - createConversation(private?)
   #   - sendImage
   #   - sendLocation
   #   - sendLink
@@ -35,6 +34,12 @@ type Mutation {
   startTyping(conversationId: Int!) : Conversation!
   stopTyping(conversationId: Int!) : Conversation!
   markAsRead(conversationId: Int!) : ReadReceipt!
+
+  createConversation(
+    type: ConversationType!,
+    memberIds: [Int!]!,
+    metadata: JSON
+  ) : Conversation!
 }
 
 enum ConversationType {
