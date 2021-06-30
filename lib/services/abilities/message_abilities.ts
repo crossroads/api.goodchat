@@ -1,6 +1,4 @@
 import _                                                            from "lodash"
-import { MessagesApi }                                              from "sunshine-conversations-client"
-import config                                                       from "../../config"
 import db, { Unsaved }                                              from "../../db"
 import { MessageContent }                                           from "../../typings/goodchat"
 import { Json }                                                     from "../../typings/lang"
@@ -37,7 +35,6 @@ export type SendMessageOptions = {
  */
 export function messageAbilities(staff: Staff) {
 
-  const sunshineMessages = new MessagesApi();
   const conversations = conversationAbilities(staff);
 
   const assertTimestamp = (timestamp: number | Date) => {

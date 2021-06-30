@@ -1,6 +1,5 @@
-import Router, { Middleware }                                     from '@koa/router'
+import Router, { Middleware }                     from '@koa/router'
 import logger                                     from '../../../lib/utils/logger'
-import { getWebhookIntegrationSecret, setupWebhooks }                          from './setup'
 import { each }                                   from '../../../lib/utils/async'
 import { IntegrationsApi }                        from 'sunshine-conversations-client'
 import { GoodChatAuthMode, GoodChatPermissions }  from '../../../lib/typings/goodchat'
@@ -10,7 +9,11 @@ import { KoaHelpers }                             from '../../utils/http'
 import compose                                    from 'koa-compose'
 import config                                     from '../../config'
 import { minischema, MiniSchema }                 from '../../utils/assertions'
-import { throwUnauthenticated } from '../../utils/errors'
+import { throwUnauthenticated }                   from '../../utils/errors'
+import {
+  getWebhookIntegrationSecret,
+  setupWebhooks
+} from './setup'
 
 const { info } = logger('webhooks');
 

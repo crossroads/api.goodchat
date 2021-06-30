@@ -375,6 +375,95 @@ describe('Services/Abilities/Conversation', () => {
     })
   })
 
+  describe("#createConversation", () => {
+    let admin : Staff
+    let otherStaff : Staff
+    let otherStaff2 : Staff
+
+    beforeEach(async () => {
+      admin = await factories.staffFactory.create({ permissions: [GoodChatPermissions.ADMIN] });
+      otherStaff = await factories.staffFactory.create({ permissions: [] });
+      otherStaff2 = await factories.staffFactory.create({ permissions: [] });
+    })
+
+    _.each([
+      ConversationType.PRIVATE,
+      ConversationType.PUBLIC
+    ], type => {
+      context(`when creating a ${type} chat`, () => {
+        it(`allows me to create a chat with other members`, async () => {
+          const count = await db.conversation.count();
+
+          const { id } = await abilities(admin).createConversation({
+            memberIds: [otherStaff.id, otherStaff2.id],
+            type: type
+          })
+
+          expect(await db.conversation.count()).to.eq(count + 1);
+
+          const conversation = await db.conversation.findUnique({
+            where: { id },
+            include: {
+              staffConversations: true
+            }
+          });
+
+          const memberIds = conversation.staffConversations.map(sc => sc.staffId);
+
+          expect(conversation.type).to.eq(type)
+          expect(memberIds).to.have.lengthOf(3)
+          expect(memberIds).to.include(admin.id)
+          expect(memberIds).to.include(otherStaff.id)
+          expect(memberIds).to.include(otherStaff2.id)
+        })
+
+        it(`allows me to set the metadata of a chat`, async () => {
+          const count = await db.conversation.count();
+
+          const { id } = await abilities(admin).createConversation({
+            memberIds: [otherStaff.id, otherStaff2.id],
+            type: type,
+            metadata: { some: 'data' }
+          })
+
+          expect(await db.conversation.count()).to.eq(count + 1);
+
+          const conversation = await db.conversation.findUnique({
+            where: { id }
+          });
+          expect(conversation.metadata).to.deep.eq({ some: 'data' })
+        })
+
+        it('prevents me from creating a conversation without any other member in it', async () => {
+          await expect(
+            abilities(admin).createConversation({
+              memberIds: [],
+              type: type
+            })
+          ).to.be.rejectedWith(GoodchatError, 'errors.conversation.creation.forbidden_empty_conversation')
+        })
+
+        it('prevents me from creating a conversation with myself as the other member', async () => {
+          await expect(
+            abilities(admin).createConversation({
+              memberIds: [admin.id],
+              type: type
+            })
+          ).to.be.rejectedWith(GoodchatError, 'errors.conversation.creation.forbidden_empty_conversation')
+        })
+      })
+    });
+
+    it('prevents me from creating a CUSTOMER chats', async () => {
+      await expect(
+        abilities(admin).createConversation({
+          memberIds: [otherStaff.id],
+          type: ConversationType.CUSTOMER
+        })
+      ).to.be.rejectedWith(GoodchatError, 'errors.conversation.creation.forbidden_type_customer')
+    })
+  })
+
   describe('#addToConversation', () => {
     let otherStaff : Staff
     let otherAdmin : Staff
