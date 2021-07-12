@@ -21,6 +21,11 @@ const prisma = new PrismaClient({
   )
 });
 
+//
+// We export $queryRaw as a sql method to allow syntax coloring on template strings
+//
+export const sql = prisma.$queryRaw.bind(prisma)
+
 gracefulExit(() => prisma.$disconnect());
 
 export default prisma

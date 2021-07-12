@@ -85,6 +85,13 @@ type Conversation {
   messages(limit: Int, after: Int): [Message!]!
   readReceipts: [ReadReceipt!]!
   staffs: [Staff!]!
+  _computed: ConversationAggregates!
+}
+
+type ConversationAggregates {
+  conversationId: Int!
+  unreadMessageCount: Int!
+  totalMessageCount: Int!
 }
 
 type Message {
