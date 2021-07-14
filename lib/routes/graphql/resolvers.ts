@@ -2,6 +2,7 @@ import { MessageEvent, pubsub, PubSubAction, PubSubEvent, ReadReceiptEvent }    
 import { Conversation, ConversationType, Customer, Message, Staff }               from "@prisma/client"
 import { GraphQLContext, RootParent }                                             from "."
 import { IResolvers, withFilter }                                                 from "apollo-server-koa"
+import * as computer                                                              from "../../services/computer"
 import db                                                                         from "../../db"
 import _                                                                          from 'lodash'
 import { Json }                                                                   from "../../typings/lang"
@@ -205,6 +206,26 @@ const resolvers : IResolvers = {
           conversationId: parent.id
         }
       });
+    },
+
+    _computed(parent: Conversation) {
+      //
+      // We let the nested resolvers compute the properties to avoid
+      // computation of fields we do not need
+      //
+      return {
+        conversationId: parent.id
+      };
+    }
+  },
+
+  ConversationAggregates: {
+    unreadMessageCount({ conversationId }, args: BaseArgs, ctx: GraphQLContext) {
+      return computer.computeUnreadMessageCount(ctx.staff.id, conversationId);
+    },
+
+    totalMessageCount({ conversationId }) {
+      return computer.computeMessageCount(conversationId);
     }
   },
 

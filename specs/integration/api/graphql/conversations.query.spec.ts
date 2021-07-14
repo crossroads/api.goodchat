@@ -9,6 +9,8 @@ import { AuthorType, Conversation, ConversationType, Customer, Message, Staff } 
 import { clearCurrentUser, setCurrentUser }                                        from '../../../spec_helpers/fake_auth';
 import { GoodChatPermissions }                                                     from '../../../../lib/typings/goodchat';
 import timekeeper                                                                  from 'timekeeper';
+import * as computer                                                               from '../../../../lib/services/computer'
+import sinon                                                                       from 'sinon'
 
 const addDays = (date: Date, n: number) => {
   const day = 1000 * 60 * 60 * 24;
@@ -411,8 +413,164 @@ describe('GraphQL Conversations Query', () => {
       expect(data.conversations[0].staffs[0].id).to.eq(user.id)
       expect(data.conversations[0].staffs[0].permissions).to.deep.eq(user.permissions)
     })
-
   });
+
+  describe('Computed properties', () => {
+    let user                : Staff
+    let conversation        : Conversation
+    let messages            : Message[]
+    let computeUnreadSpy    : sinon.SinonSpy
+    let computeTotalSpy     : sinon.SinonSpy
+
+    beforeEach(async () => {
+      const now = Date.now();
+
+      user = await factories.staffFactory.create({ permissions: [GoodChatPermissions.ADMIN] });
+      conversation = await factories.conversationFactory.create({ type: ConversationType.CUSTOMER });
+
+      setCurrentUser(user)
+
+      messages = [
+        await factories.messageFactory.create({ conversationId: conversation.id, createdAt: new Date(now + 1000) }),
+        await factories.messageFactory.create({ conversationId: conversation.id, createdAt: new Date(now + 2000) }),
+        await factories.messageFactory.create({ conversationId: conversation.id, createdAt: new Date(now + 3000) }),
+        await factories.messageFactory.create({ conversationId: conversation.id, createdAt: new Date(now + 4000) }),
+        await factories.messageFactory.create({ conversationId: conversation.id, createdAt: new Date(now + 5000) })
+      ]
+
+      expect(await db.conversation.count()).to.eq(1)
+      expect(await db.message.count()).to.eq(5)
+
+      computeUnreadSpy = sinon.spy(computer, 'computeUnreadMessageCount');
+      computeTotalSpy = sinon.spy(computer, 'computeMessageCount');
+    })
+
+    afterEach(() => sinon.restore())
+
+    it('supports totalMessageCount', async () => {
+      const { data, errors } : any = await gqlAgent.query({
+        query: gql`
+          query getConversations {
+            conversations {
+              id
+              type
+              _computed {
+                totalMessageCount
+              }
+            }
+          }
+        `
+      })
+
+      // console.log(errors[0]);
+      expect(errors).to.be.undefined
+      expect(data.conversations).to.be.of.length(1)
+      expect(data.conversations[0].id).to.eq(conversation.id)
+      expect(data.conversations[0].type).to.eq('CUSTOMER')
+      expect(data.conversations[0]._computed.totalMessageCount).to.eq(5)
+    })
+
+    it('supports unreadMessageCount', async () => {
+      const { data, errors } : any = await gqlAgent.query({
+        query: gql`
+          query getConversations {
+            conversations {
+              id
+              type
+              _computed {
+                unreadMessageCount
+              }
+            }
+          }
+        `
+      })
+
+      // console.log(errors[0]);
+      expect(errors).to.be.undefined
+      expect(data.conversations).to.be.of.length(1)
+      expect(data.conversations[0].id).to.eq(conversation.id)
+      expect(data.conversations[0].type).to.eq('CUSTOMER')
+      expect(data.conversations[0]._computed.unreadMessageCount).to.eq(5)
+    })
+
+    it('sets unreadMessageCount based on the user\'s read receipts', async () => {
+      await factories.readReceiptFactory.create({
+        conversationId: conversation.id,
+        userId: user.id,
+        userType: AuthorType.STAFF,
+        lastReadMessageId: messages[1].id // second message is read
+      })
+
+      const { data, errors } : any = await gqlAgent.query({
+        query: gql`
+          query getConversations {
+            conversations {
+              id
+              type
+              _computed {
+                unreadMessageCount
+              }
+            }
+          }
+        `
+      })
+
+      // console.log(errors[0]);
+      expect(errors).to.be.undefined
+      expect(data.conversations).to.be.of.length(1)
+      expect(data.conversations[0].id).to.eq(conversation.id)
+      expect(data.conversations[0].type).to.eq('CUSTOMER')
+      expect(data.conversations[0]._computed.unreadMessageCount).to.eq(3)
+    })
+
+    it('computes counters using the computer service', async () => {
+      const { errors } : any = await gqlAgent.query({
+        query: gql`
+          query getConversations {
+            conversations {
+              _computed {
+                totalMessageCount
+                unreadMessageCount
+              }
+            }
+          }
+        `
+      })
+
+      expect(errors).to.be.undefined
+
+      expect(computeTotalSpy.calledOnceWithExactly(
+        conversation.id
+      )).to.be.true
+
+      expect(computeUnreadSpy.calledOnceWithExactly(
+        user.id,
+        conversation.id
+      )).to.be.true
+    })
+
+    it('does not compute counters that are not requested', async () => {
+      const { errors } : any = await gqlAgent.query({
+        query: gql`
+          query getConversations {
+            conversations {
+              _computed {
+                totalMessageCount
+              }
+            }
+          }
+        `
+      })
+
+      expect(errors).to.be.undefined
+
+      expect(computeTotalSpy.calledOnceWithExactly(
+        conversation.id
+      )).to.be.true
+
+      expect(computeUnreadSpy.callCount).to.eq(0)
+    })
+  })
 
   context('Reading customer chats', () => {
     let customerConversations   : Conversation[]
