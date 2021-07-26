@@ -5,6 +5,8 @@ import { each }           from '../utils/async'
 
 type NodeInitializer = { default: (cfg: GoodChatConfig) => unknown }
 
+let initialized = false;
+
 /**
  * Requires all the initializers of the current folder and calls them with the Goodchat config
  *
@@ -12,10 +14,16 @@ type NodeInitializer = { default: (cfg: GoodChatConfig) => unknown }
  * @param {GoodChatConfig} config
  */
 export async function boot(config: GoodChatConfig) : Promise<void> {
+  if (initialized) {
+    return;
+  }
+
   const initializers = _.omit(requireDir('.'), ['index'])
 
   await each(initializers, (mod: NodeInitializer) => {
     const { default: initializer } = mod
     return initializer(config)
   });
+
+  initialized = true;
 }

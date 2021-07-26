@@ -15,15 +15,14 @@ export async function computeUnreadMessageCount(staffId: number, conversationId:
       SELECT rr."conversationId", m."createdAt" AS timestamp
         FROM "ReadReceipt" rr
         JOIN "Message" m ON m.id = rr."lastReadMessageId"
-        WHERE rr."userType" = 'STAFF' AND rr."userId" = ${staffId}
+        WHERE (
+          rr."userType" = 'STAFF' AND
+          rr."userId" = ${staffId} AND
+          rr."conversationId" = ${conversationId}
+        )
     )
     SELECT count(m.id) FROM "Message" m
-      LEFT JOIN "ReadReceipt" rr ON (
-        rr."conversationId" = ${conversationId} AND
-        rr."userType" = 'STAFF' AND
-        rr."userId" = ${staffId}
-      )
-      LEFT JOIN last_read_timestamps AS lrt ON lrt."conversationId" = rr."conversationId"
+    LEFT JOIN last_read_timestamps AS lrt ON lrt."conversationId" = m."conversationId"
     WHERE m."conversationId" = ${conversationId}
       AND (m."createdAt" > lrt.timestamp OR lrt.timestamp IS NULL)
   `

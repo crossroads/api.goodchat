@@ -13,6 +13,7 @@ type Query {
 type Subscription {
   messageEvent(conversationId: Int, actions: [SubscriptionAction]): MessageEvent!
   readReceiptEvent(conversationId: Int!): ReadReceiptEvent!
+  conversationEvent(conversationId: Int): ConversationEvent!
 }
 
 type Mutation {
@@ -116,6 +117,11 @@ type MessageEvent {
 type ReadReceiptEvent {
   action: SubscriptionAction!
   readReceipt: ReadReceipt!
+}
+
+type ConversationEvent {
+  action: SubscriptionAction!
+  conversation: Conversation!
 }
 
 type Customer {

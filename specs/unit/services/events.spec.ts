@@ -5,41 +5,24 @@ import { expect }                from 'chai'
 import { AuthorType, Staff }     from '.prisma/client'
 import db                        from '../../../lib/db'
 import _                         from 'lodash'
+import { waitForPubSub }         from '../../spec_helpers/utils'
 
 describe('Services/events', () => {
   describe('PubSub', () => {
     let user    : Staff
-    let events  : any[] = [];
-    let subIds  : any[] = null;
 
     beforeEach(async () => {
       user = await factories.staffFactory.create();
-      events = [];
-      subIds = await Promise.all(
-        _.values(PubSubEvent).map(ev => (
-          pubsub.subscribe(ev, (body) => events.push([ev, body]))
-        ))
-      )
-    })
-
-    afterEach(async () => {
-      await Promise.all(subIds.map(id => pubsub.unsubscribe(id)))
     })
 
     describe('Message events', () => {
 
       it('fires a MESSAGE created event when a message is created', async () => {
-        expect(events).to.be.of.length(0)
+        const [message, [payload]] = await Promise.all([
+          factories.messageFactory.create({}),
+          waitForPubSub(PubSubEvent.MESSAGE)
+        ])
 
-        const message = await factories.messageFactory.create({})
-
-        await waitFor(100);
-
-        expect(events).to.be.of.length(1)
-
-        const [ev, payload] = events[0];
-
-        expect(ev).to.eq(PubSubEvent.MESSAGE)
         expect(payload).to.have.keys('action', 'message');
         expect(payload.action).to.eq('create');
         expect(payload.message.id).to.eq(message.id);
@@ -47,24 +30,17 @@ describe('Services/events', () => {
       })
 
       it('fires a MESSAGE created event when a message is created via an upsert', async () => {
-        expect(events).to.be.of.length(0)
-
         const conversation = await factories.conversationFactory.create({});
         const message = factories.messageFactory.build({ conversationId: conversation.id });
 
-        await db.message.upsert({
+        const upsert = db.message.upsert({
           where: { id: message.id },
           create: message,
           update: {}
         })
 
-        await waitFor(100);
+        const [h, [payload]] = await Promise.all([upsert, waitForPubSub(PubSubEvent.MESSAGE)])
 
-        expect(events).to.be.of.length(1)
-
-        const [ev, payload] = events[0];
-
-        expect(ev).to.eq(PubSubEvent.MESSAGE)
         expect(payload).to.have.keys('action', 'message');
         expect(payload.action).to.eq('create');
         expect(payload.message.id).to.eq(message.id);
@@ -72,81 +48,70 @@ describe('Services/events', () => {
       })
 
       it('fires multiple MESSAGE updated events for batch updateMany operations', async () => {
-        expect(events).to.be.of.length(0)
+        await Promise.all([
+          factories.messageFactory.createList(3),
+          waitForPubSub(PubSubEvent.MESSAGE, 3)
+        ]);
 
-        const messages = await factories.messageFactory.createList(3);
+        const update = db.message.updateMany({
+          where: {},
+          data: {
+            metadata: { 'some': 'data' }
+          }
+        })
 
-        await waitFor(100);
+        const [result, events] = await Promise.all([
+          update,
+          waitForPubSub(PubSubEvent.MESSAGE, 3)
+        ])
 
-        expect(events).to.be.of.length(3)
+        expect(result).to.deep.equal({ count: 3 })
 
-        expect(
-          await db.message.updateMany({
-            where: {},
-            data: {
-              metadata: { 'some': 'data' }
-            }
-          })
-        ).to.deep.equal({ count: 3 })
-
-        await waitFor(100);
-
-        expect(events).to.be.of.length(6)
-
-        events.slice(-3).forEach(([ev, payload]) => {
-          expect(ev).to.eq(PubSubEvent.MESSAGE)
+        events.forEach(payload => {
           expect(payload).to.have.keys('action', 'message');
           expect(payload.action).to.eq('update');
         })
       })
 
       it('fires multiple MESSAGE deleted events for batch deleteMany operations', async () => {
-        expect(events).to.be.of.length(0)
+        await Promise.all([
+          factories.messageFactory.createList(3),
+          waitForPubSub(PubSubEvent.MESSAGE, 3)
+        ])
 
-        const messages = await factories.messageFactory.createList(3);
+        const del = db.message.deleteMany({ where: {} });
 
-        await waitFor(100);
+        const [result, events] = await Promise.all([
+          del,
+          waitForPubSub(PubSubEvent.MESSAGE, 3)
+        ]);
 
-        expect(events).to.be.of.length(3)
+        expect(result).to.deep.equal({ count: 3 })
 
-        expect(
-          await db.message.deleteMany({ where: {} })
-        ).to.deep.equal({ count: 3 })
-
-        await waitFor(100);
-
-        expect(events).to.be.of.length(6)
-
-        events.slice(-3).forEach(([ev, payload]) => {
-          expect(ev).to.eq(PubSubEvent.MESSAGE)
+        events.forEach((payload) => {
           expect(payload).to.have.keys('action', 'message');
           expect(payload.action).to.eq('delete');
         })
       })
 
       it('fires a MESSAGE updated event when a message is updated via an upsert', async () => {
-        expect(events).to.be.of.length(0)
-
         const conversation = await factories.conversationFactory.create({});
         const message = await factories.messageFactory.create({ conversationId: conversation.id });
 
-        await waitFor(100);
-
-        expect(events).to.be.of.length(1)
         expect(await db.message.count()).to.eq(1)
 
-        await db.message.upsert({
+        const upsert = db.message.upsert({
           where: { id: message.id },
           create: _.omit(message, 'id'),
           update: { metadata: { 'some': 'data' } }
         })
 
-        await waitFor(100);
+        const [, [payload]] = await Promise.all([
+          upsert,
+          waitForPubSub(PubSubEvent.MESSAGE)
+        ])
 
         expect(await db.message.count()).to.eq(1)
-        expect(events).to.be.of.length(2)
-
-        const [, payload] = events[1];
 
         expect(payload.action).to.eq('update')
         expect(payload.message).not.to.be.null;
@@ -158,26 +123,19 @@ describe('Services/events', () => {
     describe('ReadReceipt events', () => {
 
       it('fires a READ_RECEIPT created event when a readReceipt is created', async () => {
-        expect(events).to.be.of.length(0)
-
         const message = await factories.messageFactory.create()
-        const receipt = await factories.readReceiptFactory.create({ lastReadMessageId: message.id })
 
-        await waitFor(100);
+        const [receipt, [payload]] = await Promise.all([
+          factories.readReceiptFactory.create({ lastReadMessageId: message.id }),
+          waitForPubSub(PubSubEvent.READ_RECEIPT)
+        ])
 
-        expect(events).to.be.of.length(2)
-
-        const [ev, payload] = events[1];
-
-        expect(ev).to.eq(PubSubEvent.READ_RECEIPT)
         expect(payload).to.have.keys('action', 'readReceipt');
         expect(payload.action).to.eq('create');
         expect(payload.readReceipt.id).to.eq(receipt.id);
       })
 
       it('fires a READ_RECEIPT created event when a readReceipt is created via an upsert', async () => {
-        expect(events).to.be.of.length(0)
-
         const message = await factories.messageFactory.create()
 
         const data = factories.readReceiptFactory.build({
@@ -187,7 +145,7 @@ describe('Services/events', () => {
           lastReadMessageId: message.id
         });
 
-        const receipt = await db.readReceipt.upsert({
+        const upsert = db.readReceipt.upsert({
           where: {
             userId_userType_conversationId: _.pick(data, 'userId', 'userType', 'conversationId')
           },
@@ -200,23 +158,17 @@ describe('Services/events', () => {
           update: {}
         })
 
-        await waitFor(100);
+        const [receipt, [payload]] = await Promise.all([
+          upsert,
+          waitForPubSub(PubSubEvent.READ_RECEIPT)
+        ])
 
-        expect(events).to.be.of.length(2)
-
-        expect(events[0][0]).to.eq(PubSubEvent.MESSAGE);
-
-        const [ev, payload] = events[1];
-
-        expect(ev).to.eq(PubSubEvent.READ_RECEIPT)
         expect(payload).to.have.keys('action', 'readReceipt');
         expect(payload.action).to.eq('create');
         expect(payload.readReceipt.id).to.eq(receipt.id);
       })
 
       it('fires multiple READ_RECEIPT updated events for batch updateMany operations', async () => {
-        expect(events).to.be.of.length(0)
-
         const conversation = await factories.conversationFactory.create()
         const message1 = await factories.messageFactory.create({ conversationId: conversation.id })
         const message2 = await factories.messageFactory.create({ conversationId: conversation.id })
@@ -231,31 +183,18 @@ describe('Services/events', () => {
           lastReadMessageId: message1.id
         })
 
-        await waitFor(100);
+        const update = db.readReceipt.updateMany({
+          where: {},
+          data: {
+            lastReadMessageId: message2.id
+          }
+        });
 
-        expect(events).to.be.of.length(4)
-        expect(events.map(_.first)).to.deep.eq([
-          PubSubEvent.MESSAGE,
-          PubSubEvent.MESSAGE,
-          PubSubEvent.READ_RECEIPT,
-          PubSubEvent.READ_RECEIPT,
-        ])
+        const [result, events] = await Promise.all([update, waitForPubSub(PubSubEvent.READ_RECEIPT, 2)])
 
-        expect(
-          await db.readReceipt.updateMany({
-            where: {},
-            data: {
-              lastReadMessageId: message2.id
-            }
-          })
-        ).to.deep.equal({ count: 2 })
+        expect(result).to.deep.equal({ count: 2 })
 
-        await waitFor(100);
-
-        expect(events).to.be.of.length(6)
-
-        events.slice(-2).forEach(([ev, payload]) => {
-          expect(ev).to.eq(PubSubEvent.READ_RECEIPT)
+        events.forEach(payload => {
           expect(payload).to.have.keys('action', 'readReceipt');
           expect(payload.action).to.eq('update');
         })
@@ -264,8 +203,6 @@ describe('Services/events', () => {
       })
 
       it('fires multiple READ_RECEIPT deleted events for batch deleteMany operations', async () => {
-        expect(events).to.be.of.length(0)
-
         const conversation = await factories.conversationFactory.create()
         const message = await factories.messageFactory.create({ conversationId: conversation.id })
 
@@ -279,25 +216,14 @@ describe('Services/events', () => {
           lastReadMessageId: message.id
         })
 
-        await waitFor(100);
+        const del = db.readReceipt.deleteMany({});
 
-        expect(events).to.be.of.length(3)
-        expect(events.map(_.first)).to.deep.eq([
-          PubSubEvent.MESSAGE,
-          PubSubEvent.READ_RECEIPT,
-          PubSubEvent.READ_RECEIPT,
-        ])
+        const [result, events] = await Promise.all([del, waitForPubSub(PubSubEvent.READ_RECEIPT)])
 
-        expect(
-          await db.readReceipt.deleteMany({})
-        ).to.deep.equal({ count: 2 })
+        expect(result).to.deep.equal({ count: 2 })
+        expect(events).to.be.of.length(1)
 
-        await waitFor(100);
-
-        expect(events).to.be.of.length(5)
-
-        events.slice(-2).forEach(([ev, payload]) => {
-          expect(ev).to.eq(PubSubEvent.READ_RECEIPT)
+        events.forEach((payload) => {
           expect(payload).to.have.keys('action', 'readReceipt');
           expect(payload.action).to.eq('delete');
         })
@@ -306,8 +232,6 @@ describe('Services/events', () => {
       })
 
       it('fires a READ_RECEIPT updated event when a readReceipt is updated via an upsert', async () => {
-        expect(events).to.be.of.length(0)
-
         const conversation = await factories.conversationFactory.create()
         const message1 = await factories.messageFactory.create({ conversationId: conversation.id })
         const message2 = await factories.messageFactory.create({ conversationId: conversation.id })
@@ -318,30 +242,103 @@ describe('Services/events', () => {
           lastReadMessageId: message1.id
         });
 
-        await waitFor(100);
-
-        expect(events).to.be.of.length(3)
-        expect(events.map(_.first)).to.deep.eq([
-          PubSubEvent.MESSAGE,
-          PubSubEvent.MESSAGE,
-          PubSubEvent.READ_RECEIPT
+        const [events] = await Promise.all([
+          waitForPubSub(PubSubEvent.READ_RECEIPT),
+          db.readReceipt.upsert({
+            where: { id: receipt.id },
+            create: receipt,
+            update: { lastReadMessageId: message2.id }
+          })
         ])
 
-        await db.readReceipt.upsert({
-          where: { id: receipt.id },
-          create: receipt,
-          update: { lastReadMessageId: message2.id }
-        })
-
-        await waitFor(100);
-
-        expect(events).to.be.of.length(4)
-
-        const [, payload] = _.last(events);
-
+        const [payload] = events;
         expect(payload.action).to.eq('update')
         expect(payload.readReceipt).to.exist
         expect(payload.readReceipt.id).to.eq(receipt.id)
+      })
+    })
+
+    describe('Conversation events', () => {
+
+      it('fires a CONVERSATION event when a conversation is created', async () => {
+        const [conversation, [payload]] = await Promise.all([
+          factories.conversationFactory.create(),
+          waitForPubSub(PubSubEvent.CONVERSATION)
+        ])
+
+        expect(payload).to.have.keys('action', 'conversation');
+        expect(payload.action).to.eq('create');
+        expect(payload.conversation.id).to.eq(conversation.id);
+      })
+
+      it('fires a CONVERSATION created event when a conversation is created via an upsert', async () => {
+        const customer = await factories.customerFactory.create();
+
+        const [events, conversation] = await Promise.all([
+          waitForPubSub(PubSubEvent.CONVERSATION),
+          db.conversation.upsert({
+            where: {
+              sunshineConversationId: 'foo'
+            },
+            create: factories.conversationFactory.build({
+              sunshineConversationId: 'foo',
+              customerId: customer.id
+            }),
+            update: {}
+          })
+        ])
+
+        const [payload] = events;
+        expect(payload).to.have.keys('action', 'conversation');
+        expect(payload.action).to.eq('create');
+        expect(payload.conversation).to.exist
+        expect(payload.conversation.id).to.eq(conversation.id)
+        expect(payload.conversation).to.have.property('sunshineConversationId', 'foo')
+      })
+
+      it('fires a CONVERSATION updated event when a conversation is updated', async () => {
+        const conversation = await factories.conversationFactory.create();
+
+        const [[payload]] = await Promise.all([
+          waitForPubSub(PubSubEvent.CONVERSATION),
+          db.conversation.update({
+            where: {
+              id: conversation.id
+            },
+            data: {
+              metadata: { some: 'update' }
+            }
+          })
+        ])
+
+        expect(payload).to.have.keys('action', 'conversation');
+        expect(payload.action).to.eq('update');
+        expect(payload.conversation).to.exist
+        expect(payload.conversation.id).to.eq(conversation.id)
+        expect(payload.conversation.metadata).to.deep.equal({ some: 'update' })
+      })
+
+      it('fires a CONVERSATION updated event when a conversation is updated via an upsert', async () => {
+        const conversation = await factories.conversationFactory.create();
+
+        const [[payload]] = await Promise.all([
+          waitForPubSub(PubSubEvent.CONVERSATION),
+          db.conversation.upsert({
+            where: {
+              id: conversation.id
+            },
+            create: factories.conversationFactory.build(),
+            update: {
+              metadata: { some: 'update' }
+            }
+          })
+        ])
+
+        expect(payload).to.have.keys('action', 'conversation');
+        expect(payload.action).to.eq('update');
+        expect(payload.conversation).to.exist
+        expect(payload.conversation.id).to.eq(conversation.id)
+        expect(payload.conversation.metadata).to.deep.equal({ some: 'update' })
       })
     })
   })

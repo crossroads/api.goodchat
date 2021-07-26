@@ -1,10 +1,15 @@
 import db                               from '../../db'
 import _                                from 'lodash'
-import { Message, Prisma, ReadReceipt } from '@prisma/client'
 import { RedisPubSub }                  from 'graphql-redis-subscriptions'
 import * as redis                       from '../../redis'
 import logger                           from '../../utils/logger'
 import { waitForEvent }                 from '../../utils/async'
+import {
+  Message,
+  Prisma,
+  ReadReceipt,
+  Conversation
+} from '@prisma/client'
 
 const SECOND = 1000;
 
@@ -42,7 +47,8 @@ const pubsub = new RedisPubSub({
 
 export enum PubSubEvent {
   MESSAGE       = 'message',
-  READ_RECEIPT  = 'read_receipt'
+  READ_RECEIPT  = 'read_receipt',
+  CONVERSATION  = 'conversation'
 }
 
 export enum PubSubAction {
@@ -55,6 +61,7 @@ export type RecordAction<N extends string, T> = { action: PubSubAction } & Recor
 
 export type MessageEvent      = RecordAction<"message", Message>
 export type ReadReceiptEvent  = RecordAction<"readReceipt", ReadReceipt>
+export type ConversationEvent  = RecordAction<"conversation", Conversation>
 
 const UNSUPPORTED = 'unsupported';
 
@@ -65,7 +72,8 @@ const EVENT_PER_MODEL = {
     Create a PubSubEvent and add a mapping here in order to support live updates for a new model
   */
   'Message': PubSubEvent.MESSAGE,
-  'ReadReceipt': PubSubEvent.READ_RECEIPT
+  'ReadReceipt': PubSubEvent.READ_RECEIPT,
+  'Conversation': PubSubEvent.CONVERSATION
 }
 
 type EventModelMap = typeof EVENT_PER_MODEL
