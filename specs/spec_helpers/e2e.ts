@@ -245,6 +245,5 @@ export function createSubscription(params: SubscriptionTestParams) {
       return error;
     }
   }
-
 }
 

@@ -17,9 +17,9 @@ describe('Services/events', () => {
     describe('Message events', () => {
 
       it('fires a MESSAGE created event when a message is created', async () => {
-        const [message, [payload]] = await Promise.all([
-          factories.messageFactory.create({}),
-          waitForPubSub(PubSubEvent.MESSAGE)
+        const [[payload], message] = await Promise.all([
+          waitForPubSub(PubSubEvent.MESSAGE),
+          factories.messageFactory.create({})
         ])
 
         expect(payload).to.have.keys('action', 'message');
@@ -32,13 +32,14 @@ describe('Services/events', () => {
         const conversation = await factories.conversationFactory.create({});
         const message = factories.messageFactory.build({ conversationId: conversation.id });
 
-        const upsert = db.message.upsert({
-          where: { id: message.id },
-          create: message,
-          update: {}
-        })
-
-        const [h, [payload]] = await Promise.all([upsert, waitForPubSub(PubSubEvent.MESSAGE)])
+        const [[payload]] = await Promise.all([
+          waitForPubSub(PubSubEvent.MESSAGE),
+          db.message.upsert({
+            where: { id: message.id },
+            create: message,
+            update: {}
+          })
+        ])
 
         expect(payload).to.have.keys('action', 'message');
         expect(payload.action).to.eq('create');
@@ -47,18 +48,18 @@ describe('Services/events', () => {
       })
 
       it('fires multiple MESSAGE updated events for batch updateMany operations', async () => {
-        await factories.messageFactory.createList(3);
+        await factories.messageFactory.createList(3, {
+          createdAt: new Date(Date.now() - 6000)
+        });
 
-        const update = db.message.updateMany({
-          where: {},
-          data: {
-            metadata: { 'some': 'data' }
-          }
-        })
-
-        const [result, events] = await Promise.all([
-          update,
-          waitForPubSub(PubSubEvent.MESSAGE, 3)
+        const [events, result] = await Promise.all([
+          waitForPubSub(PubSubEvent.MESSAGE, 3),
+          db.message.updateMany({
+            where: {},
+            data: {
+              metadata: { 'some': 'data' }
+            }
+          })
         ])
 
         expect(result).to.deep.equal({ count: 3 })
@@ -72,11 +73,9 @@ describe('Services/events', () => {
       it('fires multiple MESSAGE deleted events for batch deleteMany operations', async () => {
         await factories.messageFactory.createList(3);
 
-        const del = db.message.deleteMany({ where: {} });
-
-        const [result, events] = await Promise.all([
-          del,
-          waitForPubSub(PubSubEvent.MESSAGE, 3)
+        const [events, result] = await Promise.all([
+          waitForPubSub(PubSubEvent.MESSAGE, 3),
+          db.message.deleteMany({ where: {} })
         ]);
 
         expect(result).to.deep.equal({ count: 3 })
