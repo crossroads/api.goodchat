@@ -1,11 +1,10 @@
-import { pubsub, PubSubEvent }   from '../../../lib/services/events/pubsub'
-import * as factories            from '../../factories'
-import { waitFor }               from '../../../lib/utils/async'
-import { expect }                from 'chai'
 import { AuthorType, Staff }     from '.prisma/client'
+import { waitForPubSub }         from '../../spec_helpers/utils'
+import { PubSubEvent }           from '../../../lib/services/events/pubsub'
+import * as factories            from '../../factories'
+import { expect }                from 'chai'
 import db                        from '../../../lib/db'
 import _                         from 'lodash'
-import { waitForPubSub }         from '../../spec_helpers/utils'
 
 describe('Services/events', () => {
   describe('PubSub', () => {
@@ -48,10 +47,7 @@ describe('Services/events', () => {
       })
 
       it('fires multiple MESSAGE updated events for batch updateMany operations', async () => {
-        await Promise.all([
-          factories.messageFactory.createList(3),
-          waitForPubSub(PubSubEvent.MESSAGE, 3)
-        ]);
+        await factories.messageFactory.createList(3);
 
         const update = db.message.updateMany({
           where: {},
@@ -74,10 +70,7 @@ describe('Services/events', () => {
       })
 
       it('fires multiple MESSAGE deleted events for batch deleteMany operations', async () => {
-        await Promise.all([
-          factories.messageFactory.createList(3),
-          waitForPubSub(PubSubEvent.MESSAGE, 3)
-        ])
+        await factories.messageFactory.createList(3);
 
         const del = db.message.deleteMany({ where: {} });
 
