@@ -37,7 +37,7 @@ describe('E2E/Subscriptions/Conversations', () => {
   // ---- Seed database
 
   beforeEach(async () => {
-    gqlClient  = e2e.buildGraphQLClient(serverInfo)
+    gqlClient = e2e.buildGraphQLClient(serverInfo)
 
     //
     // We create the staff ahead of time just to create a private chat for it
