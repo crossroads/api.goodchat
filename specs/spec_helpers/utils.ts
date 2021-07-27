@@ -1,5 +1,4 @@
-import { pubsub }   from "../../lib/services/events";
-import { AnyFunc }  from "../../lib/typings/lang";
+import { pubsub }   from "../../lib/services/events"
 
 export function waitForPubSub(ev: string, count: number = 1) : Promise<any[]> {
   const events : any[] = [];
@@ -20,6 +19,6 @@ export function waitForPubSub(ev: string, count: number = 1) : Promise<any[]> {
         pubsub.unsubscribe(id)
         reject(new Error('waitForPubSub timeout'))
       }
-    }, 100)
+    }, 1000)
   })
 }
