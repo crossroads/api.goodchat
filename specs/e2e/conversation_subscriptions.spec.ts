@@ -13,12 +13,12 @@ const USER_EXTERNAL_ID = '747';
 describe('E2E/Subscriptions/Conversations', () => {
   let serverInfo : e2e.TestServerInfo
   let gqlClient : e2e.TestApolloClient
-  let staff : Staff
 
   const makeCustomerConversation = () => factories.conversationFactory.create({ type: ConversationType.CUSTOMER })
   const makePublicConversation = () => factories.conversationFactory.create({ type: ConversationType.PUBLIC })
   const makePrivateConversation = () => factories.conversationFactory.create({ type: ConversationType.PRIVATE })
-  const makeMyPivateConversation = () => {
+  const makeMyPivateConversation = async () => {
+    const staff = await db.staff.findUnique({ where: { externalId: USER_EXTERNAL_ID }})
     return factories.conversationFactory.create({ type: ConversationType.PRIVATE }, {
       transient: { members: [staff] }
     })
@@ -37,15 +37,13 @@ describe('E2E/Subscriptions/Conversations', () => {
   // ---- Seed database
 
   beforeEach(async () => {
-    //
-    // We create the staff ahead of time just to create a private chat for it
-    // Permissions will still be defined by the authentication server
-    //
-    staff = await factories.staffFactory.create({ externalId: USER_EXTERNAL_ID })
+    expect(await db.staff.count()).to.eq(0)
 
     gqlClient = e2e.buildGraphQLClient(serverInfo);
 
     await gqlClient.waitForConnection();
+
+    expect(await db.staff.count()).to.eq(1) // Staff was created as a result of the connection
   })
 
   afterEach(() => gqlClient.stop())

@@ -234,7 +234,7 @@ export function createSubscription(params: SubscriptionTestParams) {
       return new Promise((done, fail) => {
         let step    = 2;
         let sum     = 0;
-        let timeout = opts.timeout ?? 500;
+        let timeout = opts.timeout ?? 1000;
         let len     = opts.len ?? 1;
 
         const interval = setInterval(() => {
