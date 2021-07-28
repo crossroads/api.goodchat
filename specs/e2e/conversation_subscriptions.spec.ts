@@ -37,13 +37,15 @@ describe('E2E/Subscriptions/Conversations', () => {
   // ---- Seed database
 
   beforeEach(async () => {
-    gqlClient = e2e.buildGraphQLClient(serverInfo)
-
     //
     // We create the staff ahead of time just to create a private chat for it
     // Permissions will still be defined by the authentication server
     //
     staff = await factories.staffFactory.create({ externalId: USER_EXTERNAL_ID })
+
+    gqlClient = e2e.buildGraphQLClient(serverInfo);
+
+    await gqlClient.waitForConnection();
   })
 
   afterEach(() => gqlClient.stop())

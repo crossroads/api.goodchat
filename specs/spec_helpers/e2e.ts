@@ -92,9 +92,12 @@ export async function teardownTestServer() {
  */
 export class TestApolloClient extends ApolloClient<any> {
   private wsLink : WebSocketLink
+  private wsPromise : Promise<any>
 
   constructor(serverInfo: TestServerInfo) {
     const { host } = serverInfo;
+
+    let onConnect : any;
 
     const wsLink = new WebSocketLink({
       uri: `ws://${host}:${port}/graphql/subscriptions`,
@@ -103,6 +106,9 @@ export class TestApolloClient extends ApolloClient<any> {
         reconnect: false,
         connectionParams: {
           'Authorization': 'Bearer dummy'
+        },
+        connectionCallback: (err : Error[]) => {
+          onConnect!(err && err[0])
         }
       }
     });
@@ -130,6 +136,15 @@ export class TestApolloClient extends ApolloClient<any> {
     });
 
     this.wsLink = wsLink
+    this.wsPromise = new Promise((ready, fail) => {
+      onConnect = (err? : Error) => {
+        return err ? fail(err) : ready(true)
+      }
+    })
+  }
+
+  waitForConnection() {
+    return this.wsPromise;
   }
 
   stop() {
@@ -219,7 +234,7 @@ export function createSubscription(params: SubscriptionTestParams) {
       return new Promise((done, fail) => {
         let step    = 2;
         let sum     = 0;
-        let timeout = opts.timeout ?? 2000;
+        let timeout = opts.timeout ?? 500;
         let len     = opts.len ?? 1;
 
         const interval = setInterval(() => {

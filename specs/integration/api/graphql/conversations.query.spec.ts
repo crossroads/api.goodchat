@@ -462,7 +462,6 @@ describe('GraphQL Conversations Query', () => {
         `
       })
 
-      // console.log(errors[0]);
       expect(errors).to.be.undefined
       expect(data.conversations).to.be.of.length(1)
       expect(data.conversations[0].id).to.eq(conversation.id)
@@ -485,7 +484,6 @@ describe('GraphQL Conversations Query', () => {
         `
       })
 
-      // console.log(errors[0]);
       expect(errors).to.be.undefined
       expect(data.conversations).to.be.of.length(1)
       expect(data.conversations[0].id).to.eq(conversation.id)
@@ -515,7 +513,6 @@ describe('GraphQL Conversations Query', () => {
         `
       })
 
-      // console.log(errors[0]);
       expect(errors).to.be.undefined
       expect(data.conversations).to.be.of.length(1)
       expect(data.conversations[0].id).to.eq(conversation.id)
