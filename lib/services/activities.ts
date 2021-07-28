@@ -3,7 +3,43 @@ import { throwForbidden }                                from "../utils/errors"
 import { ActivitiesApi }                                 from "sunshine-conversations-client"
 import { abilities }                                     from "./abilities"
 import config                                            from "../config"
-import db                                                from "../db"
+import { sql }                                           from "../db"
+
+/**
+ * this atomic query upserts ReadReceipt with the latest message of a conversation
+ * 
+ * If there are no messages for a particular conversationId, 
+ * the insert clause would simply insert nothing
+ */
+async function createOrUpdateReadReceipt(
+  conversationId: number, 
+  staffId: number, 
+  authorType: string
+): Promise<ReadReceipt|null> {
+  const result = await sql`
+    insert into "ReadReceipt" ("userId", "userType", "conversationId", "lastReadMessageId", "updatedAt") 
+    select ${staffId}, ${authorType}, ${conversationId}, "Message"."id", now()
+    from "Message"
+    where "conversationId" = ${conversationId} 
+    order by "createdAt" desc 
+    limit 1
+    on conflict ("userId", "userType", "conversationId") 
+    do 
+      update
+      set "lastReadMessageId" = (
+        select "Message".id 
+        from "Message"
+        where "Message"."conversationId" = ${conversationId}
+        order by "createdAt" desc 
+        limit 1
+        ),
+        "updatedAt" = now() 
+    returning *
+  `
+    
+  return result[0]
+}
+
 
 export function activities(staff: Staff) {
 
@@ -60,32 +96,7 @@ export function activities(staff: Staff) {
       await triggerSunshineActivity(conv.sunshineConversationId, 'conversation:read');
     }
 
-    const [lastMessage]= await crud.getMessages({
-      limit: 1,
-      order: 'desc',
-      conversationId: conversationId
-    });
-
-    if (!lastMessage) return null;
-
-    return db.readReceipt.upsert({
-      where: {
-        userId_userType_conversationId: {
-          userId: staff.id,
-          userType: AuthorType.STAFF,
-          conversationId: conversationId
-        }
-      },
-      update: {
-        lastReadMessageId: lastMessage.id
-      },
-      create: {
-        lastReadMessageId: lastMessage.id,
-        userId: staff.id,
-        userType: AuthorType.STAFF,
-        conversationId: conversationId
-      }
-    })
+    return createOrUpdateReadReceipt(conversationId, staff.id, AuthorType.STAFF)
   }
 
   return {
