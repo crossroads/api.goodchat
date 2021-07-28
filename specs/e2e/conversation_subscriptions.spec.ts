@@ -496,6 +496,39 @@ describe('E2E/Subscriptions/Conversations', () => {
         expect(sub.error).to.be.null
         expect(sub.results, "Event received for conversation subscribed to").to.be.of.length(1);
       })
+
+      it('filters on one type of conversation', async () => {
+        const sub = e2e.createSubscription({
+          client: gqlClient,
+          variables: { type: ConversationType.CUSTOMER },
+          query: gql`
+            subscription listenToConversation($type: ConversationType) {
+              conversationEvent(type: $type) {
+                action
+                conversation {
+                  id
+                  metadata
+                }
+              }
+            }
+          `
+        });
+
+        await makePublicConversation();
+
+        await sub.wait();
+
+        expect(sub.error).to.be.null
+        expect(sub.results, "No event for other conversation").to.be.of.length(0);
+
+        const conversation = await makeCustomerConversation();
+
+        await sub.waitForResults();
+
+        expect(sub.error).to.be.null
+        expect(sub.results, "Event received for conversation subscribed to").to.be.of.length(1);
+        expect(sub.results[0].data.conversationEvent.conversation.id).to.eq(conversation.id)
+      })
     })
   });
 })

@@ -1,6 +1,6 @@
 {
   "name": "api.goodchat",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "omnichannel chat solution built for structured integrations with transactional systems",
   "main": "dist/bin/serve.js",
   "scripts": {

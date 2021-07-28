@@ -38,7 +38,9 @@ export interface MessageSubscriptionArgs extends Partial<ConversationSelectArgs>
   actions?: PubSubAction[]
 }
 
-export type ConversationSubscriptionArgs = Partial<ConversationSelectArgs>
+export interface ConversationSubscriptionArgs extends Partial<ConversationSelectArgs> {
+  type?: ConversationType
+}
 
 export interface SendMessageArgs {
   conversationId: number
@@ -163,6 +165,10 @@ const resolvers : IResolvers = {
 
           if (args.conversationId && conversation.id !== args.conversationId) {
             return false; // The user is not interested in this record
+          }
+
+          if (args.type && args.type !== conversation.type) {
+            return false; // User is not listenning to this type of conversations
           }
 
           // Check if the user is allowed to view record
