@@ -32,8 +32,6 @@ describe('E2E/Subscriptions/Messages', () => {
   // ---- Seed database
 
   beforeEach(async () => {
-    gqlClient  = e2e.buildGraphQLClient(serverInfo)
-
     //
     // We create the staff ahead of time just to create a private chat for it
     // Permissions will still be defined by the authentication server
@@ -46,6 +44,9 @@ describe('E2E/Subscriptions/Messages', () => {
     myPivateConversation = await factories.conversationFactory.create({ type: ConversationType.PRIVATE }, {
       transient: { members: [staff] }
     })
+
+    gqlClient  = e2e.buildGraphQLClient(serverInfo)
+    await gqlClient.waitForConnection();
   })
 
   afterEach(() => gqlClient.stop())
