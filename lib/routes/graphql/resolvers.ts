@@ -1,4 +1,3 @@
-import { MessageEvent, pubsub, PubSubAction, PubSubEvent, ReadReceiptEvent }      from "../../services/events"
 import { Conversation, ConversationType, Customer, Message, Staff }               from "@prisma/client"
 import { GraphQLContext, RootParent }                                             from "."
 import { IResolvers, withFilter }                                                 from "apollo-server-koa"
@@ -13,6 +12,14 @@ import {
   MessagesArgs,
   NewConversationProps
 } from "../../services/abilities"
+import {
+  MessageEvent,
+  pubsub,
+  PubSubAction,
+  PubSubEvent,
+  ReadReceiptEvent,
+  ConversationEvent
+} from "../../services/events"
 
 // ---------------------------
 // Types
@@ -30,6 +37,8 @@ export interface ConversationSelectArgs {
 export interface MessageSubscriptionArgs extends Partial<ConversationSelectArgs> {
   actions?: PubSubAction[]
 }
+
+export type ConversationSubscriptionArgs = Partial<ConversationSelectArgs>
 
 export interface SendMessageArgs {
   conversationId: number
@@ -138,6 +147,27 @@ const resolvers : IResolvers = {
           // Check if the user is allowed to view record
           return Boolean(
             await context.abilities.getConversationById(payload.readReceipt.conversationId)
+          )
+        }
+      )
+    },
+
+    conversationEvent: {
+      resolve: _.identity,
+      subscribe: withFilter(
+        // --- PubSub event to listen to
+        () => pubsub.asyncIterator(PubSubEvent.CONVERSATION),
+        // --- Predicate method to decide whether we should notify a user of this event
+        async (payload: ConversationEvent, args: ConversationSubscriptionArgs, context: GraphQLContext) => {
+          const conversation = payload.conversation;
+
+          if (args.conversationId && conversation.id !== args.conversationId) {
+            return false; // The user is not interested in this record
+          }
+
+          // Check if the user is allowed to view record
+          return Boolean(
+            await context.abilities.getConversationById(conversation.id)
           )
         }
       )

@@ -15,7 +15,7 @@ export const BLANK_CONFIG : GoodChatConfig = {
     url: 'redis://127.0.0.1:6379'
   },
   jobs: {
-    delay: read.number('JOB_DELAY', 1000)
+    delay: read.number('JOB_DELAY', 0)
   },
   auth: {
     mode: GoodChatAuthMode.NONE

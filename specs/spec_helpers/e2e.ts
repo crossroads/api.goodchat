@@ -94,7 +94,7 @@ export class TestApolloClient extends ApolloClient<any> {
   private wsLink : WebSocketLink
 
   constructor(serverInfo: TestServerInfo) {
-    const { url, host } = serverInfo;
+    const { host } = serverInfo;
 
     const wsLink = new WebSocketLink({
       uri: `ws://${host}:${port}/graphql/subscriptions`,
@@ -219,7 +219,7 @@ export function createSubscription(params: SubscriptionTestParams) {
       return new Promise((done, fail) => {
         let step    = 2;
         let sum     = 0;
-        let timeout = opts.timeout ?? 100;
+        let timeout = opts.timeout ?? 1000;
         let len     = opts.len ?? 1;
 
         const interval = setInterval(() => {
@@ -245,6 +245,5 @@ export function createSubscription(params: SubscriptionTestParams) {
       return error;
     }
   }
-
 }
 
