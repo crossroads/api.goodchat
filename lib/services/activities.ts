@@ -4,6 +4,15 @@ import { ActivitiesApi }                                 from "sunshine-conversa
 import { abilities }                                     from "./abilities"
 import config                                            from "../config"
 import { sql }                                           from "../db"
+import { isFreshRecord, pubsub }                         from "./events"
+
+const transformToPrismaDAO = (obj: any): ReadReceipt => {
+  return {
+    ...obj,
+    createdAt: new Date(obj.createdAt),
+    updatedAt: new Date(obj.updatedAt)
+  }
+}
 
 /**
  * this atomic query upserts ReadReceipt with the latest message of a conversation
@@ -36,6 +45,14 @@ async function createOrUpdateReadReceipt(
         "updatedAt" = now() 
     returning *
   `
+  
+  if(result.length !== 0) {
+    const readReceiptObj = transformToPrismaDAO(result[0])
+    await pubsub.publish('read_receipt', {
+      ['readReceipt']: readReceiptObj,
+      action: isFreshRecord(readReceiptObj) ? 'create' : 'update'
+    })
+  }
     
   return result[0]
 }

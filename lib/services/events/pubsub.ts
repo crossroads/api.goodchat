@@ -90,7 +90,7 @@ const SUPPORTED_MODELS = _.keys(EVENT_PER_MODEL);
  * @param {*} obj
  * @returns {boolean}
  */
-function isFreshRecord(obj?: any) : boolean {
+export function isFreshRecord(obj?: any) : boolean {
   const createdAt = obj?.createdAt;
   const updatedAt = obj?.updatedAt;
 
