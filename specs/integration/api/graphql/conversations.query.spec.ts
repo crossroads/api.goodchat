@@ -398,8 +398,9 @@ describe('GraphQL Conversations Query', () => {
       expect(data.conversations).to.be.of.length(1)
       expect(data.conversations[0].id).to.eq(conversation.id)
       expect(data.conversations[0].tags).to.have.lengthOf(2)
-      expect(data.conversations[0].tags[0].name).to.eq("fun")
-      expect(data.conversations[0].tags[1].name).to.eq("cool")
+      expect(
+        _.map(data.conversations[0].tags, 'name')
+      ).to.include.members(["fun", "cool"])
     })
 
     it('returns the messages ordered by most recent first by default', async () => {
