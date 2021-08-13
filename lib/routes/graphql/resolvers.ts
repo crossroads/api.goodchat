@@ -78,6 +78,10 @@ const resolvers : IResolvers = {
 
     goodchatProfile(parent: RootParent, args: BaseArgs, ctx : GraphQLContext) {
       return ctx.staff;
+    },
+
+    tags() {
+      return db.tag.findMany();
     }
   },
 
