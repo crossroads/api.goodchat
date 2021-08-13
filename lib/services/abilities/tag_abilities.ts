@@ -37,7 +37,7 @@ export function tagAbilities(staff: Staff) {
 
     // Add the tag
 
-    const conversationTag = await db.conversationTags.upsert({
+    await db.conversationTags.upsert({
       where: {
         tagId_conversationId: {
           conversationId, tagId
