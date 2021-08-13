@@ -3,9 +3,11 @@ import _                                         from 'lodash'
 import * as factories                            from '..'
 import { Conversation, ConversationType, Staff } from '@prisma/client';
 import db                                        from '../../../lib/db'
+import { map }                                   from '../../../lib/utils/async';
 
 interface ConversationFactoryParams {
-  members?: Staff[]
+  members?: Staff[],
+  tags?: string[]
 }
 
 /**
@@ -22,11 +24,30 @@ export const conversationFactory = Factory.define<Conversation, ConversationFact
 }) => {
 
   onCreate(async (data) => {
+
+    // UPSERT TAGS
+    const tags = await map(transientParams.tags || [], (name) => (
+      factories.tagFactory.create({ name })
+    ))
+
+    // CREATE CUSTOMER
     if (data.customerId && await db.customer.findUnique({ where: { id: data.customerId }}) === null) {
       data.customerId = (await factories.customerFactory.create()).id;
     }
-    const conversation = await db.conversation.create({ data: _.omit(data, 'id') })
 
+    // CREATE CONVERSATION
+    const conversation = await db.conversation.create({
+      data: {
+        ..._.omit(data, 'id'),
+        tags: {
+          createMany: {
+            data: tags.map(({id}) => ({ tagId: id }))
+          }
+        }
+      }
+    });
+
+    // ADD MEMBERS TO CONVERSATION
     const members = transientParams.members || [];
 
     for (const staff of members) {

@@ -1,13 +1,19 @@
-import { abilities }                                        from '../../../../lib/services/abilities'
-import * as factories                                       from '../../../factories'
-import { expect }                                           from 'chai'
-import _                                                    from 'lodash'
-import { Conversation, ConversationType, Customer, Staff }  from '@prisma/client'
-import { GoodChatPermissions }                              from '../../../../lib/typings/goodchat'
-import { GoodchatError }                                    from '../../../../lib/utils/errors'
-import db                                                   from '../../../../lib/db'
-import { map }                                              from '../../../../lib/utils/async'
-import timekeeper                                           from 'timekeeper'
+import { abilities }            from '../../../../lib/services/abilities'
+import * as factories           from '../../../factories'
+import { expect }               from 'chai'
+import _                        from 'lodash'
+import { GoodChatPermissions }  from '../../../../lib/typings/goodchat'
+import { GoodchatError }        from '../../../../lib/utils/errors'
+import db                       from '../../../../lib/db'
+import { map }                  from '../../../../lib/utils/async'
+import timekeeper               from 'timekeeper'
+import {
+  Conversation,
+  ConversationType,
+  Customer,
+  Staff,
+  Tag
+}  from '@prisma/client'
 
 const membersOf = async (conversationId: number) : Promise<number[]> => {
   const records = await db.staffConversations.findMany({
@@ -209,6 +215,47 @@ describe('Services/Abilities/Conversation', () => {
         expect(chatIds).to.include(myPublicChat.id);
         expect(chatIds).to.include(myPrivateChat.id);
         expect(chatIds).not.to.include(otherPrivateChat.id);
+      })
+    })
+
+    describe('Filtering by tags', () => {
+      let funTag    : Tag
+      let sadTag    : Tag
+      let coolTag   : Tag
+      let funChats  : Conversation[]
+      let sadChats  : Conversation[]
+      let coolChats : Conversation[]
+
+      beforeEach(async () => {
+        funTag = await factories.tagFactory.create({ name: "fun" })
+        sadTag = await factories.tagFactory.create({ name: "sad" })
+        coolTag = await factories.tagFactory.create({ name: "cool" })
+
+        funChats = await factories.conversationFactory.createList(3,
+          { type: ConversationType.PUBLIC },
+          { transient: { tags: ["fun"] } }
+        )
+
+        sadChats = await factories.conversationFactory.createList(3,
+          { type: ConversationType.PUBLIC },
+          { transient: { tags: ["sad"] } }
+        )
+
+        coolChats = await factories.conversationFactory.createList(3,
+          { type: ConversationType.PUBLIC },
+          { transient: { tags: ["cool"] } }
+        )
+      })
+
+      it('returns only the conversations with the specified tags', async () => {
+        const chats = await abilities(admin).getConversations({ tagIds: [coolTag.id, funTag.id]});
+        const chatIds = _.uniq(_.map(chats, 'id'));
+        const expectedIds = _.map([...funChats, ...coolChats], 'id');
+        const undesiredIds = _.map(sadChats, 'id');
+
+        expect(chatIds.length).to.eq(6);
+        expect(chatIds).to.include.members(expectedIds);
+        expect(chatIds).not.to.include.members(undesiredIds);
       })
     })
   })
