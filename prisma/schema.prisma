@@ -99,6 +99,8 @@ model ConversationTags {
   updatedAt       DateTime @updatedAt @default(now())
 
   @@id([tagId, conversationId])
+  @@index([tagId])
+  @@index([conversationId])
 }
 
 

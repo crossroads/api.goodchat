@@ -21,6 +21,12 @@ CREATE TABLE "ConversationTags" (
 -- CreateIndex
 CREATE UNIQUE INDEX "Tag.name_unique" ON "Tag"("name");
 
+-- CreateIndex
+CREATE INDEX "ConversationTags.tagId_index" ON "ConversationTags"("tagId");
+
+-- CreateIndex
+CREATE INDEX "ConversationTags.conversationId_index" ON "ConversationTags"("conversationId");
+
 -- AddForeignKey
 ALTER TABLE "ConversationTags" ADD FOREIGN KEY ("tagId") REFERENCES "Tag"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
