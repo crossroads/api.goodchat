@@ -42,6 +42,11 @@ export interface ConversationSubscriptionArgs extends Partial<ConversationSelect
   type?: ConversationType
 }
 
+export interface ConversationTagArgs {
+  conversationId: number
+  tagId: number
+}
+
 export interface SendMessageArgs {
   conversationId: number
   text: string
@@ -73,6 +78,10 @@ const resolvers : IResolvers = {
 
     goodchatProfile(parent: RootParent, args: BaseArgs, ctx : GraphQLContext) {
       return ctx.staff;
+    },
+
+    tags() {
+      return db.tag.findMany();
     }
   },
 
@@ -102,6 +111,14 @@ const resolvers : IResolvers = {
 
     createConversation: (parent: RootParent, args: NewConversationProps, ctx : GraphQLContext) => {
       return ctx.abilities.createConversation(args);
+    },
+
+    tagConversation: (parent: RootParent, args: ConversationTagArgs, ctx : GraphQLContext) => {
+      return ctx.abilities.tagConversation(args.conversationId, args.tagId);
+    },
+
+    untagConversation: (parent: RootParent, args: ConversationTagArgs, ctx : GraphQLContext) => {
+      return ctx.abilities.untagConversation(args.conversationId, args.tagId);
     }
   },
 
@@ -234,6 +251,20 @@ const resolvers : IResolvers = {
       })
 
       return _.map(records, 'staff');
+    },
+
+    tags(parent: Conversation) {
+      return db.tag.findMany({
+        where: {
+          conversations: {
+            some: {
+              conversationId: {
+                equals: parent.id
+              }
+            }
+          }
+        }
+      })
     },
 
     readReceipts(parent: Conversation) {

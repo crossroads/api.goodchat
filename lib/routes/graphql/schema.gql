@@ -1,6 +1,7 @@
 type Query {
   goodchatProfile: Staff!
-  conversations(limit: Int, after: Int, type: ConversationType): [Conversation!]!
+  tags: [Tag!]!
+  conversations(limit: Int, after: Int, type: ConversationType, tagIds: [Int!]): [Conversation!]!
   conversation(id: Int!): Conversation
   customers(
     limit: Int,
@@ -32,8 +33,11 @@ type Mutation {
     timestamp: DateTime,
     metadata: JSON
   ) : Message!
+
   startTyping(conversationId: Int!) : Conversation!
+
   stopTyping(conversationId: Int!) : Conversation!
+
   markAsRead(conversationId: Int!) : ReadReceipt!
 
   createConversation(
@@ -41,6 +45,10 @@ type Mutation {
     memberIds: [Int!]!,
     metadata: JSON
   ) : Conversation!
+
+  tagConversation(conversationId: Int!, tagId: Int!) : Conversation!
+
+  untagConversation(conversationId: Int!, tagId: Int!) : Conversation!
 }
 
 enum ConversationType {
@@ -74,6 +82,13 @@ type ReadReceipt {
   updatedAt: DateTime!
 }
 
+type Tag {
+  id: Int!
+  name: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type Conversation {
   id: Int!
   customerId: Int
@@ -86,6 +101,7 @@ type Conversation {
   messages(limit: Int, after: Int): [Message!]!
   readReceipts: [ReadReceipt!]!
   staffs: [Staff!]!
+  tags: [Tag!]!
   _computed: ConversationAggregates!
 }
 

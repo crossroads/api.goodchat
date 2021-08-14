@@ -10,7 +10,8 @@ export type ConversationsArgs = CollectionArgs & {
   customerId?: number
   staffId?: number
   type?: ConversationType
-  id?: number
+  id?: number,
+  tagIds?: number[]
 }
 
 export type NewConversationProps = {
@@ -38,6 +39,18 @@ export function conversationAbilities(staff: Staff) {
 
     const fieldsFilter = _.pick(args, ['type', 'id', 'customerId']);
 
+    const { tagIds = [] } = args;
+
+    const tagFilter = tagIds.length === 0 ? {} : ({
+      tags: {
+        some: {
+          tag: {
+            id: { in: tagIds }
+          }
+        }
+      }
+    });
+
     return db.conversation.findMany({
       take: limit,
       where: {
@@ -45,7 +58,8 @@ export function conversationAbilities(staff: Staff) {
           getConversationRules(staff),
           await cursorFilter(after, 'conversation', 'updatedAt', 'desc'),
           memberFilter,
-          fieldsFilter
+          fieldsFilter,
+          tagFilter
         ]
       },
       orderBy: [
@@ -125,12 +139,25 @@ export function conversationAbilities(staff: Staff) {
     })
   }
 
+  const touchConversation = async (conversationId : number) => {
+    await db.conversation.updateMany({
+      where: {
+        AND: [
+          getConversationRules(staff),
+          { id: conversationId }
+        ]
+      },
+      data: { updatedAt: new Date() }
+    })
+  }
+
   return {
     getConversations,
     getConversationById,
     joinConversation,
     addToConversation,
-    createConversation
+    createConversation,
+    touchConversation
   }
 }
 

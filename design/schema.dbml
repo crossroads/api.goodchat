@@ -40,6 +40,14 @@ Table StaffConversations {
   }
 }
 
+Table Tag {
+  id Int [pk, increment]
+  name String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  conversations ConversationTags [not null]
+}
+
 Table Conversation {
   id Int [pk, increment]
   createdAt DateTime [default: `now()`, not null]
@@ -53,6 +61,20 @@ Table Conversation {
   readReceipts ReadReceipt [not null]
   messages Message [not null]
   staffConversations StaffConversations [not null]
+  tags ConversationTags [not null]
+}
+
+Table ConversationTags {
+  tag Tag [not null]
+  tagId Int [not null]
+  conversation Conversation [not null]
+  conversationId Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+
+  indexes {
+    (tagId, conversationId) [pk]
+  }
 }
 
 Table ReadReceipt {
@@ -118,6 +140,10 @@ Ref: StaffConversations.staffId > Staff.id
 Ref: StaffConversations.conversationId > Conversation.id
 
 Ref: Conversation.customerId > Customer.id
+
+Ref: ConversationTags.tagId > Tag.id
+
+Ref: ConversationTags.conversationId > Conversation.id
 
 Ref: ReadReceipt.conversationId > Conversation.id
 

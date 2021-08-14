@@ -1,16 +1,24 @@
-import { expect }                                                                  from 'chai'
-import * as factories                                                              from '../../../factories'
-import { ApolloServerTestClient }                                                  from 'apollo-server-testing'
-import { createGoodchatServer }                                                    from '../../../spec_helpers/agent'
-import db                                                                          from '../../../../lib/db';
-import { gql }                                                                     from 'apollo-server-koa';
-import _                                                                           from 'lodash';
-import { AuthorType, Conversation, ConversationType, Customer, Message, Staff }    from '@prisma/client';
-import { clearCurrentUser, setCurrentUser }                                        from '../../../spec_helpers/fake_auth';
-import { GoodChatPermissions }                                                     from '../../../../lib/typings/goodchat';
-import timekeeper                                                                  from 'timekeeper';
-import * as computer                                                               from '../../../../lib/services/computer'
-import sinon                                                                       from 'sinon'
+import { expect }                            from 'chai'
+import * as factories                        from '../../../factories'
+import { ApolloServerTestClient }            from 'apollo-server-testing'
+import { createGoodchatServer }              from '../../../spec_helpers/agent'
+import db                                    from '../../../../lib/db';
+import { gql }                               from 'apollo-server-koa';
+import _                                     from 'lodash';
+import { clearCurrentUser, setCurrentUser }  from '../../../spec_helpers/fake_auth';
+import { GoodChatPermissions }               from '../../../../lib/typings/goodchat';
+import timekeeper                            from 'timekeeper';
+import * as computer                         from '../../../../lib/services/computer'
+import sinon                                 from 'sinon'
+import {
+  AuthorType,
+  Conversation,
+  ConversationType,
+  Customer,
+  Message,
+  Staff,
+  Tag
+} from '@prisma/client';
 
 const addDays = (date: Date, n: number) => {
   const day = 1000 * 60 * 60 * 24;
@@ -31,18 +39,20 @@ describe('GraphQL Conversations Query', () => {
 
     beforeEach(async () => {
       user = await factories.staffFactory.create({ permissions: [GoodChatPermissions.ADMIN] })
-
-      await factories.conversationFactory.create({ type: ConversationType.CUSTOMER });
-      await factories.conversationFactory.create({ type: ConversationType.PUBLIC });
-      await factories.conversationFactory.create(
-        { type: ConversationType.PRIVATE },
-        { transient: { members: [user] } }
-      );
-
       setCurrentUser(user)
     })
 
     context('by type', () => {
+
+      beforeEach(async () => {
+        await factories.conversationFactory.create({ type: ConversationType.CUSTOMER });
+        await factories.conversationFactory.create({ type: ConversationType.PUBLIC });
+        await factories.conversationFactory.create(
+          { type: ConversationType.PRIVATE },
+          { transient: { members: [user] } }
+        );
+      });
+
       [
         'CUSTOMER',
         'PRIVATE',
@@ -66,7 +76,62 @@ describe('GraphQL Conversations Query', () => {
         })
       })
     })
-  })
+
+    context('by tags', () => {
+      let funTag    : Tag
+      let sadTag    : Tag
+      let coolTag   : Tag
+      let funChats  : Conversation[]
+      let sadChats  : Conversation[]
+      let coolChats : Conversation[]
+
+      beforeEach(async () => {
+        funTag = await factories.tagFactory.create({ name: "fun" })
+        sadTag = await factories.tagFactory.create({ name: "sad" })
+        coolTag = await factories.tagFactory.create({ name: "cool" })
+
+        funChats = await factories.conversationFactory.createList(3,
+          { type: ConversationType.PUBLIC },
+          { transient: { tags: ["fun"] } }
+        )
+
+        sadChats = await factories.conversationFactory.createList(3,
+          { type: ConversationType.PUBLIC },
+          { transient: { tags: ["sad"] } }
+        )
+
+        coolChats = await factories.conversationFactory.createList(3,
+          { type: ConversationType.PUBLIC },
+          { transient: { tags: ["cool"] } }
+        )
+      })
+
+      it('should filter by tag ids', async () => {
+        const { data, errors } : any = await gqlAgent.query({
+          query: gql`
+            query getConversations {
+              conversations(tagIds: [${funTag.id}, ${coolTag.id}]) {
+                id
+                tags {
+                  name
+                }
+              }
+            }
+          `
+        })
+
+        expect(errors).to.be.undefined
+
+        const chatIds = _.uniq(_.map(data.conversations, 'id'));
+        const expectedIds = _.map([...funChats, ...coolChats], 'id');
+        const undesiredIds = _.map(sadChats, 'id');
+
+        expect(chatIds.length).to.eq(6);
+        expect(chatIds).to.include.members(expectedIds);
+        expect(chatIds).not.to.include.members(undesiredIds);
+      });
+    });
+  });
 
   describe('Pagination', () => {
     let user : Staff
@@ -213,7 +278,7 @@ describe('GraphQL Conversations Query', () => {
           customerId: customer.id,
           type: ConversationType.CUSTOMER
         },
-        { transient: { members: [user] }
+        { transient: { members: [user], tags: ["fun", "cool"] }
       })
 
       message = await factories.messageFactory.create({
@@ -313,6 +378,29 @@ describe('GraphQL Conversations Query', () => {
       expect(data.conversations[0].readReceipts[0].id).to.eq(id)
       expect(data.conversations[0].readReceipts[0].userId).to.eq(customer.id)
       expect(data.conversations[0].readReceipts[0].userType).to.eq(AuthorType.CUSTOMER)
+    })
+
+    it('supports reading the tags of a conversation', async () => {
+      const { data, errors } : any = await gqlAgent.query({
+        query: gql`
+          query getConversations {
+            conversations {
+              id
+              tags {
+                name
+              }
+            }
+          }
+        `
+      })
+
+      expect(errors).to.be.undefined
+      expect(data.conversations).to.be.of.length(1)
+      expect(data.conversations[0].id).to.eq(conversation.id)
+      expect(data.conversations[0].tags).to.have.lengthOf(2)
+      expect(
+        _.map(data.conversations[0].tags, 'name')
+      ).to.include.members(["fun", "cool"])
     })
 
     it('returns the messages ordered by most recent first by default', async () => {
