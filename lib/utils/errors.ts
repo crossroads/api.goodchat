@@ -36,6 +36,22 @@ function guessErrorType(status: number) : ErrorTypes {
   return typesPerStatus[status] || ErrorTypes.DEFAULT;
 }
 
+function isSunshineError(obj: any) : boolean {
+  return Boolean(
+    obj?.status && (obj?.details || obj?.body)
+  );
+}
+
+function getSunshineError(obj : any) : string {
+  return _.get(obj, 'details.body.errors[0].title',
+    _.get(obj, 'body.errors[0].title', 'errors.unknown')
+  );
+}
+
+function getSunshineStatus(obj : any) : number {
+  return obj.status;
+}
+
 /**
  * Generic error class with serialization options
  *
@@ -110,9 +126,15 @@ export function wrapError(err: unknown) : GoodchatError {
       err.message,
       Number(err.response?.status || 500),
       err.response?.data || {}
-    )
+    );
   }
 
+  if (isSunshineError(err)) {
+    return new GoodchatError(
+      getSunshineError(err),
+      getSunshineStatus(err)
+    );
+  }
 
   const status  = Number(_.get(err, 'status',   500));
   const message = String(_.get(err, 'message',  'errors.unknown'));

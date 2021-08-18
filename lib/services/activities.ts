@@ -1,9 +1,10 @@
 import { AuthorType, Conversation, ReadReceipt, Staff }  from "@prisma/client"
-import { throwForbidden }                                from "../utils/errors"
+import { throwForbidden, throwUnprocessable, unsafe }                                from "../utils/errors"
 import { ActivitiesApi }                                 from "sunshine-conversations-client"
 import { abilities }                                     from "./abilities"
 import config                                            from "../config"
 import db                                                from "../db"
+import _                                                 from "lodash"
 
 export function activities(staff: Staff) {
 
@@ -12,14 +13,14 @@ export function activities(staff: Staff) {
 
   // --- Helpers
 
-  const triggerSunshineActivity = (sunshineConversationId: string, type: string) => {
+  const triggerSunshineActivity = unsafe(async (sunshineConversationId: string, type: string) => {
     return sunshineActivities.postActivity(config.smoochAppId, sunshineConversationId, {
       "author": {
         "type": "business"
       },
       "type": type
     });
-  }
+  });
 
   // --- API
 
